@@ -1,0 +1,28 @@
+# Dependencies
+node_modules/
+*/node_modules/
+
+# External repositories (directories with their own .git)
+# These are cloned repos for outlier.ai tasks - local only, not tracked by main repo
+# Add specific paths as needed, e.g.:
+# project-1/external-repo/
+# project-2/vendor-repo/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+*.log
+npm-debug.log*
+
+# Environment
+.env
+.env.local
+.env.*.local
