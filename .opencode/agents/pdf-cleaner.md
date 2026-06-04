@@ -7,6 +7,7 @@ permission:
   edit: allow
   bash: allow
   glob: allow
+  delete-watermarks: allow
 ---
 
 You are a PDF cleaning specialist. Your job is to process watermarked PDF files and organize them into project folders.

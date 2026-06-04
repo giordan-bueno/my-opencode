@@ -23,15 +23,34 @@ After Step 1 completes successfully, delegate to the **@git-committer** subagent
 - Commit the new `$1/` folder and clean PDFs to the main workspace repository
 - Use commit message: `feat($1): set up new project with cleaned PDFs`
 
-## Step 3: Create project AGENTS.md
+## Step 3: Create project AGENTS.md and identify subagents
 
 After Step 2 completes successfully, delegate to the **@project-setup** subagent with these instructions:
 - Project folder: $1/
 - Read all clean PDF files inside the `$1/` folder
-- Analyze the project rules and create `$1/AGENTS.md`
+- Create a **lean, principle-based** `$1/AGENTS.md` (~60 lines) that serves as a routing layer
+- Create detailed reference docs in `$1/docs/` folder:
+  - `workflow.md` - Step-by-step workflows from the PDFs
+  - `tech-stack.md` - Setup instructions, dependencies, configuration
+  - `standards.md` - Coding standards, conventions, constraints
+  - Additional docs as needed for complex topics
+- The AGENTS.md should include: Project Context, Decision Rules, Core Behaviors, Autonomy Levels, Workflows (concise), User vs AI Responsibilities, and Reference pointers to the docs/ folder
+- Follow the principle: "AGENTS.md is a routing layer, not an encyclopedia"
+- **After creating AGENTS.md**, analyze the PDFs to identify distinct task types that warrant dedicated subagents
+- **Always propose a coordinator subagent** (`$1_coordinator`) that orchestrates the other subagents
+- For each identified subagent (one at a time):
+  - Present proposal to user with: name (`$1_<role>`), model (fast/balanced/reasoning), purpose, and complexity reasoning
+  - Wait for explicit approval before creating
+  - If approved: Create `$1_<role>.md` in `.opencode/agents/` with role-specific prompt
+  - If rejected: Skip without asking why, continue to next proposed subagent
+- **No maximum limit**: Create as many subagents as the PDFs require
+- **Non-overlapping responsibilities**: Each subagent must have a single, well-defined scope. No two subagents should handle the same task type.
+- Use underscore naming convention: `$1_<role>.md`
+- Model selection: fast for mechanical tasks, reasoning for coding/testing, balanced for setup/config and coordination
+- After all subagents are processed, update `$1/AGENTS.md` with a "Project Subagents" section listing all created subagents
 
-## Step 4: Commit project AGENTS.md
+## Step 4: Commit project AGENTS.md and subagents
 
 After Step 3 completes successfully, delegate to the **@git-committer** subagent with these instructions:
-- Commit the new `$1/AGENTS.md` to the main workspace repository
-- Use commit message: `docs($1): add project rules from instruction PDFs`
+- Commit the new `$1/AGENTS.md` and any created subagent files to the main workspace repository
+- Use commit message: `docs($1): add project rules and subagents from instruction PDFs`

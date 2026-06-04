@@ -24,22 +24,43 @@ After Step 1 completes successfully, delegate to the **@git-committer** subagent
 - Commit the new clean PDFs to the main workspace repository
 - Use commit message: `chore($1): add cleaned PDFs from update`
 
-## Step 3: Update project AGENTS.md
+## Step 3: Update project AGENTS.md and manage subagents
 
 After Step 2 completes successfully, delegate to the **@project-setup** subagent with these instructions:
 - Project folder: $1/
-- Read the existing `$1/AGENTS.md` first to understand current rules.
+- Read the existing `$1/AGENTS.md` first to understand current rules and structure.
+- Read existing reference docs in `$1/docs/` to understand what's already documented.
+- Check existing subagents in `.opencode/agents/` that match the pattern `$1_*.md` to understand current subagent setup.
 - Then read the newly added clean PDF files in the `$1/` folder.
-- Compare the new PDF content with the existing AGENTS.md rules.
-- **Merge** the new information into the existing AGENTS.md:
-  - Add any new rules, steps, or constraints not already present.
-  - Update any rules that have changed or been clarified in the new PDFs.
-  - Keep existing rules that are not contradicted by the new PDFs.
-  - Do NOT remove existing rules unless the new PDFs explicitly contradict them.
-- Preserve the existing AGENTS.md structure and formatting.
+- Compare the new PDF content with the existing AGENTS.md, reference docs, and subagents.
+- **Merge** the new information while maintaining the lean routing layer approach:
+  - Update `$1/AGENTS.md` only if new principles, behaviors, or autonomy rules are needed (keep it ~60 lines)
+  - Add or update reference docs in `$1/docs/` for detailed workflows, tech stack changes, or new standards
+  - Add any new rules, steps, or constraints not already present
+  - Update any rules that have changed or been clarified in the new PDFs
+  - Keep existing rules that are not contradicted by the new PDFs
+  - Do NOT remove existing rules unless the new PDFs explicitly contradict them
+- **Identify new subagents** needed based on new PDF content:
+  - Analyze new PDFs for distinct task types not covered by existing subagents
+  - If no coordinator subagent exists (`$1_coordinator`), propose one
+  - For each new subagent needed (one at a time):
+    - Present proposal to user with: name (`$1_<role>`), model (fast/balanced/reasoning), purpose, and complexity reasoning
+    - Wait for explicit approval before creating
+    - If approved: Create `$1_<role>.md` in `.opencode/agents/` with role-specific prompt
+    - If rejected: Skip without asking why, continue to next proposed subagent
+  - **No maximum limit**: Create as many subagents as the PDFs require
+  - **Non-overlapping responsibilities**: Each subagent must have a single, well-defined scope. No two subagents should handle the same task type.
+  - Use underscore naming convention: `$1_<role>.md`
+  - Model selection: fast for mechanical tasks, reasoning for coding/testing, balanced for setup/config and coordination
+- **Update existing subagents** if their responsibilities have changed:
+  - If new PDFs clarify or expand an existing subagent's role, update its prompt
+  - If new PDFs contradict an existing subagent's instructions, update to reflect new information
+- After all subagent changes, update `$1/AGENTS.md` "Project Subagents" section to reflect current state
+- Preserve the existing AGENTS.md structure and formatting
+- Remember: "AGENTS.md is a routing layer, not an encyclopedia"
 
-## Step 4: Commit updated AGENTS.md
+## Step 4: Commit updated AGENTS.md and subagents
 
 After Step 3 completes successfully, delegate to the **@git-committer** subagent with these instructions:
-- Commit the updated `$1/AGENTS.md` to the main workspace repository
-- Use commit message: `docs($1): update project rules from new instruction PDFs`
+- Commit the updated `$1/AGENTS.md` and any created/updated subagent files to the main workspace repository
+- Use commit message: `docs($1): update project rules and subagents from new instruction PDFs`

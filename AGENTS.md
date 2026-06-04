@@ -12,7 +12,7 @@ I manage multiple outlier.ai projects for AI training. Each project has individu
 
 When facing ambiguity:
 1. **Action over asking** - For reversible changes, execute and show results
-2. **Explanatory** - Explain the changes you made when completing them.
+2. **Explanatory** - Explain the changes you made when completing them, but not too long paragraphs.
 3. **Principles over lists** - Generalize from core principles, don't memorize edge cases
 4. **Confirm before irreversible** - Ask before deleting data, force-pushing, or external API calls
 
@@ -40,15 +40,27 @@ When facing ambiguity:
 ## Workspace Structure
 
 ```
-my-opencode/                    ← Main repo (your GitHub backup)
-├── .agents/skills              ← Skills for the agents
-├── .opencode/                  ← Tools, agents, commands
-├── <project-name>/             ← One folder per outlier.ai project
-│   ├── AGENTS.md               ← Project-specific rules
-│   ├── *.pdf                   ← Clean instruction PDFs
-│   └── [external-repo]/        ← Optional: cloned repos (local-only, in .gitignore)
-├── docs                        ← Specific documentation for specific tasks
-└── AGENTS.md                   ← This file
+my-opencode/                         ← Main repo (your GitHub backup)
+├── .agents/skills/                  ← Installed skills (git-commit, etc.)
+├── .opencode/
+│   ├── agents/                       ← All subagent definitions (global + project)
+│   │   ├── pdf-cleaner.md            ← Global: PDF cleaning subagent
+│   │   ├── project-setup.md          ← Global: project setup subagent
+│   │   ├── git-committer.md          ← Global: commit handling subagent
+│   │   ├── docs/                     ← Reference docs for subagent prompts
+│   │   │   └── project-setup/       ← Ref docs loaded on demand by @project-setup
+│   │   └── <project>_<role>.md       ← Dynamic: created per-project by @project-setup
+│   ├── commands/                     ← Custom commands (new-project, update-project)
+│   ├── tools/                        ← Custom tools (delete-watermarks)
+│   └── package.json                  ← Plugin dependencies (OpenCode reads this)
+├── <project-name>/                   ← One folder per outlier.ai project
+│   ├── AGENTS.md                     ← Project-specific rules + subagent routing
+│   ├── *.pdf                         ← Clean instruction PDFs
+│   ├── docs/                         ← Detailed reference docs (loaded on demand)
+│   └── [external-repo]/             ← Optional: cloned repos (local-only, in .gitignore)
+├── docs/                             ← Workspace-level reference docs
+│   └── workflow.md                   ← Git workflow reference
+└── AGENTS.md                         ← This file
 ```
 
 ## Workflows
@@ -67,15 +79,24 @@ my-opencode/                    ← Main repo (your GitHub backup)
 
 **Auto-detect**: Nested `.git/` folder = external repo. No `.git/` = main repo.
 
+**Project subagents**: When `@project-setup` creates new subagents, the `.md` files go into `.opencode/agents/` (tracked in main repo, committed alongside project setup changes).
+
 ## Subagents
 
+**Global** (always available):
 - **@pdf-cleaner** - Cleans watermarked PDFs, creates project folders
-- **@project-setup** - Reads PDFs, creates/updates project AGENTS.md
+- **@project-setup** - Reads PDFs, creates/updates project AGENTS.md and project subagents
 - **@git-committer** - Handles commits for both main and external repos
+
+**Project-specific** (dynamic, created by @project-setup per project):
+- **@<project>_coordinator** - Routes tasks to the right project subagent
+- **@<project>_<role>** - Project-specific subagents (coder, tester, etc.)
+- Stored in `.opencode/agents/<project>_<role>.md`, tracked in main repo
 
 ## Reference (load when needed)
 
 - Tool details: `.opencode/tools/` directory
 - Subagent definitions: `.opencode/agents/` directory
+- Subagent reference docs: `.opencode/agents/docs/` directory
 - Command definitions: `.opencode/commands/` directory
-- Git commit skill: `.agents/skills/git-commit/SKILL.md`
+- Git commit skill: `.agents/skills/git-commit/SKILL.md` (generic commit skill; the @git-committer subagent wraps this with workspace-specific logic)
