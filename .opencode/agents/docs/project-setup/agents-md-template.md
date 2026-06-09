@@ -106,7 +106,9 @@ Task Folder: <project-name>/<task-folder-name>/
 
 ## Per-Project .gitignore
 
-Create a `.gitignore` inside each project folder with this content:
+**Note**: The per-project `.gitignore` is created by @pdf-cleaner during project setup (Step 1), before any commits. Do NOT recreate it in @project-setup.
+
+Each project folder has a `.gitignore` with this content:
 
 ```gitignore
 # Ignore everything by default

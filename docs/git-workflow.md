@@ -12,8 +12,11 @@ This workspace uses a **two-repository structure** to separate project managemen
 - Project folders and their contents
 - Clean (watermark-free) PDFs
 - AGENTS.md files (workspace and project-level)
-- Workspace configuration (opencode.json, .opencode/)
-- Documentation (docs/)
+- PROGRESS.md files (task progress tracking)
+- Subtask templates and reference docs (docs/ folders)
+- Workspace configuration (`.opencode/`)
+
+**Push destination**: Your own GitHub repository (for backup/sync across PCs)
 
 **Push destination**: Your own GitHub repository (for backup/sync across PCs)
 
@@ -182,12 +185,38 @@ The **@git-committer** subagent handles commits automatically:
 
 ## Gitignore Configuration
 
+### Root .gitignore
+
 The root `.gitignore` file excludes:
 - `node_modules/` - Dependencies
-- External repos - Add specific paths as needed (e.g., `project-1/external-repo/`)
+- `package-lock.json`, `skills-lock.json` - Lock files
 - OS files - `.DS_Store`, `Thumbs.db`
 - IDE files - `.vscode/`, `.idea/`
 - Environment files - `.env`, `.env.local`
+
+### Per-Project .gitignore
+
+Each project folder has its own `.gitignore` that uses a whitelist pattern:
+
+```gitignore
+# Ignore everything by default
+*
+
+# But track these specific files/folders
+!.gitignore
+!AGENTS.md
+!PROGRESS.md
+!docs/
+!docs/**
+!*.pdf
+```
+
+This ensures:
+- Task folders (with external repos) are automatically ignored regardless of naming
+- Only explicitly tracked files are committed
+- No need to manually add task folders to gitignore
+
+**Important**: The `.gitignore` is created by @pdf-cleaner during project setup (Step 1) before any commits, ensuring git tracking works correctly from the start.
 
 ### Adding External Repos to Gitignore
 

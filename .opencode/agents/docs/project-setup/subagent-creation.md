@@ -50,6 +50,8 @@ For each identified subagent:
 
 Use underscore pattern: `<project>_<role>.md`
 
+**Important**: When creating subagent files, replace all `<project>` and `<project-name>` placeholders in the template with the actual project name. Subagent prompts reference `<project>/PROGRESS.md`, `<project>/docs/subtasks.md`, etc. — these must use the real project folder name, not the placeholder.
+
 Examples:
 - `data_pipeline_extractor.md`
 - `data_pipeline_validator.md`

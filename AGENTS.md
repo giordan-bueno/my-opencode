@@ -50,13 +50,13 @@ my-opencode/                         ← Main repo (your GitHub backup)
 │   │   ├── docs/                     ← Reference docs for subagent prompts
 │   │   │   └── project-setup/       ← Ref docs loaded on demand by @project-setup
 │   │   └── <project>_<role>.md       ← Dynamic: created per-project by @project-setup
-│   ├── commands/                     ← Custom commands (new-project, update-project)
+│   ├── commands/                     ← Custom commands (new-project, update-project, start-task)
 │   ├── tools/                        ← Custom tools (delete-watermarks)
 │   └── package.json                  ← Plugin dependencies (OpenCode reads this)
 ├── <project-name>/                   ← One folder per outlier.ai project
 │   ├── AGENTS.md                     ← Project rules + subagent routing
 │   ├── PROGRESS.md                   ← Task progress tracker (tracked by git)
-│   ├── .gitignore                    ← Ignores task folders, tracks .md, docs/, *.pdf
+│   ├── .gitignore                    ← Created by @pdf-cleaner; ignores task folders, tracks .md, docs/, *.pdf
 │   ├── docs/
 │   │   ├── subtasks.md               ← Subtask template for every task in this project
 │   │   ├── workflow.md               ← Detailed workflows
@@ -75,16 +75,19 @@ my-opencode/                         ← Main repo (your GitHub backup)
 Each project has a **subtask template** (`docs/subtasks.md`) defining the ordered steps every task must follow. When the user starts a new task:
 
 1. **User creates task folder** — e.g., `project-x/fix-auth-bug/` and clones the repo
-2. **User invokes coordinator** — "Work on project-x, task fix-auth-bug"
-3. **Coordinator** reads `docs/subtasks.md`, creates/resets the `Active Task` header in `PROGRESS.md`, starts routing subagents
-4. **Subagents** read `PROGRESS.md` to find the active task and folder, do their work, update `PROGRESS.md` when done
-5. **Coordinator** reads `PROGRESS.md` to determine next subtask and subagent
+2. **User runs** `/start-task project-x fix-auth-bug`
+3. **/start-task verifies** prerequisites (project folder, coordinator, subtask template, task folder exist)
+4. **Coordinator** reads `docs/subtasks.md`, creates/resets the `Active Task` header in `PROGRESS.md`, starts routing subagents
+5. **Subagents** read `PROGRESS.md` to find the active task and folder, do their work, update `PROGRESS.md` when done
+6. **Coordinator** reads `PROGRESS.md` to determine next subtask and subagent
 
 ## Workflows
 
 **New project**: `/new-project <name> <file1.pdf> [file2.pdf ...]`
 
 **Update project**: `/update-project <name> <file1.pdf> [file2.pdf ...]`
+
+**Start a task**: `/start-task <project-name> <task-folder-name>`
 
 **Working on a project**: Read `<project-name>/AGENTS.md` for context and rules.
 

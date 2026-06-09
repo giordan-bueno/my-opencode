@@ -36,7 +36,7 @@ This workspace has TWO types of git repositories:
 ## Commit Workflow
 
 ### For Main Workspace Changes
-When committing project setup files (PDFs, AGENTS.md, configs):
+When committing project setup files (PDFs, AGENTS.md, configs, PROGRESS.md):
 ```bash
 # Stage the relevant project files
 git add <project-name>/
@@ -44,6 +44,8 @@ git add <project-name>/
 # Commit with conventional message
 git commit -m "<type>(<project-name>): <description>"
 ```
+
+**Per-project .gitignore**: Each project folder has a `.gitignore` that uses a whitelist pattern (`*` then `!file` negations). This means `git add <project-name>/` will only stage whitelisted files (AGENTS.md, PROGRESS.md, .gitignore, docs/, *.pdf). Task folders and external repos are automatically ignored.
 
 Common commit types for main repo:
 - `feat(project-name)`: New project setup

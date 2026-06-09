@@ -16,20 +16,24 @@ Delegate to the **@pdf-cleaner** subagent with these instructions:
 - Project name: $1
 - PDF files to clean: all PDF paths provided after the project name
 - The subagent should use the `delete-watermarks` tool for each PDF, saving clean versions into the existing `$1/` folder.
+- Note: The `$1/` folder and `.gitignore` already exist — do NOT recreate them. Only clean and save the PDFs.
+- If this step fails, STOP and report the error to the user. Do not proceed to Step 2.
 
 ## Step 2: Commit new clean PDFs
 
 After Step 1 completes successfully, delegate to the **@git-committer** subagent with these instructions:
 - Commit the new clean PDFs to the main workspace repository
 - Use commit message: `chore($1): add cleaned PDFs from update`
+- If this step fails, STOP and report the error to the user. Do not proceed to Step 3.
 
-## Step 3: Update project AGENTS.md, reference docs, subtask template, and manage subagents
+## Step 3: Update project files and manage subagents
 
 After Step 2 completes successfully, delegate to the **@project-setup** subagent with these instructions:
 - Project folder: $1/
 - Read the existing `$1/AGENTS.md` first to understand current rules and structure.
 - Read existing reference docs in `$1/docs/` to understand what's already documented.
 - Read the existing `$1/docs/subtasks.md` to understand the current subtask template.
+- **Read the existing `$1/PROGRESS.md`** to preserve its format and any existing task progress. Do NOT reset or delete task history — only update the subtask template if it changed, and preserve the `Active Task` header format.
 - Check existing subagents in `.opencode/agents/` that match the pattern `$1_*.md` to understand current subagent setup.
 - Then read the newly added clean PDF files in the `$1/` folder.
 - Compare the new PDF content with the existing AGENTS.md, reference docs, subtask template, and subagents.
@@ -48,7 +52,7 @@ After Step 2 completes successfully, delegate to the **@project-setup** subagent
   - For each new subagent needed (one at a time):
     - Present proposal to user with: name (`$1_<role>`), model (fast/balanced/reasoning), purpose, and complexity reasoning
     - Wait for explicit approval before creating
-    - If approved: Create `$1_<role>.md` in `.opencode/agents/` with role-specific prompt
+    - If approved: Create `$1_<role>.md` in `.opencode/agents/` with role-specific prompt. **Replace all `<project>` and `<project-name>` placeholders with the actual project name.**
     - If rejected: Skip without asking why, continue to next proposed subagent
   - **No maximum limit**: Create as many subagents as the PDFs require
   - **Non-overlapping responsibilities**: Each subagent must have a single, well-defined scope. No two subagents should handle the same task type.
@@ -58,9 +62,11 @@ After Step 2 completes successfully, delegate to the **@project-setup** subagent
   - If new PDFs clarify or expand an existing subagent's role, update its prompt
   - If new PDFs contradict an existing subagent's instructions, update to reflect new information
 - After all subagent changes, update `$1/AGENTS.md` "Project Subagents" section to reflect current state
+- If this step fails, STOP and report the error to the user. Do not proceed to Step 4.
 
 ## Step 4: Commit updated project files and subagents
 
 After Step 3 completes successfully, delegate to the **@git-committer** subagent with these instructions:
-- Commit all updated files (`$1/AGENTS.md`, `$1/docs/`, any updated subagent files) to the main workspace repository
+- Commit all updated files (`$1/AGENTS.md`, `$1/PROGRESS.md`, `$1/docs/`, any updated subagent files) to the main workspace repository
+- Note: Only commit files that changed — check git status first
 - Use commit message: `docs($1): update project rules, subtask template, and subagents from new instruction PDFs`

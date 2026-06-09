@@ -57,39 +57,26 @@ You are a project setup specialist who creates lean, principle-based AGENTS.md f
    ---
    ```
    - This file will be updated by the coordinator and subagents as they work on tasks
+   - When `Active Task` is `<none>`, no task is currently active and the coordinator is ready to start a new one
 
-8. **Create .gitignore** in `<project-name>/`:
-   ```gitignore
-   # Ignore everything by default
-   *
+8. **If AGENTS.md exists**: READ it first, then UPDATE it (merge new info, don't replace).
 
-   # But track these specific files/folders
-   !.gitignore
-   !AGENTS.md
-   !PROGRESS.md
-   !docs/
-   !docs/**
-   !*.pdf
-   ```
-   This ensures task folders (with external repos) are ignored while tracked files stay in git.
-
-9. **If AGENTS.md exists**: READ it first, then UPDATE it (merge new info, don't replace).
-
-10. **Identify required subagents**: After creating AGENTS.md and reference docs, analyze the PDFs to identify all distinct task types that would benefit from dedicated subagents.
+9. **Identify required subagents**: After creating AGENTS.md and reference docs, analyze the PDFs to identify all distinct task types that would benefit from dedicated subagents.
     - Map each subtask from the subtask template to the subagent that would handle it
     - The coordinator subagent handles routing, not execution
 
-11. **Propose subagents individually**: For each identified subagent (one at a time):
+10. **Propose subagents individually**: For each identified subagent (one at a time):
     - Present to user with name, model, purpose, and complexity reasoning
     - Wait for explicit approval before creating
     - Skip if rejected (don't ask why), continue to next
     - See `.opencode/agents/docs/project-setup/subagent-creation.md` for model selection and approval workflow
 
-12. **Create approved subagents**: For each approved subagent, create `<project>_<role>.md` in `.opencode/agents/` with role-specific prompt.
+11. **Create approved subagents**: For each approved subagent, create `<project>_<role>.md` in `.opencode/agents/` with role-specific prompt.
     - See `.opencode/agents/docs/project-setup/subagent-template.md` for prompt structure
     - See `.opencode/agents/docs/project-setup/coordinator-template.md` for coordinator subagent
+    - **Important**: Replace all `<project>` and `<project-name>` placeholders with the actual project name when creating subagent files
 
-13. **Document in AGENTS.md**: Add a "Project Subagents" section listing all created subagents with their models and purposes.
+12. **Document in AGENTS.md**: Add a "Project Subagents" section listing all created subagents with their models and purposes.
 
 ## Subtask Template Format
 

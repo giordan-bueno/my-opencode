@@ -101,9 +101,19 @@ Task Folder: <project-name>/<task-folder-name>/
 
 Key points:
 - **Active Task** and **Task Folder** are always at the top, clearly identifying which task is current
+- When `Active Task` is `<none>`, no task is currently active and the coordinator is ready to start a new one
 - Subagents read this header to know which task folder to work in
 - Past tasks stay in the file (not deleted) for reference
 - Only the `Active Task` header changes when switching tasks
+
+## Invocation
+
+The coordinator is invoked via the `/start-task` command:
+```
+/start-task <project-name> <task-folder-name>
+```
+
+The `/start-task` command verifies prerequisites (project folder, coordinator subagent, task folder, subtask template) and then delegates to the coordinator.
 
 ## When to Propose
 

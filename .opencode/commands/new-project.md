@@ -10,18 +10,21 @@ A new outlier.ai project needs to be set up. Here are the details:
 
 Execute the following steps in order:
 
-## Step 1: Clean PDFs and create project folder
+## Step 1: Clean PDFs, create project folder and .gitignore
 
 Delegate to the **@pdf-cleaner** subagent with these instructions:
 - Project name: $1
 - PDF files to clean: all PDF paths provided after the project name
 - The subagent should use the `delete-watermarks` tool for each PDF, saving clean versions into the `$1/` folder.
+- The subagent should also create a `.gitignore` file inside the `$1/` folder with the standard project .gitignore template (ignore everything by default, un-ignore .gitignore, AGENTS.md, PROGRESS.md, docs/, docs/**, *.pdf).
+- If this step fails, STOP and report the error to the user. Do not proceed to Step 2.
 
-## Step 2: Commit new project folder and clean PDFs
+## Step 2: Commit project folder, .gitignore, and clean PDFs
 
 After Step 1 completes successfully, delegate to the **@git-committer** subagent with these instructions:
-- Commit the new `$1/` folder and clean PDFs to the main workspace repository
+- Commit the `$1/` folder (including .gitignore and clean PDFs) to the main workspace repository
 - Use commit message: `feat($1): set up new project with cleaned PDFs`
+- If this step fails, STOP and report the error to the user. Do not proceed to Step 3.
 
 ## Step 3: Create project AGENTS.md, reference docs, subtask template, and identify subagents
 
@@ -36,7 +39,7 @@ After Step 2 completes successfully, delegate to the **@project-setup** subagent
   - `standards.md` - Coding standards, conventions, constraints
   - Additional docs as needed for complex topics
 - Create `$1/PROGRESS.md` with initialized header (Active Task: none, Task Folder: none)
-- Create `$1/.gitignore` that ignores everything by default but un-ignores: .gitignore, AGENTS.md, PROGRESS.md, docs/, docs/**, *.pdf
+- NOTE: `$1/.gitignore` was already created by @pdf-cleaner in Step 1 — do NOT recreate it
 - The AGENTS.md should include: Project Context, Decision Rules, Core Behaviors, Autonomy Levels, Workspace Structure, Workflows, Progress Tracking section, User vs AI Responsibilities, and Reference pointers to the docs/ folder
 - Follow the principle: "AGENTS.md is a routing layer, not an encyclopedia"
 - **After creating AGENTS.md**, analyze the PDFs to identify distinct task types that warrant dedicated subagents
@@ -51,9 +54,11 @@ After Step 2 completes successfully, delegate to the **@project-setup** subagent
 - Use underscore naming convention: `$1_<role>.md`
 - Model selection: fast for mechanical tasks, reasoning for coding/testing, balanced for setup/config and coordination
 - After all subagents are processed, update `$1/AGENTS.md` with a "Project Subagents" section listing all created subagents
+- If this step fails, STOP and report the error to the user. Do not proceed to Step 4.
 
 ## Step 4: Commit project setup files and subagents
 
 After Step 3 completes successfully, delegate to the **@git-committer** subagent with these instructions:
-- Commit the `$1/AGENTS.md`, `$1/PROGRESS.md`, `$1/.gitignore`, `$1/docs/` folder, and any created subagent files to the main workspace repository
+- Commit the `$1/AGENTS.md`, `$1/PROGRESS.md`, `$1/docs/` folder, and any created subagent files (in `.opencode/agents/`) to the main workspace repository
+- Note: `$1/.gitignore` and `$1/*.pdf` were already committed in Step 2 — do NOT re-add unless they changed
 - Use commit message: `docs($1): add project rules, subtask template, and subagents from instruction PDFs`
