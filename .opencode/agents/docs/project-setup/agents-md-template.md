@@ -30,19 +30,46 @@ Use this template when creating project AGENTS.md files (~60 lines max):
 ```
 <project-name>/
 ├── AGENTS.md          ← This file (project rules)
-├── docs/              ← Detailed reference docs
+├── PROGRESS.md        ← Task progress tracker (active task + subtask status)
+├── .gitignore         ← Ignores task folders, tracks .md, docs/, *.pdf
+├── docs/
+│   ├── subtasks.md    ← Subtask template (ordered steps every task follows)
 │   ├── workflow.md
 │   ├── tech-stack.md
 │   ├── standards.md
 │   └── [other-docs].md
-├── *.pdf              ← Clean instruction PDFs
-└── [project-files]/
+├── <task-folder>/     ← One per task (user-created, gitignored)
+│   └── [external-repo]/  ← Cloned repo for this task (gitignored)
+└── *.pdf              ← Clean instruction PDFs
 ```
 
 ## Workflows
 [1-2 key workflows, concise]
 - **Task type A**: [brief description]
 - **Task type B**: [brief description]
+
+## Progress Tracking
+
+Each project has a `PROGRESS.md` file that tracks task progress. The format is:
+```markdown
+# Progress Tracker — <project-name>
+
+---
+Active Task: <task-folder-name>
+Task Folder: <project-name>/<task-folder-name>/
+---
+
+## <task-folder-name>
+- [x] 1. <subtask from template>
+  - <context notes from subagent>
+- [ ] 2. <subtask from template>
+- [ ] 3. <subtask from template>
+```
+
+- The **Active Task** header tells all subagents which task and folder to work on
+- Subtasks come from `docs/subtasks.md` template
+- Subagents update their subtask status and add context notes
+- Past tasks stay in the file for reference
 
 ## User vs AI Responsibilities
 
@@ -56,6 +83,7 @@ Use this template when creating project AGENTS.md files (~60 lines max):
 
 ## Project Subagents
 
+- **@<project>_coordinator** - Routes tasks to subagents, manages PROGRESS.md (model: balanced)
 - **@<project>_<role1>** - [purpose] (model: [fast/balanced/reasoning])
 - **@<project>_<role2>** - [purpose] (model: [fast/balanced/reasoning])
 
@@ -63,6 +91,7 @@ Use this template when creating project AGENTS.md files (~60 lines max):
 - Detailed workflow: `docs/workflow.md`
 - Tech stack setup: `docs/tech-stack.md`
 - Coding standards: `docs/standards.md`
+- Subtask template: `docs/subtasks.md`
 - [Other project-specific docs]
 ```
 
@@ -74,3 +103,22 @@ Use this template when creating project AGENTS.md files (~60 lines max):
 - **Include specific commands/paths** in reference docs, not main file
 - **When ambiguous**, default to documenting how the AI can assist the user
 - **Create reference docs** for any topic that needs more than 3-4 lines
+
+## Per-Project .gitignore
+
+Create a `.gitignore` inside each project folder with this content:
+
+```gitignore
+# Ignore everything by default
+*
+
+# But track these specific files/folders
+!.gitignore
+!AGENTS.md
+!PROGRESS.md
+!docs/
+!docs/**
+!*.pdf
+```
+
+This ensures task folders (with their external repos) are automatically ignored regardless of naming, while tracked files stay in git.

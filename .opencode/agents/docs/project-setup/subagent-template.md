@@ -7,8 +7,22 @@ Each subagent prompt should include common elements plus role-specific elements.
 Every subagent prompt should include:
 - Project context (from AGENTS.md Project Context section)
 - Reference to `<project>/docs/` for detailed instructions
-- Workspace structure awareness
+- Reference to `<project>/PROGRESS.md` for task tracking
 - Autonomy levels appropriate to the role
+
+## Progress Tracking
+
+Every subagent MUST:
+1. **Before starting work**: Read `<project>/PROGRESS.md` to find the `Active Task` and `Task Folder` — this tells you which task to work on and where files live
+2. **After completing work**: Update `<project>/PROGRESS.md` — mark your subtask as `[x]` and add context notes (key files, findings, errors) under the subtask
+
+Example PROGRESS.md entry after a subagent completes:
+```markdown
+- [x] 3. Implement the fix
+  - Fixed auth validator in src/auth/validator.ts:42
+  - Added null check for empty email field
+  - All existing tests still pass
+```
 
 ## Role-Specific Elements
 
@@ -38,9 +52,14 @@ You are a [role] specialist for the [project-name] project.
 ## Your Responsibilities
 [Role-specific tasks from PDF analysis]
 
+## Progress Tracking
+1. **Before starting**: Read `<project>/PROGRESS.md` to find the Active Task and Task Folder
+2. **After completing**: Update `<project>/PROGRESS.md` — mark your subtask as `[x]` and add context notes
+
 ## Reference (load when needed)
 - Detailed instructions: `<project>/docs/[relevant-doc].md`
 - Project rules: `<project>/AGENTS.md`
+- Subtask template: `<project>/docs/subtasks.md`
 
 ## Autonomy Levels
 **Full autonomy**: [Role-appropriate actions]

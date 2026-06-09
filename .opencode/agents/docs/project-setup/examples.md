@@ -37,8 +37,59 @@
 - Points to detailed docs for implementation
 - Easy to scan and understand
 
+## Bad Example: Progress Tracking (No Context)
+
+```markdown
+## fix-auth-bug
+- [x] 1. Clone repo
+- [x] 2. Identify issue
+- [ ] 3. Fix the bug
+- [ ] 4. Run tests
+```
+
+**Problems**:
+- No Active Task header — subagents don't know which task to work on
+- No Task Folder — subagents don't know where files are
+- No context notes — next subagent has no idea what was found or done
+- Past and current tasks are indistinguishable
+
+## Good Example: Progress Tracking (Active Task Header + Context)
+
+```markdown
+# Progress Tracker — project-x
+
+---
+Active Task: fix-auth-bug
+Task Folder: project-x/fix-auth-bug/
+---
+
+## fix-auth-bug
+- [x] 1. Clone & navigate
+  - Repo cloned to fix-auth-bug/external-repo/, branch fix-auth
+- [x] 2. Identify issue
+  - Bug: auth validator crashes on empty email → src/auth/validator.ts:42
+- [ ] 3. Implement fix
+- [ ] 4. Run tests
+- [ ] 5. Verify no regressions
+
+## add-login-feature
+- [x] 1. Clone & navigate
+  - Repo cloned to add-login-feature/external-repo/, main branch
+- [x] 2. Identify scope
+  - Need: login form component, auth service, route guards
+- [ ] 3. Generate tests
+```
+
+**Benefits**:
+- Active Task header immediately tells subagents which task and folder
+- Context notes pass essential information between subagents
+- Past tasks stay visible for reference (not deleted)
+- Clear status on every subtask
+
 ## Key Takeaway
 
 The good version is a **routing layer** that points to detailed docs. The bad version tries to be an **encyclopedia** that includes everything inline.
+
+For PROGRESS.md: **Always include the Active Task header** and **always add context notes** — subagents are stateless and need this information passed explicitly.
 
 **Rule of thumb**: If a section needs more than 3-4 lines, move it to a reference doc in `<project>/docs/`.
