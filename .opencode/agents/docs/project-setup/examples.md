@@ -111,6 +111,41 @@ Please review the changes and confirm task completion, or request changes."
 
 The coordinator **never marks a task complete automatically** — it always waits for the user to confirm.
 
+## Good Example: Paused Task in History
+
+When a task is paused (e.g., outlier task expired), it moves to History with the `PAUSED` tag and all progress preserved:
+
+```markdown
+## History
+
+### fix-auth-bug — 2026-06-09 14:30 [PAUSED: task expired on outlier]
+- [x] 1. Clone & navigate
+  - Repo cloned to fix-auth-bug/external-repo/, branch fix-auth
+- [x] 2. Identify issue
+  - Bug: auth validator crashes on empty email → src/auth/validator.ts:42
+- [!] 3. Implement fix
+  - BLOCKED: auth module uses custom validator from @company/auth-lib — need clarification on expected behavior
+- [ ] 4. Run tests
+- [ ] 5. Verify — @project-x_reviewer
+
+### add-login-feature — 2026-06-08 16:45
+- [x] 1. Clone & navigate
+  - Repo cloned to add-login-feature/external-repo/, main branch
+- [x] 2. Identify scope
+  - Need: login form component, auth service, route guards
+- [x] 3. Implement feature
+  - Created LoginForm.tsx, AuthService.ts, RouteGuards.ts
+- [x] 4. Run tests
+  - All 23 tests passing
+- [x] 5. Verify — APPROVED
+  - Code follows standards, all requirements met.
+```
+
+**Key points**:
+- Paused tasks keep `[PAUSED: <reason>]` tag so they're easy to identify in History
+- All progress is preserved: `[x]` completed, `[!]` blocked, `[ ]` pending
+- Resuming with `/resume-task` moves the entry back to the active area and removes the `PAUSED` tag
+
 ## Key Takeaway
 
 The good version is a **routing layer** that points to detailed docs. The bad version tries to be an **encyclopedia** that includes everything inline.

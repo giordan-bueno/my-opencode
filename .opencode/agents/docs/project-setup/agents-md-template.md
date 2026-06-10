@@ -84,6 +84,7 @@ Task Folder: <project-name>/<task-folder-name>/
 - Subagents update their subtask status and add context notes
 - `[!]` means blocked — subagent cannot proceed, needs user intervention
 - Completed tasks move to the **History** section with timestamp
+- Paused tasks move to **History** with `[PAUSED: <reason>]` tag — can be resumed with `/resume-task`
 - History is ordered newest-first for easy identification
 
 ## User vs AI Responsibilities

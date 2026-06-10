@@ -50,7 +50,7 @@ my-opencode/                         ← Main repo (your GitHub backup)
 │   │   ├── docs/                     ← Reference docs for subagent prompts
 │   │   │   └── project-setup/       ← Ref docs loaded on demand by @project-setup
 │   │   └── <project>_<role>.md       ← Dynamic: created per-project by @project-setup
-│   ├── commands/                     ← Custom commands (new-project, update-project, start-task)
+│   ├── commands/                     ← Custom commands (new-project, update-project, start-task, pause-task, resume-task)
 │   ├── tools/                        ← Custom tools (delete-watermarks)
 │   └── package.json                  ← Plugin dependencies (OpenCode reads this)
 ├── <project-name>/                   ← One folder per outlier.ai project
@@ -85,6 +85,10 @@ Each project has a **subtask template** (`docs/subtasks.md`) defining the ordere
 8. **Completion gate** — coordinator reports to the user for final approval. Task is not marked complete until the user confirms.
 9. **Archive** — after user confirmation, the completed task moves to the `History` section of `PROGRESS.md`, Active Task resets to `<none>`
 
+### Pausing and Resuming Tasks
+
+If a task is interrupted (e.g., outlier task expires), use `/pause-task` to archive progress to History. The entry is tagged `[PAUSED: <reason>]` with all subtask status preserved. Later, `/resume-task` restores the exact progress from History and continues from the first incomplete subtask.
+
 ### Subtask Status Markers
 
 | Marker | Meaning | Action |
@@ -102,6 +106,10 @@ When a subtask is blocked (`[!]`), the coordinator reports the blocker to the us
 **Update project**: `/update-project <name> <file1.pdf> [file2.pdf ...]`
 
 **Start a task**: `/start-task <project-name> <task-folder-name>`
+
+**Pause a task** (archive progress, free up for new task): `/pause-task <project-name> <reason>`
+
+**Resume a task** (restore progress from History): `/resume-task <project-name> <task-folder-name>`
 
 **Working on a project**: Read `<project-name>/AGENTS.md` for context and rules.
 

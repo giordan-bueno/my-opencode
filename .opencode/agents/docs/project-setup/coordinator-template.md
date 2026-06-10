@@ -123,6 +123,19 @@ When ALL subtasks (including Verify) are marked `[x]` and the reviewer has appro
    c. Inform the user that the task is archived and PROGRESS.md is ready for the next task.
 5. If the user requests changes: Route to the appropriate subagent to address the feedback.
 
+### Resuming a Paused Task
+When a task is resumed from History (via `/resume-task`):
+1. The PROGRESS.md has already been updated by the `/resume-task` command — the task section is restored from History to the active area.
+2. Read the active task section to understand what was completed (`[x]`), what's pending (`[ ]`), and what's blocked (`[!]`).
+3. If there are `[!]` blocked subtasks, report them to the user and ask for guidance before continuing.
+4. Start routing from the first `[ ]` or `[!]` subtask — do NOT re-do completed `[x]` subtasks.
+5. If the task folder or external repo has changed since pausing, warn the user and suggest re-verification of context notes.
+
+### Pausing a Task
+When the user requests to pause a task (via `/pause-task`):
+1. The `/pause-task` command handles moving the active task to History with a `[PAUSED: <reason>]` tag.
+2. After the command completes, the coordinator should acknowledge the pause and confirm that `Active Task` is now `<none>`.
+
 ## Reference (load when needed)
 - Project rules: `<project>/AGENTS.md`
 - Subtask template: `<project>/docs/subtasks.md`
@@ -159,7 +172,22 @@ Task Folder: <project-name>/<task-folder-name>/
   - <context notes>
 - [x] N. Verify — APPROVED
   - All tests passing, code follows standards.
+
+### paused-task — 2026-06-08 11:15 [PAUSED: task expired on outlier]
+- [x] 1. <subtask from template>
+  - <context notes>
+- [!] 2. <blocked subtask>
+  - BLOCKED: <description of what's blocking>
+- [ ] 3. <subtask from template>
+- [ ] N. Verify — @<project>_reviewer
 ```
+
+### History Entry Types
+
+- **Completed tasks**: No special tag. All subtasks are `[x]`. Entry format: `### <task-name> — YYYY-MM-DD HH:MM`
+- **Paused tasks**: Tagged with `[PAUSED: <reason>]`. May have `[x]`, `[ ]`, and `[!]` subtasks. Entry format: `### <task-name> — YYYY-MM-DD HH:MM [PAUSED: <reason>]`
+
+When a paused task is resumed via `/resume-task`, its History entry is moved back to the active area and the `[PAUSED: <reason>]` tag is removed.
 
 ### Subtask Status Markers
 
@@ -180,12 +208,10 @@ Key points:
 
 ## Invocation
 
-The coordinator is invoked via the `/start-task` command:
-```
-/start-task <project-name> <task-folder-name>
-```
-
-The `/start-task` command verifies prerequisites (project folder, coordinator subagent, task folder, subtask template) and then delegates to the coordinator.
+The coordinator is invoked via these commands:
+- **Start new task**: `/start-task <project-name> <task-folder-name>` — verifies prerequisites, creates PROGRESS.md entries, starts routing
+- **Resume paused task**: `/resume-task <project-name> <task-folder-name>` — restores progress from History, continues from first incomplete subtask
+- **Pause current task**: `/pause-task <project-name> <reason>` — archives current task to History, resets Active Task to `<none>`
 
 ## When to Propose
 
