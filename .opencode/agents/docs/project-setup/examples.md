@@ -70,7 +70,7 @@ Task Folder: project-x/fix-auth-bug/
   - Bug: auth validator crashes on empty email → src/auth/validator.ts:42
 - [ ] 3. Implement fix
 - [ ] 4. Run tests
-- [ ] 5. Verify no regressions
+- [ ] 5. Verify — @project-x_reviewer: Run tests, check standards, confirm all requirements met
 
 ## add-login-feature
 - [x] 1. Clone & navigate
@@ -78,6 +78,8 @@ Task Folder: project-x/fix-auth-bug/
 - [x] 2. Identify scope
   - Need: login form component, auth service, route guards
 - [ ] 3. Generate tests
+- [ ] 4. Implement feature
+- [ ] 5. Verify — @project-x_reviewer: Run tests, check standards, confirm all requirements met
 ```
 
 **Benefits**:
@@ -85,6 +87,23 @@ Task Folder: project-x/fix-auth-bug/
 - Context notes pass essential information between subagents
 - Past tasks stay visible for reference (not deleted)
 - Clear status on every subtask
+- **Verify subtask is always the last step** — reviewer checks all work before completion gate
+
+## Good Example: Completion Gate
+
+After all subtasks (including Verify) are marked `[x]` and the reviewer approves:
+
+```
+Coordinator: "All subtasks completed for task 'fix-auth-bug'. Reviewer has approved.
+Summary:
+- Fixed auth validator crash on empty email (src/auth/validator.ts:42)
+- All tests passing (12/12)
+- No regressions detected
+
+Please review the changes and confirm task completion, or request changes."
+```
+
+The coordinator **never marks a task complete automatically** — it always waits for the user to confirm.
 
 ## Key Takeaway
 

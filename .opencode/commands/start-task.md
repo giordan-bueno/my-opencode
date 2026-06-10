@@ -34,11 +34,13 @@ Delegate to the **@${1}_coordinator** subagent with these instructions:
   Task Folder: $1/$2/
   ---
   ```
-- Add a new task section below the header using the subtask template:
+- Add a new task section below the header using the subtask template. The last subtask must always be the **Verify** step routed to the reviewer subagent:
   ```
   ## $2
   - [ ] 1. <subtask from template>
   - [ ] 2. <subtask from template>
   [... all subtasks from template]
+  - [ ] N. Verify — @${1}_reviewer: Run tests, check standards, confirm all requirements met
   ```
 - Begin routing the first subtask to the appropriate project subagent
+- After all subtasks (including Verify) are `[x]` and the reviewer approves, **report to the user for final approval** — do NOT mark the task complete automatically

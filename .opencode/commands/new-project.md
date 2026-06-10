@@ -44,6 +44,8 @@ After Step 2 completes successfully, delegate to the **@project-setup** subagent
 - Follow the principle: "AGENTS.md is a routing layer, not an encyclopedia"
 - **After creating AGENTS.md**, analyze the PDFs to identify distinct task types that warrant dedicated subagents
 - **Always propose a coordinator subagent** (`$1_coordinator`) that orchestrates the other subagents and manages PROGRESS.md
+- **Always propose a reviewer subagent** (`$1_reviewer`) for projects that involve coding — the reviewer verifies completed work, checks standards, runs tests. Model: reasoning (qwen3.7-max). See `.opencode/agents/docs/project-setup/reviewer-template.md`
+- Every subtask template in `$1/docs/subtasks.md` must end with a **Verify** step routed to the reviewer subagent
 - For each identified subagent (one at a time):
   - Present proposal to user with: name (`$1_<role>`), model (fast/balanced/reasoning), purpose, and complexity reasoning
   - Wait for explicit approval before creating

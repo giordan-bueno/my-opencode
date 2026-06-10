@@ -48,6 +48,8 @@ Use this template when creating project AGENTS.md files (~60 lines max):
 - **Task type A**: [brief description]
 - **Task type B**: [brief description]
 
+**Every task ends with a verification step**: The last subtask in every template is always "Verify" — routed to the reviewer subagent. After review, the coordinator reports to the user for final approval before marking the task complete.
+
 ## Progress Tracking
 
 Each project has a `PROGRESS.md` file that tracks task progress. The format is:
@@ -83,9 +85,9 @@ Task Folder: <project-name>/<task-folder-name>/
 
 ## Project Subagents
 
-- **@<project>_coordinator** - Routes tasks to subagents, manages PROGRESS.md (model: balanced)
+- **@<project>_coordinator** - Routes tasks to subagents, manages PROGRESS.md, handles completion gate (model: balanced)
 - **@<project>_<role1>** - [purpose] (model: [fast/balanced/reasoning])
-- **@<project>_<role2>** - [purpose] (model: [fast/balanced/reasoning])
+- **@<project>_reviewer** - Verifies completed work, checks standards, runs tests (model: reasoning)
 
 ## Reference (load when needed)
 - Detailed workflow: `docs/workflow.md`

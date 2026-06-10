@@ -5,16 +5,34 @@ After creating the project AGENTS.md and reference docs, analyze the PDFs to ide
 ## Model Selection Logic
 
 **Fast model** (`opencode-go/deepseek-v4-flash`) for:
-- Keywords: "user assistance", "checklist", "explanation", "guidance", "website", "outlier.ai", "review", "documentation"
+- Keywords: "user assistance", "checklist", "explanation", "guidance", "website", "outlier.ai", "documentation"
 - Tasks: Following procedures, providing explanations, assisting with website tasks
+- **NOT for**: code review, critical verification, quality assurance
 
 **Balanced model** (`opencode-go/qwen3.7-plus`) for:
 - Keywords: "setup", "configuration", "integration", "workflow", "coordination"
 - Tasks: Project setup, configuration, moderate complexity, task routing
 
 **Reasoning model** (`opencode-go/qwen3.7-max`) for:
-- Keywords: "coding", "implementation", "testing", "debugging", "refactoring", "analysis", "architecture"
-- Tasks: Code writing, test execution, complex problem-solving
+- Keywords: "coding", "implementation", "testing", "debugging", "refactoring", "analysis", "architecture", "review", "verification"
+- Tasks: Code writing, test execution, complex problem-solving, **code review and verification**
+
+## Common Subagent Types
+
+When analyzing the PDFs, look for these common patterns:
+
+**Always propose**:
+- **Coordinator** (`<project>_coordinator`) — orchestrates all other subagents, manages PROGRESS.md, handles routing. Model: balanced. See `coordinator-template.md`.
+
+**Propose for coding projects**:
+- **Coder** (`<project>_coder`) — implements code changes, writes tests. Model: reasoning.
+- **Reviewer** (`<project>_reviewer`) — verifies completed work, checks standards compliance, runs tests. Never edits code. Model: reasoning. Always proposed AFTER the coder. See `reviewer-template.md`.
+
+**Propose based on PDF content**:
+- **Tester** (`<project>_tester`) — runs and verifies test suites. Model: reasoning. If separate from coder.
+- **Navigator** (`<project>_navigator`) — assists user with outlier.ai website tasks. Model: fast.
+
+**Every coding project should have at least**: coordinator + coder + reviewer. The reviewer is the last subtask in every template — it verifies all work before the human completion gate.
 
 ## Approval Workflow
 

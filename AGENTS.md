@@ -72,7 +72,7 @@ my-opencode/                         ← Main repo (your GitHub backup)
 
 ## Task Workflow
 
-Each project has a **subtask template** (`docs/subtasks.md`) defining the ordered steps every task must follow. When the user starts a new task:
+Each project has a **subtask template** (`docs/subtasks.md`) defining the ordered steps every task must follow. Every template ends with a **Verify** step handled by the reviewer subagent. When the user starts a new task:
 
 1. **User creates task folder** — e.g., `project-x/fix-auth-bug/` and clones the repo
 2. **User runs** `/start-task project-x fix-auth-bug`
@@ -80,6 +80,8 @@ Each project has a **subtask template** (`docs/subtasks.md`) defining the ordere
 4. **Coordinator** reads `docs/subtasks.md`, creates/resets the `Active Task` header in `PROGRESS.md`, starts routing subagents
 5. **Subagents** read `PROGRESS.md` to find the active task and folder, do their work, update `PROGRESS.md` when done
 6. **Coordinator** reads `PROGRESS.md` to determine next subtask and subagent
+7. **Reviewer** verifies all work (last subtask): runs tests, checks standards, confirms requirements met
+8. **Completion gate** — coordinator reports to the user for final approval. Task is not marked complete until the user confirms.
 
 ## Workflows
 

@@ -30,6 +30,7 @@ Example PROGRESS.md entry after a subagent completes:
 - **User-help subagents**: Step-by-step procedures, explanation templates, website navigation guidance
 - **Testing subagents**: Test execution commands, validation criteria, error analysis
 - **Setup subagents**: Configuration steps, dependency management, environment setup
+- **Reviewer subagents**: See `.opencode/agents/docs/project-setup/reviewer-template.md` for the dedicated reviewer template
 
 ## General Subagent Prompt Template
 

@@ -90,9 +90,10 @@ Every task in this project follows these steps:
 1. **[Subtask name]** — @[subagent]: [Brief description]
 2. **[Subtask name]** — @[subagent]: [Brief description]
 [... more subtasks]
+N. **Verify** — @<project>_reviewer: Run tests, check code against standards, confirm all requirements met
 ```
 
-Each subtask should specify which subagent handles it. The coordinator uses this template to create PROGRESS.md entries for each new task.
+Each subtask should specify which subagent handles it. The last subtask must always be a **Verify** step handled by the reviewer subagent. The coordinator uses this template to create PROGRESS.md entries for each new task.
 
 ## Key Principles
 
@@ -112,4 +113,5 @@ Each subtask should specify which subagent handles it. The coordinator uses this
 - Subagent creation workflow: `.opencode/agents/docs/project-setup/subagent-creation.md`
 - Coordinator template: `.opencode/agents/docs/project-setup/coordinator-template.md`
 - Subagent prompt template: `.opencode/agents/docs/project-setup/subagent-template.md`
+- Reviewer template: `.opencode/agents/docs/project-setup/reviewer-template.md`
 - Good vs bad examples: `.opencode/agents/docs/project-setup/examples.md`
