@@ -56,7 +56,9 @@ Blocked subtask:
 ---
 description: [Role-specific description]
 mode: subagent
-model: [opencode-go/deepseek-v4-flash | qwen3.7-plus | qwen3.7-max]
+model: opencode-go/<primary>
+# tier: [fast/balanced/coding/reasoning]
+# fallback: opencode-go/<fallback1> [, opencode/<fallback2>]
 permission:
   read: allow
   edit: [allow/deny based on role]

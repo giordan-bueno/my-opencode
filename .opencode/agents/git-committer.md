@@ -2,6 +2,8 @@
 description: Fast subagent that handles git commits for both main workspace and external project repos. Automatically detects which repository to commit to based on context.
 mode: subagent
 model: opencode-go/deepseek-v4-flash
+# tier: fast
+# fallback: opencode/deepseek-v4-flash-free
 permission:
   read: allow
   bash: allow

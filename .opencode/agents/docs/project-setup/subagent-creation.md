@@ -4,33 +4,54 @@ After creating the project AGENTS.md and reference docs, analyze the PDFs to ide
 
 ## Model Selection Logic
 
-**Fast model** (`opencode-go/deepseek-v4-flash`) for:
+Four tiers with fallback chains. The `model:` frontmatter field uses the primary. Swap to a fallback manually if the primary is unavailable (rate-limited, down, etc.).
+
+| Tier | Primary | Fallback 1 (Go) | Fallback 2 (Zen Free) |
+|------|---------|------------------|------------------------|
+| **Fast** | `opencode-go/deepseek-v4-flash` | — | `opencode/deepseek-v4-flash-free` |
+| **Balanced** | `opencode-go/qwen3.7-plus` | `opencode-go/minimax-m3` | — |
+| **Coding** | `opencode-go/kimi-k2.6` | `opencode-go/qwen3.7-max` | — |
+| **Reasoning** | `opencode-go/glm-5.1` | `opencode-go/mimo-v2.5-pro` | `opencode/mimo-v2.5-free` |
+
+**Fast tier** (`opencode-go/deepseek-v4-flash`) for:
 - Keywords: "user assistance", "checklist", "explanation", "guidance", "website", "outlier.ai", "documentation"
-- Tasks: Following procedures, providing explanations, assisting with website tasks
+- Tasks: Following procedures, providing explanations, assisting with website tasks, git operations, PDF processing
+- Fallback: `opencode/deepseek-v4-flash-free` (Zen free tier, requires `/connect` setup)
 - **NOT for**: code review, critical verification, quality assurance
 
-**Balanced model** (`opencode-go/qwen3.7-plus`) for:
+**Balanced tier** (`opencode-go/qwen3.7-plus`) for:
 - Keywords: "setup", "configuration", "integration", "workflow", "coordination"
-- Tasks: Project setup, configuration, moderate complexity, task routing
+- Tasks: Project setup, configuration, task routing, tool calling, schema generation
+- Fallback: `opencode-go/minimax-m3` (reliable JSON structure and parameter adherence)
+- **NOT for**: code generation, architectural planning, critical verification
 
-**Reasoning model** (`opencode-go/qwen3.7-max`) for:
-- Keywords: "coding", "implementation", "testing", "debugging", "refactoring", "analysis", "architecture", "review", "verification"
-- Tasks: Code writing, test execution, complex problem-solving, **code review and verification**
+**Coding tier** (`opencode-go/kimi-k2.6`) for:
+- Keywords: "coding", "implementation", "debugging", "refactoring", "multi-file"
+- Tasks: Code writing, cross-dependency management, repository intelligence, multi-file code generation
+- Fallback: `opencode-go/qwen3.7-max` (flagship tool orchestration and edge-case handling)
+- **NOT for**: simple procedures, lightweight routing, architectural planning
+
+**Reasoning tier** (`opencode-go/glm-5.1`) for:
+- Keywords: "architecture", "review", "verification", "analysis", "planning", "complex logic"
+- Tasks: Architectural planning, complex analysis, code review, verification, deep reasoning
+- Fallback 1: `opencode-go/mimo-v2.5-pro` (deep context agent processing)
+- Fallback 2: `opencode/mimo-v2.5-free` (Zen free tier, 1M context window, requires `/connect` setup)
+- **NOT for**: routine procedures, file system reads, lightweight routing
 
 ## Common Subagent Types
 
 When analyzing the PDFs, look for these common patterns:
 
 **Always propose**:
-- **Coordinator** (`<project>_coordinator`) — orchestrates all other subagents, manages PROGRESS.md, handles routing. Model: balanced. See `coordinator-template.md`.
+- **Coordinator** (`<project>_coordinator`) — orchestrates all other subagents, manages PROGRESS.md, handles routing. Tier: balanced. See `coordinator-template.md`.
 
 **Propose for coding projects**:
-- **Coder** (`<project>_coder`) — implements code changes, writes tests. Model: reasoning.
-- **Reviewer** (`<project>_reviewer`) — verifies completed work, checks standards compliance, runs tests. Never edits code. Model: reasoning. Always proposed AFTER the coder. See `reviewer-template.md`.
+- **Coder** (`<project>_coder`) — implements code changes, writes tests. Tier: coding.
+- **Reviewer** (`<project>_reviewer`) — verifies completed work, checks standards compliance, runs tests. Never edits code. Tier: reasoning. Always proposed AFTER the coder. See `reviewer-template.md`.
 
 **Propose based on PDF content**:
-- **Tester** (`<project>_tester`) — runs and verifies test suites. Model: reasoning. If separate from coder.
-- **Navigator** (`<project>_navigator`) — assists user with outlier.ai website tasks. Model: fast.
+- **Tester** (`<project>_tester`) — runs and verifies test suites. Tier: coding. If separate from coder.
+- **Navigator** (`<project>_navigator`) — assists user with outlier.ai website tasks. Tier: fast.
 
 **Every coding project should have at least**: coordinator + coder + reviewer. The reviewer is the last subtask in every template — it verifies all work before the human completion gate.
 
@@ -41,9 +62,11 @@ For each identified subagent:
 1. **Present proposal** to user:
    ```
    Proposed subagent: @<project>_<role>
-   Model: [fast/balanced/reasoning] ([model-name])
+   Tier: [fast/balanced/coding/reasoning]
+   Model: opencode-go/<primary>
+   Fallback: opencode-go/<fallback1> [, opencode/<fallback2>]
    Purpose: [brief description from PDF analysis]
-   Complexity: [why this model was chosen - reference specific PDF keywords]
+   Complexity: [why this tier was chosen - reference specific PDF keywords]
    
    Approve? (y/n)
    ```
@@ -83,6 +106,6 @@ After creating subagents, add this section to the project AGENTS.md:
 ```markdown
 ## Project Subagents
 
-- **@<project>_<role1>** - [purpose] (model: [fast/balanced/reasoning])
-- **@<project>_<role2>** - [purpose] (model: [fast/balanced/reasoning])
+- **@<project>_<role1>** - [purpose] (tier: [fast/balanced/coding/reasoning])
+- **@<project>_<role2>** - [purpose] (tier: [fast/balanced/coding/reasoning])
 ```

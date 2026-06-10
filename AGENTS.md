@@ -123,16 +123,37 @@ When a subtask is blocked (`[!]`), the coordinator reports the blocker to the us
 
 **Project subagents**: When `@project-setup` creates new subagents, the `.md` files go into `.opencode/agents/` (tracked in main repo, committed alongside project setup changes).
 
+## Model Strategy
+
+Subagents use models from 4 tiers. The `model:` field in frontmatter is the primary; swap to a fallback manually if the primary is unavailable (rate-limited, down, etc.).
+
+| Tier | Primary | Fallback 1 (Go) | Fallback 2 (Zen Free) | Use For |
+|------|---------|------------------|-----------------------|---------|
+| **Fast** | `opencode-go/deepseek-v4-flash` | — | `opencode/deepseek-v4-flash-free` | Routing, state checks, git, PDF processing |
+| **Balanced** | `opencode-go/qwen3.7-plus` | `opencode-go/minimax-m3` | — | Tool calling, coordination, schema generation |
+| **Coding** | `opencode-go/kimi-k2.6` | `opencode-go/qwen3.7-max` | — | Refactoring, debugging, multi-file code generation |
+| **Reasoning** | `opencode-go/glm-5.1` | `opencode-go/mimo-v2.5-pro` | `opencode/mimo-v2.5-free` | Architectural planning, verification, complex analysis |
+
+Free tier models (Zen `opencode/` provider) require `/connect` setup once; then they're always available as emergency fallbacks.
+
+Subagent tier assignments:
+- **@pdf-cleaner**: Fast tier
+- **@git-committer**: Fast tier
+- **@project-setup**: Reasoning tier
+- **@\<project\>_coordinator**: Balanced tier
+- **@\<project\>_coder**: Coding tier
+- **@\<project\>_reviewer**: Reasoning tier
+
 ## Subagents
 
 **Global** (always available):
-- **@pdf-cleaner** - Cleans watermarked PDFs, creates project folders
-- **@project-setup** - Reads PDFs, creates/updates project AGENTS.md and project subagents
-- **@git-committer** - Handles commits for both main and external repos
+- **@pdf-cleaner** - Cleans watermarked PDFs, creates project folders (Fast)
+- **@project-setup** - Reads PDFs, creates/updates project AGENTS.md and project subagents (Reasoning)
+- **@git-committer** - Handles commits for both main and external repos (Fast)
 
 **Project-specific** (dynamic, created by @project-setup per project):
-- **@<project>_coordinator** - Routes tasks to the right project subagent
-- **@<project>_<role>** - Project-specific subagents (coder, tester, etc.)
+- **@<project>_coordinator** - Routes tasks to the right project subagent (Balanced)
+- **@<project>_<role>** - Project-specific subagents (coder=Coding, reviewer=Reasoning, etc.)
 - Stored in `.opencode/agents/<project>_<role>.md`, tracked in main repo
 
 ## Reference (load when needed)

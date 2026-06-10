@@ -4,7 +4,9 @@
 
 ## Reviewer Specifications
 
-- **Model**: Reasoning (`opencode-go/qwen3.7-max`) - needs to analyze code critically, trace requirements, and identify issues
+- **Model**: Reasoning (`opencode-go/glm-5.1`) - needs to analyze code critically, trace requirements, and identify issues
+- **Fallback 1**: `opencode-go/mimo-v2.5-pro` (deep context agent processing)
+- **Fallback 2**: `opencode/mimo-v2.5-free` (Zen free tier, 1M context window)
 - **Purpose**: Verifies that code meets project standards, tests pass, and all subtasks are complete. Never edits code — only reads and reports.
 - **Responsibilities**:
   - Read `PROGRESS.md` to verify all subtasks are marked `[x]`
@@ -20,7 +22,9 @@
 ---
 description: Reviews completed work for <project-name>, verifies standards compliance, test coverage, and subtask completion
 mode: subagent
-model: opencode-go/qwen3.7-max
+model: opencode-go/glm-5.1
+# tier: reasoning
+# fallback: opencode-go/mimo-v2.5-pro, opencode/mimo-v2.5-free
 permission:
   read: allow
   bash: allow
@@ -106,7 +110,7 @@ Report ONE of two verdicts:
 - **Non-coding projects**: A reviewer may not be needed (e.g., data labeling tasks with no code to verify)
 - **Every project with a coder subagent should also have a reviewer subagent**
 - The reviewer should be routed to AFTER all other subtasks are complete
-- **Model**: Always use reasoning model (qwen3.7-max) for review tasks
+- **Model**: Always use reasoning tier (`opencode-go/glm-5.1`) for review tasks. Fallback: `opencode-go/mimo-v2.5-pro` or `opencode/mimo-v2.5-free`.
 
 ## Relationship to Coordinator
 

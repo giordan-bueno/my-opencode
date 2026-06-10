@@ -99,9 +99,9 @@ Task Folder: <project-name>/<task-folder-name>/
 
 ## Project Subagents
 
-- **@<project>_coordinator** - Routes tasks to subagents, manages PROGRESS.md, handles completion gate (model: balanced)
-- **@<project>_<role1>** - [purpose] (model: [fast/balanced/reasoning])
-- **@<project>_reviewer** - Verifies completed work, checks standards, runs tests (model: reasoning)
+- **@<project>_coordinator** - Routes tasks to subagents, manages PROGRESS.md, handles completion gate (tier: balanced)
+- **@<project>_<role1>** - [purpose] (tier: [fast/balanced/coding/reasoning])
+- **@<project>_reviewer** - Verifies completed work, checks standards, runs tests (tier: reasoning)
 
 ## Reference (load when needed)
 - Detailed workflow: `docs/workflow.md`

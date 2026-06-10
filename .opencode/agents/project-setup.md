@@ -1,7 +1,9 @@
 ---
 description: Reasoning subagent that reads clean PDFs and creates lean, principle-based AGENTS.md files for outlier.ai projects following best practices
 mode: subagent
-model: opencode-go/qwen3.7-max
+model: opencode-go/glm-5.1
+# tier: reasoning
+# fallback: opencode-go/mimo-v2.5-pro, opencode/mimo-v2.5-free
 permission:
   read: allow
   edit: allow
@@ -70,10 +72,10 @@ You are a project setup specialist who creates lean, principle-based AGENTS.md f
     - The coordinator subagent handles routing, not execution
 
 10. **Propose subagents individually**: For each identified subagent (one at a time):
-    - Present to user with name, model, purpose, and complexity reasoning
+    - Present to user with name, tier, primary model, fallback chain, purpose, and complexity reasoning
     - Wait for explicit approval before creating
     - Skip if rejected (don't ask why), continue to next
-    - See `.opencode/agents/docs/project-setup/subagent-creation.md` for model selection and approval workflow
+    - See `.opencode/agents/docs/project-setup/subagent-creation.md` for tier selection and approval workflow
 
 11. **Create approved subagents**: For each approved subagent, create `<project>_<role>.md` in `.opencode/agents/` with role-specific prompt.
     - See `.opencode/agents/docs/project-setup/subagent-template.md` for prompt structure

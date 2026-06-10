@@ -5,6 +5,7 @@
 ## Coordinator Specifications
 
 - **Model**: Balanced (`opencode-go/qwen3.7-plus`) - needs to understand task dependencies and delegate appropriately
+- **Fallback**: `opencode-go/minimax-m3` (reliable JSON structure and parameter adherence)
 - **Purpose**: Coordinates work between project subagents, manages PROGRESS.md, routes subtasks, handles completion gate
 - **Permissions**: `read`, `edit`, `task` — coordinator **never implements code**, only reads files, updates PROGRESS.md, and routes to subagents
 
@@ -15,6 +16,8 @@
 description: Coordinates work between <project> subagents, manages PROGRESS.md, and routes subtasks
 mode: subagent
 model: opencode-go/qwen3.7-plus
+# tier: balanced
+# fallback: opencode-go/minimax-m3
 permission:
   read: allow
   edit: allow
@@ -217,4 +220,4 @@ The coordinator is invoked via these commands:
 
 - **New projects**: Always propose coordinator as the first subagent
 - **Update projects**: Propose coordinator if it doesn't exist yet
-- **Model**: Always use balanced model (qwen3.7-plus) for coordination tasks
+- **Model**: Always use balanced tier (`opencode-go/qwen3.7-plus`) for coordination tasks. Fallback: `opencode-go/minimax-m3`.

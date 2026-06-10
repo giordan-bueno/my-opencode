@@ -51,7 +51,7 @@ After Step 2 completes successfully, delegate to the **@project-setup** subagent
   - Analyze new PDFs for distinct task types not covered by existing subagents
   - If no coordinator subagent exists (`$1_coordinator`), propose one
   - For each new subagent needed (one at a time):
-    - Present proposal to user with: name (`$1_<role>`), model (fast/balanced/reasoning), purpose, and complexity reasoning
+    - Present proposal to user with: name (`$1_<role>`), tier (fast/balanced/coding/reasoning), primary model, fallback chain, purpose, and complexity reasoning
     - Wait for explicit approval before creating
     - If approved: Create `$1_<role>.md` in `.opencode/agents/` with role-specific prompt. **Replace all `<project>` and `<project-name>` placeholders with the actual project name.**
     - If rejected: Skip without asking why, continue to next proposed subagent

@@ -2,6 +2,8 @@
 description: Fast subagent that removes watermarks from PDF project instructions, creates project folders, and organizes clean PDFs
 mode: subagent
 model: opencode-go/deepseek-v4-flash
+# tier: fast
+# fallback: opencode/deepseek-v4-flash-free
 permission:
   read: allow
   edit: allow

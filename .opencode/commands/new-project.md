@@ -45,17 +45,17 @@ After Step 2 completes successfully, delegate to the **@project-setup** subagent
 - Follow the principle: "AGENTS.md is a routing layer, not an encyclopedia"
 - **After creating AGENTS.md**, analyze the PDFs to identify distinct task types that warrant dedicated subagents
 - **Always propose a coordinator subagent** (`$1_coordinator`) that orchestrates the other subagents and manages PROGRESS.md
-- **Always propose a reviewer subagent** (`$1_reviewer`) for projects that involve coding — the reviewer verifies completed work, checks standards, runs tests. Model: reasoning (qwen3.7-max). See `.opencode/agents/docs/project-setup/reviewer-template.md`
+- **Always propose a reviewer subagent** (`$1_reviewer`) for projects that involve coding — the reviewer verifies completed work, checks standards, runs tests. Tier: reasoning (`opencode-go/glm-5.1`). See `.opencode/agents/docs/project-setup/reviewer-template.md`
 - Every subtask template in `$1/docs/subtasks.md` must end with a **Verify** step routed to the reviewer subagent
 - For each identified subagent (one at a time):
-  - Present proposal to user with: name (`$1_<role>`), model (fast/balanced/reasoning), purpose, and complexity reasoning
+  - Present proposal to user with: name (`$1_<role>`), tier (fast/balanced/coding/reasoning), primary model, fallback chain, purpose, and complexity reasoning
   - Wait for explicit approval before creating
   - If approved: Create `$1_<role>.md` in `.opencode/agents/` with role-specific prompt
   - If rejected: Skip without asking why, continue to next proposed subagent
 - **No maximum limit**: Create as many subagents as the PDFs require
 - **Non-overlapping responsibilities**: Each subagent must have a single, well-defined scope. No two subagents should handle the same task type.
 - Use underscore naming convention: `$1_<role>.md`
-- Model selection: fast for mechanical tasks, reasoning for coding/testing, balanced for setup/config and coordination
+- Model selection: fast tier for mechanical tasks, coding tier for implementation, reasoning tier for review/planning, balanced tier for setup/config and coordination
 - After all subagents are processed, update `$1/AGENTS.md` with a "Project Subagents" section listing all created subagents
 - If this step fails, STOP and report the error to the user. Do not proceed to Step 4.
 
