@@ -33,7 +33,8 @@ After Step 2 completes successfully, delegate to the **@project-setup** subagent
 - Read the existing `$1/AGENTS.md` first to understand current rules and structure.
 - Read existing reference docs in `$1/docs/` to understand what's already documented.
 - Read the existing `$1/docs/subtasks.md` to understand the current subtask template.
-- **Read the existing `$1/PROGRESS.md`** to preserve its format and any existing task progress. Do NOT reset or delete task history — only update the subtask template if it changed, and preserve the `Active Task` header format.
+- **Read the existing `$1/PROGRESS.md`** to preserve its format and any existing task history. Do NOT reset or delete task history — only update the subtask template if it changed, and preserve the `Active Task` header format.
+- Read the existing `$1/docs/verification.md` if it exists, to understand current verification criteria.
 - Check existing subagents in `.opencode/agents/` that match the pattern `$1_*.md` to understand current subagent setup.
 - Then read the newly added clean PDF files in the `$1/` folder.
 - Compare the new PDF content with the existing AGENTS.md, reference docs, subtask template, and subagents.

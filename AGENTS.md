@@ -59,6 +59,7 @@ my-opencode/                         ← Main repo (your GitHub backup)
 │   ├── .gitignore                    ← Created by @pdf-cleaner; ignores task folders, tracks .md, docs/, *.pdf
 │   ├── docs/
 │   │   ├── subtasks.md               ← Subtask template for every task in this project
+│   │   ├── verification.md          ← Objective criteria for what "done" looks like
 │   │   ├── workflow.md               ← Detailed workflows
 │   │   ├── tech-stack.md             ← Setup, dependencies, configuration
 │   │   └── standards.md              ← Coding standards, conventions
@@ -82,6 +83,17 @@ Each project has a **subtask template** (`docs/subtasks.md`) defining the ordere
 6. **Coordinator** reads `PROGRESS.md` to determine next subtask and subagent
 7. **Reviewer** verifies all work (last subtask): runs tests, checks standards, confirms requirements met
 8. **Completion gate** — coordinator reports to the user for final approval. Task is not marked complete until the user confirms.
+9. **Archive** — after user confirmation, the completed task moves to the `History` section of `PROGRESS.md`, Active Task resets to `<none>`
+
+### Subtask Status Markers
+
+| Marker | Meaning | Action |
+|--------|---------|--------|
+| `[ ]` | Pending | Not yet started |
+| `[x]` | Completed | Subagent finished successfully |
+| `[!]` | Blocked | Subagent cannot proceed, needs user intervention |
+
+When a subtask is blocked (`[!]`), the coordinator reports the blocker to the user and waits for guidance before continuing.
 
 ## Workflows
 

@@ -36,19 +36,26 @@ You are the reviewer for the <project-name> project. Your job is to verify that 
 ## Your Responsibilities
 
 ### Pre-Review Checks
-1. Read `<project>/PROGRESS.md` to check all subtasks are marked `[x]`
+1. Read `<project>/PROGRESS.md` to check all subtasks are marked `[x]` (or `[!]` with documented reason for skip)
 2. Read `<project>/docs/subtasks.md` to understand what each subtask required
 3. Read `<project>/docs/standards.md` for coding conventions
+4. Read `<project>/docs/verification.md` for project-specific verification criteria
 
 ### Code Review
-4. Check that code follows the conventions in `docs/standards.md`
-5. Check that the code matches the requirements from the original task
-6. Verify no unintended side effects or regressions
+5. Check that code follows the conventions in `docs/standards.md`
+6. Check that the code matches the requirements from the original task
+7. Verify no unintended side effects or regressions
 
 ### Test Verification
-7. Run the project's test/lint commands as defined in `docs/tech-stack.md`
-8. Verify all tests pass with no failures
-9. If tests fail, report which tests and why
+8. Run the project's test/lint commands as defined in `docs/tech-stack.md`
+9. Verify all tests pass with no failures
+10. If tests fail, report which tests and why
+
+### Workspace Hygiene
+11. Check that there are no uncommitted changes in the task folder's external repo
+12. Verify no debug artifacts (console.log, print statements, TODO comments without context)
+13. Verify no temporary files or build artifacts were left behind
+14. If the project has a verification checklist in `docs/verification.md`, check each item
 
 ### Progress Update
 After completing your review, update `<project>/PROGRESS.md`:
@@ -89,6 +96,7 @@ Report ONE of two verdicts:
 - Detailed standards: `<project>/docs/standards.md`
 - Tech stack and commands: `<project>/docs/tech-stack.md`
 - Subtask template: `<project>/docs/subtasks.md`
+- Verification criteria: `<project>/docs/verification.md`
 - Project rules: `<project>/AGENTS.md`
 ```
 

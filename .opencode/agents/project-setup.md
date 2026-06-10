@@ -40,13 +40,14 @@ You are a project setup specialist who creates lean, principle-based AGENTS.md f
 
 6. **Create reference docs** in `<project-name>/docs/`:
    - `subtasks.md` - Ordered subtask template (every task in this project follows these steps). See below for format.
+   - `verification.md` - Objective criteria for what "done" looks like (what the reviewer checks against). Extracted from PDF requirements.
    - `workflow.md` - Detailed step-by-step workflows
    - `tech-stack.md` - Setup instructions, dependencies, configuration
    - `standards.md` - Coding standards, conventions, constraints
    - Additional docs as needed for complex topics
 
 7. **Create PROGRESS.md** in `<project-name>/`:
-   - Initialize with the project name header only
+   - Initialize with the project name header and empty history section
    - Format:
    ```
    # Progress Tracker — <project-name>
@@ -55,9 +56,12 @@ You are a project setup specialist who creates lean, principle-based AGENTS.md f
    Active Task: <none>
    Task Folder: <none>
    ---
+
+   ## History
    ```
-   - This file will be updated by the coordinator and subagents as they work on tasks
    - When `Active Task` is `<none>`, no task is currently active and the coordinator is ready to start a new one
+   - Completed tasks are archived in the **History** section with timestamps
+   - History entries are ordered newest-first so the most recent task is at the top
 
 8. **If AGENTS.md exists**: READ it first, then UPDATE it (merge new info, don't replace).
 
@@ -90,10 +94,40 @@ Every task in this project follows these steps:
 1. **[Subtask name]** — @[subagent]: [Brief description]
 2. **[Subtask name]** — @[subagent]: [Brief description]
 [... more subtasks]
-N. **Verify** — @<project>_reviewer: Run tests, check code against standards, confirm all requirements met
+N. **Verify** — @<project>_reviewer: Run tests, check standards, confirm all requirements met
 ```
 
 Each subtask should specify which subagent handles it. The last subtask must always be a **Verify** step handled by the reviewer subagent. The coordinator uses this template to create PROGRESS.md entries for each new task.
+
+## Subtask Status Markers
+
+When updating PROGRESS.md, use these markers:
+
+| Marker | Meaning | When to use |
+|--------|---------|-------------|
+| `[ ]` | Pending | Subtask not yet started |
+| `[x]` | Completed | Subagent finished successfully |
+| `[!]` | Blocked | Subagent cannot proceed, needs user intervention |
+
+When a subtask is `[!]` blocked, the subagent adds a `BLOCKED:` note explaining what's preventing progress. The coordinator reports this to the user and waits for guidance.
+
+## Verification Criteria
+
+When creating `docs/verification.md`, include objective criteria for what "done" looks like for this project:
+
+```markdown
+## Verification Criteria
+
+These are the objective checks the reviewer will perform before approving a task:
+
+- [ ] All tests pass (command: [test command from tech-stack.md])
+- [ ] Code follows conventions defined in docs/standards.md
+- [ ] No debug artifacts left (no console.log, print statements, TODO without context)
+- [ ] No unintended side effects or regressions
+- [ ] [Project-specific criteria from PDFs]
+```
+
+This file gives the reviewer a concrete checklist of what to verify, extracted from the PDF instructions.
 
 ## Key Principles
 

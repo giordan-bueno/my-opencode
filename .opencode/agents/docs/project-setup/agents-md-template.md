@@ -34,6 +34,7 @@ Use this template when creating project AGENTS.md files (~60 lines max):
 ├── .gitignore         ← Ignores task folders, tracks .md, docs/, *.pdf
 ├── docs/
 │   ├── subtasks.md    ← Subtask template (ordered steps every task follows)
+│   ├── verification.md ← What "done" looks like (objective criteria for the reviewer)
 │   ├── workflow.md
 │   ├── tech-stack.md
 │   ├── standards.md
@@ -65,13 +66,25 @@ Task Folder: <project-name>/<task-folder-name>/
 - [x] 1. <subtask from template>
   - <context notes from subagent>
 - [ ] 2. <subtask from template>
-- [ ] 3. <subtask from template>
+- [!] 3. <blocked subtask>
+  - BLOCKED: <description of what's blocking>
+- [ ] N. Verify — @<project>_reviewer: Run tests, check standards, confirm all requirements met
+
+## History
+
+### completed-task — 2026-06-09 14:30
+- [x] 1. <subtask from template>
+  - <context notes>
+- [x] N. Verify — APPROVED
+  - All tests passing, code follows standards.
 ```
 
 - The **Active Task** header tells all subagents which task and folder to work on
 - Subtasks come from `docs/subtasks.md` template
 - Subagents update their subtask status and add context notes
-- Past tasks stay in the file for reference
+- `[!]` means blocked — subagent cannot proceed, needs user intervention
+- Completed tasks move to the **History** section with timestamp
+- History is ordered newest-first for easy identification
 
 ## User vs AI Responsibilities
 
@@ -94,6 +107,7 @@ Task Folder: <project-name>/<task-folder-name>/
 - Tech stack setup: `docs/tech-stack.md`
 - Coding standards: `docs/standards.md`
 - Subtask template: `docs/subtasks.md`
+- Verification criteria: `docs/verification.md`
 - [Other project-specific docs]
 ```
 

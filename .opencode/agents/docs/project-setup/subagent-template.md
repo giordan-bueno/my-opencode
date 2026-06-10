@@ -15,13 +15,31 @@ Every subagent prompt should include:
 Every subagent MUST:
 1. **Before starting work**: Read `<project>/PROGRESS.md` to find the `Active Task` and `Task Folder` — this tells you which task to work on and where files live
 2. **After completing work**: Update `<project>/PROGRESS.md` — mark your subtask as `[x]` and add context notes (key files, findings, errors) under the subtask
+3. **If blocked**: Mark your subtask as `[!]` in `<project>/PROGRESS.md` and add a `BLOCKED:` note explaining what's preventing progress. The coordinator will report this to the user for guidance.
 
-Example PROGRESS.md entry after a subagent completes:
+### Subtask Status Markers
+
+| Marker | Meaning | When to use |
+|--------|---------|-------------|
+| `[ ]` | Pending | Subtask not yet started |
+| `[x]` | Completed | Subtask finished successfully |
+| `[!]` | Blocked | Cannot proceed, need user intervention |
+
+Example PROGRESS.md entries:
+
+Completed subtask:
 ```markdown
 - [x] 3. Implement the fix
   - Fixed auth validator in src/auth/validator.ts:42
   - Added null check for empty email field
   - All existing tests still pass
+```
+
+Blocked subtask:
+```markdown
+- [!]] 4. Run integration tests
+  - BLOCKED: Integration test suite requires a database connection that's not configured.
+  - Need: Database URL and credentials from user to proceed.
 ```
 
 ## Role-Specific Elements

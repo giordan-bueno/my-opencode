@@ -34,11 +34,12 @@ After Step 2 completes successfully, delegate to the **@project-setup** subagent
 - Create a **lean, principle-based** `$1/AGENTS.md` (~60 lines) that serves as a routing layer
 - Create detailed reference docs in `$1/docs/` folder:
   - `subtasks.md` - Ordered subtask template defining the steps every task in this project must follow, with subagent assignments
+  - `verification.md` - Objective criteria for what "done" looks like (what the reviewer checks against, extracted from PDF requirements)
   - `workflow.md` - Step-by-step workflows from the PDFs
   - `tech-stack.md` - Setup instructions, dependencies, configuration
   - `standards.md` - Coding standards, conventions, constraints
   - Additional docs as needed for complex topics
-- Create `$1/PROGRESS.md` with initialized header (Active Task: none, Task Folder: none)
+- Create `$1/PROGRESS.md` with initialized header and empty history section (Active Task: none, Task Folder: none)
 - NOTE: `$1/.gitignore` was already created by @pdf-cleaner in Step 1 — do NOT recreate it
 - The AGENTS.md should include: Project Context, Decision Rules, Core Behaviors, Autonomy Levels, Workspace Structure, Workflows, Progress Tracking section, User vs AI Responsibilities, and Reference pointers to the docs/ folder
 - Follow the principle: "AGENTS.md is a routing layer, not an encyclopedia"

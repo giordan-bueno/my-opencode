@@ -68,26 +68,32 @@ Task Folder: project-x/fix-auth-bug/
   - Repo cloned to fix-auth-bug/external-repo/, branch fix-auth
 - [x] 2. Identify issue
   - Bug: auth validator crashes on empty email → src/auth/validator.ts:42
-- [ ] 3. Implement fix
+- [!] 3. Implement fix
+  - BLOCKED: The auth module uses a custom validator from `@company/auth-lib` which isn't documented in the PDFs. Need user to clarify the expected behavior for empty strings vs null.
 - [ ] 4. Run tests
 - [ ] 5. Verify — @project-x_reviewer: Run tests, check standards, confirm all requirements met
 
-## add-login-feature
+## History
+
+### add-login-feature — 2026-06-08 16:45
 - [x] 1. Clone & navigate
   - Repo cloned to add-login-feature/external-repo/, main branch
 - [x] 2. Identify scope
   - Need: login form component, auth service, route guards
-- [ ] 3. Generate tests
-- [ ] 4. Implement feature
-- [ ] 5. Verify — @project-x_reviewer: Run tests, check standards, confirm all requirements met
+- [x] 3. Implement feature
+  - Created LoginForm.tsx, AuthService.ts, RouteGuards.ts
+- [x] 4. Run tests
+  - All 23 tests passing
+- [x] 5. Verify — APPROVED
+  - Code follows standards, all requirements met.
 ```
 
 **Benefits**:
 - Active Task header immediately tells subagents which task and folder
 - Context notes pass essential information between subagents
-- Past tasks stay visible for reference (not deleted)
-- Clear status on every subtask
-- **Verify subtask is always the last step** — reviewer checks all work before completion gate
+- `[!]` blocked marker clearly signals when a subagent is stuck and needs user intervention
+- History section archives completed tasks with timestamps for easy reference
+- Verify subtask is always the last step — reviewer checks all work before completion gate
 
 ## Good Example: Completion Gate
 
