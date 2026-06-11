@@ -77,8 +77,16 @@ You are a [role] specialist for the [project-name] project.
 1. **Before starting**: Read `<project>/PROGRESS.md` to find the Active Task and Task Folder
 2. **After completing**: Update `<project>/PROGRESS.md` — mark your subtask as `[x]` and add context notes
 
+## SDD Awareness
+- Read `<project>/docs/requirements.md` to understand which `R<n>` IDs your subtask covers
+- Read `<project>/docs/design.md` for the technical approach (created per-task at spec approval)
+- When updating PROGRESS.md, note which `R<n>` IDs were addressed in your subtask
+- If you cannot cover an `R<n>` assigned to your subtask, mark it as `[!]` blocked with a `BLOCKED:` note explaining why
+
 ## Reference (load when needed)
 - Detailed instructions: `<project>/docs/[relevant-doc].md`
+- Requirements & traceability: `<project>/docs/requirements.md`
+- Technical design: `<project>/docs/design.md`
 - Project rules: `<project>/AGENTS.md`
 - Subtask template: `<project>/docs/subtasks.md`
 

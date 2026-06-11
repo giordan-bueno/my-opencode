@@ -43,7 +43,7 @@ When facing ambiguity:
 |---------|---------|
 | `/new-project <name> <file.pdf ...>` | Create project from watermarked PDFs |
 | `/update-project <name> <file.pdf ...>` | Update project with new PDFs |
-| `/start-task <project> <folder>` | Start task, invoke coordinator |
+| `/start-task <project> <folder>` | Start task, spec review gate, invoke coordinator |
 | `/pause-task <project> <reason>` | Archive active task to History |
 | `/resume-task <project> <folder>` | Restore paused task from History |
 
@@ -56,6 +56,10 @@ Two repo types: **Main** (this folder, push to GitHub) and **External** (nested 
 ## Model Strategy
 
 4 tiers: **Fast** (deepseek-v4-flash), **Balanced** (qwen3.7-plus), **Coding** (kimi-k2.6), **Reasoning** (glm-5.1). Each has fallback chains. See `docs/model-strategy.md` for full details.
+
+## Spec-Driven Development
+
+Before any code is written, requirements and design must be approved by the human. Every task follows: `/start-task` → **spec review gate** → code → review → user confirms. See `docs/task-workflow.md` for the full lifecycle.
 
 ## Subagents
 

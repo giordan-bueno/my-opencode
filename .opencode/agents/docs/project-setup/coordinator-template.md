@@ -54,6 +54,7 @@ When the user starts a new task:
    ---
    Active Task: <task-folder-name>
    Task Folder: <project-name>/<task-folder-name>/
+   Spec Status: pending
    ---
    ```
 4. Add a new task section below the header using the subtask template:
@@ -64,7 +65,17 @@ When the user starts a new task:
    [... all subtasks from template]
    - [ ] N. Verify — @<project>_reviewer: Run tests, check standards, confirm all requirements met
    ```
-5. Start routing the first subtask to the appropriate subagent.
+5. **Spec Review Phase**: Before routing any coding subagents, check `Spec Status`:
+   - If `pending`: Create `<project>/docs/design.md` for this task (approach, files to modify, R<n> coverage, alternatives, risks). Present `docs/requirements.md` and `docs/design.md` to the user for approval:
+     > "Spec for task `<task-name>`:
+     > **Requirements**: [list R<n> IDs from requirements.md]
+     > **Design**: [summary of approach, files, alternatives]
+     > Approve spec and proceed? (y/n/changes)"
+   - If the user approves → set `Spec Status: approved`, begin subtask routing
+   - If the user requests changes → set `Spec Status: changes_requested`, report what needs changing, wait for guidance
+   - If `approved`: Proceed with normal subtask routing
+   - If `changes_requested`: Do NOT route to subagents. Report issues and wait for user guidance.
+6. Start routing the first subtask to the appropriate subagent (only after spec approval).
 
 ### Routing Subtasks
 - Read `<project>/PROGRESS.md` to determine the current active task.
@@ -142,8 +153,11 @@ When the user requests to pause a task (via `/pause-task`):
 ## Reference (load when needed)
 - Project rules: `<project>/AGENTS.md`
 - Subtask template: `<project>/docs/subtasks.md`
+- Requirements & traceability: `<project>/docs/requirements.md`
+- Technical design (per-task): `<project>/docs/design.md`
 - Detailed workflows: `<project>/docs/workflow.md`
 - Verification criteria: `<project>/docs/verification.md`
+- SDD reference (EARS, spec review, traceability): `.opencode/agents/docs/project-setup/sdd-reference.md`
 ```
 
 ## PROGRESS.md Format
@@ -156,6 +170,7 @@ The coordinator creates and maintains a single `PROGRESS.md` per project:
 ---
 Active Task: <task-folder-name>
 Task Folder: <project-name>/<task-folder-name>/
+Spec Status: <pending | approved | changes_requested>
 ---
 
 ## <task-folder-name>
@@ -187,7 +202,7 @@ Task Folder: <project-name>/<task-folder-name>/
 
 ### History Entry Types
 
-- **Completed tasks**: No special tag. All subtasks are `[x]`. Entry format: `### <task-name> — YYYY-MM-DD HH:MM`
+- **Completed tasks**: No special tag. All subtasks are `[x]`. Entry format: `### <task-name> — YYYY-MM-DD HH:MM`  Spec Status preserved as `approved`.
 - **Paused tasks**: Tagged with `[PAUSED: <reason>]`. May have `[x]`, `[ ]`, and `[!]` subtasks. Entry format: `### <task-name> — YYYY-MM-DD HH:MM [PAUSED: <reason>]`
 
 When a paused task is resumed via `/resume-task`, its History entry is moved back to the active area and the `[PAUSED: <reason>]` tag is removed.
@@ -199,6 +214,14 @@ When a paused task is resumed via `/resume-task`, its History entry is moved bac
 | `[ ]` | Pending | Not yet started, ready for routing |
 | `[x]` | Completed | Subagent finished successfully |
 | `[!]` | Blocked | Subagent cannot proceed, needs user intervention |
+
+### Spec Status Values
+
+| Status | Meaning | Action |
+|--------|---------|--------|
+| `pending` | Requirements and design created, awaiting human approval | Present specs to user, do NOT route coding subagents |
+| `approved` | Human approved specs | Begin routing coding subagents |
+| `changes_requested` | Human requested changes to specs | Do NOT route subagents, wait for user guidance on what to change |
 
 Key points:
 - **Active Task** and **Task Folder** are always at the top, clearly identifying which task is current

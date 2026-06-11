@@ -33,7 +33,9 @@ Use this template when creating project AGENTS.md files (~60 lines max):
 ├── PROGRESS.md        ← Task progress tracker (active task + subtask status)
 ├── .gitignore         ← Ignores task folders, tracks .md, docs/, *.pdf
 ├── docs/
-│   ├── subtasks.md    ← Subtask template (ordered steps every task follows)
+│   ├── requirements.md  ← EARS requirements with R<n> IDs (from PDFs)
+│   ├── design.md        ← Per-task technical design (created at task start)
+│   ├── subtasks.md    ← Subtask template with R<n> traceability
 │   ├── verification.md ← What "done" looks like (objective criteria for the reviewer)
 │   ├── workflow.md
 │   ├── tech-stack.md
@@ -51,6 +53,8 @@ Use this template when creating project AGENTS.md files (~60 lines max):
 
 **Every task ends with a verification step**: The last subtask in every template is always "Verify" — routed to the reviewer subagent. After review, the coordinator reports to the user for final approval before marking the task complete.
 
+**Every task starts with spec approval**: Before code is written, the coordinator presents `docs/requirements.md` and `docs/design.md` for human review. No coding until specs are approved. See SDD reference for details.
+
 ## Progress Tracking
 
 Each project has a `PROGRESS.md` file that tracks task progress. The format is:
@@ -60,6 +64,7 @@ Each project has a `PROGRESS.md` file that tracks task progress. The format is:
 ---
 Active Task: <task-folder-name>
 Task Folder: <project-name>/<task-folder-name>/
+Spec Status: <pending | approved | changes_requested>
 ---
 
 ## <task-folder-name>
@@ -80,6 +85,7 @@ Task Folder: <project-name>/<task-folder-name>/
 ```
 
 - The **Active Task** header tells all subagents which task and folder to work on
+- **Spec Status** tracks whether requirements and design have been approved before coding begins (`pending` = awaiting approval, `approved` = coding can start, `changes_requested` = user wants revisions)
 - Subtasks come from `docs/subtasks.md` template
 - Subagents update their subtask status and add context notes
 - `[!]` means blocked — subagent cannot proceed, needs user intervention
@@ -104,6 +110,8 @@ Task Folder: <project-name>/<task-folder-name>/
 - **@<project>_reviewer** - Verifies completed work, checks standards, runs tests (tier: reasoning)
 
 ## Reference (load when needed)
+- Requirements & traceability: `docs/requirements.md`
+- Technical design (per-task): `docs/design.md`
 - Detailed workflow: `docs/workflow.md`
 - Tech stack setup: `docs/tech-stack.md`
 - Coding standards: `docs/standards.md`
@@ -120,6 +128,7 @@ Task Folder: <project-name>/<task-folder-name>/
 - **Include specific commands/paths** in reference docs, not main file
 - **When ambiguous**, default to documenting how the AI can assist the user
 - **Create reference docs** for any topic that needs more than 3-4 lines
+- **Every requirement gets a stable R<n> ID** that traces through design, subtasks, code, and review — see `.opencode/agents/docs/project-setup/sdd-reference.md`
 
 ## Per-Project .gitignore
 

@@ -61,6 +61,7 @@
 ---
 Active Task: fix-auth-bug
 Task Folder: project-x/fix-auth-bug/
+Spec Status: approved
 ---
 
 ## fix-auth-bug
@@ -68,6 +69,7 @@ Task Folder: project-x/fix-auth-bug/
   - Repo cloned to fix-auth-bug/external-repo/, branch fix-auth
 - [x] 2. Identify issue
   - Bug: auth validator crashes on empty email → src/auth/validator.ts:42
+  - Covers: R1, R2
 - [!] 3. Implement fix
   - BLOCKED: The auth module uses a custom validator from `@company/auth-lib` which isn't documented in the PDFs. Need user to clarify the expected behavior for empty strings vs null.
 - [ ] 4. Run tests
@@ -94,6 +96,76 @@ Task Folder: project-x/fix-auth-bug/
 - `[!]` blocked marker clearly signals when a subagent is stuck and needs user intervention
 - History section archives completed tasks with timestamps for easy reference
 - Verify subtask is always the last step — reviewer checks all work before completion gate
+
+## Good Example: Spec Approval Gate (SDD)
+
+Before coding begins, the coordinator presents specs for human approval:
+
+```markdown
+---
+Active Task: fix-auth-bug
+Task Folder: project-x/fix-auth-bug/
+Spec Status: pending
+---
+```
+
+Coordinator presents to user:
+> "Spec for task 'fix-auth-bug':
+> **Requirements**: R1 (auth required), R2 (login redirect), R3 (error display), R4 (audit logging)
+> **Design**: Add JWT middleware to 3 routes, create error handler, add audit logger
+> **Alternatives considered**: Session-based auth (rejected — PDF requires JWT)
+> Approve spec and proceed? (y/n/changes)"
+
+After approval:
+```markdown
+---
+Active Task: fix-auth-bug
+Task Folder: project-x/fix-auth-bug/
+Spec Status: approved
+---
+```
+
+## Good Example: Requirements with EARS and R<n> Traceability
+
+```markdown
+## Requirements — project-x
+
+### R1: Authentication required
+The system MUST require valid JWT credentials before granting access to any protected resource.
+
+### R2: Login redirect
+WHEN a user provides valid credentials, the system MUST redirect them to the dashboard within 2 seconds.
+
+### R3: Error display
+IF an API request fails, THEN the system MUST display a user-friendly error message and log the error.
+
+### R4: Audit logging
+WHILE the system is in production mode, the system MUST log all data modification operations with timestamp and user ID.
+```
+
+## Good Example: Subtask Template with R<n> References
+
+```markdown
+## Subtask Template
+
+1. **Implement JWT middleware** — @project-x_coder: Add auth middleware to protected routes. Covers: R1, R2
+2. **Add error handler** — @project-x_coder: Create error boundary for API calls. Covers: R3
+3. **Add audit logger** — @project-x_coder: Log all data modifications with required fields. Covers: R4
+4. **Verify** — @project-x_reviewer: Confirm R1-R4 are met, run tests, check standards
+```
+
+## Good Example: Verification Criteria with R<n> References
+
+```markdown
+## Verification Criteria
+
+- [ ] R1: JWT middleware blocks unauthenticated access (test: `npm test -- auth.test.ts`)
+- [ ] R2: Successful login redirects to dashboard (test: `npm test -- login.test.ts`)
+- [ ] R3: Error handler catches API failures gracefully (test: `npm test -- errors.test.ts`)
+- [ ] R4: Audit logger records timestamp and user ID (test: `npm test -- audit.test.ts`)
+- [ ] Code follows conventions defined in docs/standards.md
+- [ ] No debug artifacts left
+```
 
 ## Good Example: Completion Gate
 

@@ -20,7 +20,22 @@ Before starting, confirm:
 
 If any prerequisite is missing, STOP and report the issue to the user with clear instructions on what to create.
 
-## Step 2: Invoke the project coordinator
+## Step 2: Spec review gate
+
+Before routing any subagents, handle the spec approval:
+
+1. Read `$1/docs/requirements.md` — if it doesn't exist or is empty, STOP and report that requirements must be created first (@project-setup should have created this)
+2. Add `Spec Status: pending` to the PROGRESS.md header (see Step 3)
+3. Delegate to the **@${1}_coordinator** subagent with instructions to:
+   - Create `$1/docs/design.md` for this task (approach, files to modify, R<n> coverage, alternatives considered, risks)
+   - Present `docs/requirements.md` and `docs/design.md` to the user for approval
+   - **Do NOT route any coding subagents until the user approves the spec**
+   - If the user approves → set `Spec Status: approved` and begin subtask routing
+   - If the user requests changes → set `Spec Status: changes_requested` and report what needs changing
+
+See `.opencode/agents/docs/project-setup/sdd-reference.md` for the SDD process, EARS syntax, and traceability rules.
+
+## Step 3: Invoke the project coordinator
 
 Delegate to the **@${1}_coordinator** subagent with these instructions:
 - Project: $1
@@ -32,6 +47,7 @@ Delegate to the **@${1}_coordinator** subagent with these instructions:
   ---
   Active Task: $2
   Task Folder: $1/$2/
+  Spec Status: pending
   ---
   ```
 - Add a new task section below the header using the subtask template. The last subtask must always be the **Verify** step routed to the reviewer subagent:

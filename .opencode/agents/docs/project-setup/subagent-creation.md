@@ -46,8 +46,8 @@ When analyzing the PDFs, look for these common patterns:
 - **Coordinator** (`<project>_coordinator`) — orchestrates all other subagents, manages PROGRESS.md, handles routing. Tier: balanced. See `coordinator-template.md`.
 
 **Propose for coding projects**:
-- **Coder** (`<project>_coder`) — implements code changes, writes tests. Tier: coding.
-- **Reviewer** (`<project>_reviewer`) — verifies completed work, checks standards compliance, runs tests. Never edits code. Tier: reasoning. Always proposed AFTER the coder. See `reviewer-template.md`.
+- **Coder** (`<project>_coder`) — implements code changes, writes tests. Tier: coding. Reads `docs/requirements.md` (R<n> IDs) and `docs/design.md` (technical approach) before implementing.
+- **Reviewer** (`<project>_reviewer`) — verifies completed work, checks standards, runs tests, validates R<n> traceability. Never edits code. Tier: reasoning. Always proposed AFTER the coder. See `reviewer-template.md`.
 
 **Propose based on PDF content**:
 - **Tester** (`<project>_tester`) — runs and verifies test suites. Tier: coding. If separate from coder.
