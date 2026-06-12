@@ -86,6 +86,38 @@ When a task prompt exists:
 3. The coordinator adapts the subtask list based on the task prompt's instructions
 4. The reviewer checks implementation against both project and task-specific requirements
 
+### Feedback Rounds and R<n> Numbering
+
+When QC sends feedback on a completed task, a new feedback round is created via `/feedback`. The feedback round:
+
+- Gets its own progress file: `progress-<task>-fb<N>.md` (e.g., `progress-fix-auth-bug-fb1.md`)
+- Gets its own design file: `docs/design-<task>-fb<N>.md` (e.g., `docs/design-fix-auth-bug-fb1.md`)
+- Works in the **same task folder and repo** — no new clone needed
+- **R<n> IDs continue from where the original task left off**. If the original task used R1-R8, feedback requirements start at R9.
+
+Example: Original task has R1-R5 (project) + R6-R8 (task-specific). Feedback adds R9-R11 addressing QC issues.
+
+```markdown
+## Design — fix-auth-bug-fb1 (file: docs/design-fix-auth-bug-fb1.md)
+
+### Feedback Context
+QC feedback from round 1: auth validator rejects valid emails with plus signs, missing error codes in responses.
+
+### Feedback Requirements
+### R9: Handle plus signs in email validation
+WHEN a user submits an email containing a plus sign, the system MUST accept it as valid.
+
+### R10: Return error codes in API responses
+IF an authentication request fails, THEN the system MUST include an error code in the JSON response.
+
+### R11: Reject empty passwords with specific code
+WHEN a user submits an empty password, the system MUST reject it with error code AUTH_EMPTY_PASSWORD.
+
+### Approach
+Fix email regex to allow plus signs, add error codes to existing error responses, add specific validation for empty passwords.
+...
+```
+
 ## Design Format (docs/design-<task-name>.md)
 
 **Per-task file** — each task gets its own design file named `docs/design-<task-name>.md` (e.g., `docs/design-fix-auth-bug.md`). Created during the spec review phase of `/start-task`. Always created, even for simple tasks.
@@ -189,9 +221,23 @@ Spec Status: pending | approved | changes_requested
 
 Spec Status is preserved in the per-task progress files. When a task is paused, its `progress-<task>.md` file keeps its full state — no data movement is needed.
 
+## Feedback Rounds
+
+When QC sends feedback on a completed task, a new feedback round is created via `/feedback`:
+
+1. **User creates feedback file**: `project-x/fix-auth-bug/feedback-1.md` with QC feedback
+2. **User runs**: `/feedback project-x fix-auth-bug feedback-1.md`
+3. **Command creates**: `progress-fix-auth-bug-fb1.md` (new progress file) and `docs/design-fix-auth-bug-fb1.md` (new design)
+4. **Spec review**: The coordinator presents the feedback requirements and design for approval
+5. **Subagents work** in the same task folder and repo, addressing the feedback
+6. **R<n> numbering continues**: If the original task ended at R8, feedback requirements start at R9
+7. **When done**: Progress file Status changes to `[COMPLETED]`, ready for another feedback round or final completion
+
+Each feedback round is self-contained with its own progress file, design file, and spec review gate, but works on the same codebase.
+
 ## Spec Review Gate
 
-The spec review happens inside `/start-task`, not as a separate command. When the coordinator starts a new task:
+The spec review happens inside `/start-task` or `/feedback`, not as a separate command. When the coordinator starts a new task or feedback round:
 
 1. Check `Spec Status` in PROGRESS.md
 2. If `pending`:

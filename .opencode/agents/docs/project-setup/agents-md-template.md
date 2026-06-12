@@ -32,10 +32,12 @@ Use this template when creating project AGENTS.md files (~60 lines max):
 ├── AGENTS.md          ← This file (project rules)
 ├── PROGRESS.md        ← Minimal pointer: which task is active
 ├── progress-<task>.md ← One per task: full subtask status and context (e.g., progress-fix-auth-bug.md)
+│   ├── progress-<task>-fb1.md ← Feedback round progress (e.g., progress-fix-auth-bug-fb1.md)
 ├── .gitignore         ← Ignores task folders, tracks .md, docs/, *.pdf, progress-*.md
 ├── docs/
 │   ├── requirements.md  ← EARS requirements with R<n> IDs (from PDFs)
 │   ├── design-<task>.md  ← Per-task technical design (created at task start, one per task)
+│   │   ├── design-<task>-fb1.md ← Feedback round designs (e.g., design-fix-auth-bug-fb1.md)
 │   ├── subtasks.md    ← Subtask template with R<n> traceability
 │   ├── verification.md ← What "done" looks like (objective criteria for the reviewer)
 │   ├── workflow.md
@@ -44,6 +46,7 @@ Use this template when creating project AGENTS.md files (~60 lines max):
 │   └── [other-docs].md
 ├── <task-folder>/     ← One per task (user-created, gitignored)
 │   ├── task-prompt.md ← Task-specific prompt from outlier.ai (gitignored, per-task)
+│   ├── feedback-1.md  ← QC feedback rounds (gitignored, per-task)
 │   └── [external-repo]/  ← Cloned repo for this task (gitignored)
 └── *.pdf              ← Clean instruction PDFs
 ```

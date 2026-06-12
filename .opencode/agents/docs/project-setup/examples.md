@@ -274,3 +274,59 @@ The good version is a **routing layer** that points to detailed docs. The bad ve
 For progress tracking: **PROGRESS.md is a minimal pointer** — subagents read it to find which `progress-<task>.md` file to open for details. Each task has its own progress file, so no data movement is needed for pause/resume/complete.
 
 **Rule of thumb**: If a section needs more than 3-4 lines, move it to a reference doc in `<project>/docs/`.
+
+## Good Example: Feedback Round Progress File
+
+When QC sends feedback on a completed task, a new feedback round creates a separate progress file:
+
+**PROGRESS.md** (pointer updated to feedback round):
+```markdown
+# Progress Tracker — project-x
+
+---
+Active Task: fix-auth-bug-fb1
+Task Folder: project-x/fix-auth-bug/
+Spec Status: pending
+---
+```
+
+**progress-fix-auth-bug-fb1.md** (feedback round progress):
+```markdown
+# Task: fix-auth-bug-fb1 (Feedback Round 1)
+
+---
+Status: In Progress
+Created: 2026-06-12
+Design: docs/design-fix-auth-bug-fb1.md
+Task Prompt: fix-auth-bug/task-prompt.md
+Feedback From: fix-auth-bug/feedback-1.md
+---
+
+- [ ] 1. Fix email plus sign handling — @project-x_coder: Update regex to accept + in email addresses. Covers: R9
+- [ ] 2. Add error codes to API responses — @project-x_coder: Add error_code field to all auth error responses. Covers: R10
+- [ ] 3. Verify — @project-x_reviewer: Confirm R9-R10 are met, run tests, check feedback addressed
+```
+
+**progress-fix-auth-bug.md** (original, now completed):
+```markdown
+# Task: fix-auth-bug
+
+---
+Status: [COMPLETED]
+Created: 2026-06-11
+Design: docs/design-fix-auth-bug.md
+Task Prompt: fix-auth-bug/task-prompt.md
+---
+
+- [x] 1. Clone & navigate
+- [x] 2. Implement fix
+- [x] 3. Run tests
+- [x] 4. Verify — @project-x_reviewer
+```
+
+**Key points**:
+- Original progress file marked `[COMPLETED]` — clean separation
+- Feedback round gets its own progress file with `-fb1` suffix
+- R<n> IDs continue from original task (original was R1-R8, feedback starts R9)
+- Same task folder and repo — feedback works on the same codebase
+- Multiple feedback rounds: `-fb1`, `-fb2`, etc.

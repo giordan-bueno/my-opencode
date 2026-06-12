@@ -41,6 +41,30 @@ Later, `/resume-task` restores the pointer and changes the status back:
 
 The PROGRESS.md pointer is set back to the task name, and `progress-<task-name>.md` Status changes from `[PAUSED: <reason>]` to `In Progress`. The coordinator continues from the first incomplete subtask.
 
+### Applying QC Feedback
+
+When QC sends feedback on a completed task, use `/feedback` to create a new feedback round:
+
+```
+/feedback <project-name> <task-folder-name> <feedback-file>
+```
+
+Example: `/feedback project-x fix-auth-bug feedback-1.md`
+
+1. **User creates feedback file** — e.g., `project-x/fix-auth-bug/feedback-1.md` with QC feedback
+2. **User runs** `/feedback project-x fix-auth-bug feedback-1.md`
+3. **Command** marks the original progress file as `[COMPLETED]`
+4. **Command creates** `progress-<task>-fb1.md` (new progress file) and updates PROGRESS.md pointer
+5. **Coordinator** reads the feedback file, derives new subtasks, creates `docs/design-<task>-fb1.md`
+6. **R<n> numbering continues** — if original task ended at R8, feedback requirements start at R9
+7. **Spec review gate** — coordinator presents feedback requirements and design for approval
+8. **Subagents work** in the same task folder and repo, addressing the feedback
+9. **Reviewer** verifies all feedback items addressed
+10. **Completion gate** — coordinator reports to user for final approval
+11. **If more feedback**: Create `feedback-2.md`, run `/feedback` again → `progress-<task>-fb2.md`, `design-<task>-fb2.md`
+
+Feedback rounds are self-contained: own progress file, own design file, own spec review. But they work on the same codebase as the original task.
+
 ## Progress Tracking Format
 
 Progress tracking uses two levels of files:
@@ -111,3 +135,4 @@ When a subtask is `[!]` blocked, the subagent adds a `BLOCKED:` note explaining 
 | `/start-task <project-name> <task-folder-name>` | Start a new task, verify prerequisites, create progress file, invoke coordinator |
 | `/pause-task <project-name> <reason>` | Change progress file status to paused, reset pointer |
 | `/resume-task <project-name> <task-folder-name>` | Restore pointer, change status back to In Progress |
+| `/feedback <project-name> <task-folder-name> <feedback-file>` | Apply QC feedback: creates feedback progress file and design, runs spec review |

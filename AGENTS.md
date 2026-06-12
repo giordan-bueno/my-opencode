@@ -46,6 +46,7 @@ When facing ambiguity:
 | `/start-task <project> <folder>` | Start task, spec review gate, invoke coordinator |
 | `/pause-task <project> <reason>` | Change progress file status to paused, reset pointer |
 | `/resume-task <project> <folder>` | Restore pointer, change status back to In Progress |
+| `/feedback <project> <task-folder> <feedback-file>` | Apply QC feedback, create feedback round progress + design files |
 
 **Working on a project**: Read `<project>/AGENTS.md` for context and rules.
 

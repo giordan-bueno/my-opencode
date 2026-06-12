@@ -246,6 +246,18 @@ The coordinator is invoked via these commands:
 - **Start new task**: `/start-task <project-name> <task-folder-name>` — verifies prerequisites, creates progress file and pointer, starts routing
 - **Resume paused task**: `/resume-task <project-name> <task-folder-name>` — restores pointer and changes status, continues from first incomplete subtask
 - **Pause current task**: `/pause-task <project-name> <reason>` — changes progress file status to paused, resets pointer to `<none>`
+- **Apply QC feedback**: `/feedback <project-name> <task-folder-name> <feedback-file>` — creates feedback progress file and design, runs spec review for feedback requirements
+
+### Handling Feedback Rounds
+
+When QC sends feedback on a completed task, the coordinator handles it as a new feedback round:
+- Each feedback round gets its own `progress-<task>-fb<N>.md` file (e.g., `progress-fix-auth-bug-fb1.md`)
+- Each feedback round gets its own `docs/design-<task>-fb<N>.md` file (e.g., `docs/design-fix-auth-bug-fb1.md`)
+- The task folder stays the same — feedback works on the same repo and codebase
+- R<n> IDs for feedback requirements continue from where the original task left off
+- The previous progress file's Status changes to `[COMPLETED]`
+- The coordinator reads the feedback file (`<task-folder>/feedback-1.md`) and derives new subtasks from it
+- The reviewer verifies that all feedback items are addressed
 
 ## When to Propose
 
