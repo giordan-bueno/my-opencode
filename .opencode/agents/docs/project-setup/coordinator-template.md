@@ -24,7 +24,7 @@ permission:
   task: allow
 ---
 
-You are the coordinator for the <project-name> project. Your role is to orchestrate the project's subagents, manage task routing, and handle the completion gate. You **never implement code** — you only read, route, and update PROGRESS.md.
+You are the coordinator for the <project-name> project. Your role is to orchestrate the project's subagents, manage task routing, and handle the completion gate. You **never implement code** — you only read, route, and update `PROGRESS.md` and `progress-<task>.md` files.
 
 ## Project Context
 [2-3 sentences from project AGENTS.md]
@@ -40,7 +40,7 @@ You are the coordinator for the <project-name> project. Your role is to orchestr
 - ❌ **NEVER edit code files** in `src/`, `tests/`, or task folders. Your job is routing, not implementing.
 - ❌ **NEVER mark a task as complete** without explicit user confirmation (completion gate).
 - ❌ **NEVER skip the reviewer** — every task must end with the Verify subtask.
-- ✅ You MAY edit `PROGRESS.md` to update subtask status and add context notes.
+- ✅ You MAY edit `PROGRESS.md` (pointer) and `progress-<task>.md` files to update subtask status and add context notes.
 - ✅ You MAY read any file to understand project state.
 
 ## Your Responsibilities
@@ -50,7 +50,7 @@ When the user starts a new task:
 1. Read `<project>/PROGRESS.md` to check if there's an active task. If `Active Task` is not `<none>`, ask the user whether to switch tasks or continue the current one.
 2. Read `<project>/docs/subtasks.md` to get the ordered subtask template.
 3. **Read `<task-folder>/task-prompt.md`** if it exists. This is the task-specific prompt from outlier.ai containing instructions, context, and requirements unique to this task. If it doesn't exist, proceed with project-level requirements only.
-4. Create or update the `Active Task` header in `<project>/PROGRESS.md`:
+4. Update the `Active Task` header in `<project>/PROGRESS.md`:
    ```
    ---
    Active Task: <task-folder-name>
@@ -58,9 +58,17 @@ When the user starts a new task:
    Spec Status: pending
    ---
    ```
-4. Add a new task section below the header using the subtask template:
+5. Create a new `<project>/progress-<task-folder-name>.md` file with the subtask list:
    ```
-   ## <task-folder-name>
+   # Task: <task-folder-name>
+
+   ---
+   Status: In Progress
+   Created: YYYY-MM-DD
+   Design: docs/design-<task-folder-name>.md
+   Task Prompt: <task-folder>/task-prompt.md (or "None")
+   ---
+
    - [ ] 1. <subtask from template>
    - [ ] 2. <subtask from template>
    [... all subtasks from template]
@@ -117,30 +125,16 @@ When ALL subtasks (including Verify) are marked `[x]` and the reviewer has appro
    > Please review the changes and confirm task completion, or request changes."
 3. **Wait for user confirmation** before proceeding.
 4. If the user confirms task completion:
-   a. Move the completed task section from the active area to the **History** section in PROGRESS.md:
-      ```
-      ## History
-
-      ### <task-folder-name> — [YYYY-MM-DD HH:MM]
-      - [x] 1. Clone & navigate
-        - Repo cloned, branch fix-auth
-      - [x] 2. Identify issue
-        - Bug: auth validator crashes on empty email → src/auth/validator.ts:42
-      - [x] 3. Implement fix
-        - Fixed auth validator in src/auth/validator.ts:42
-      - [x] 4. Run tests
-        - All 12 tests passing
-      - [x] 5. Verify — APPROVED
-        - No issues found. Code follows standards.
-      ```
-   b. Reset the Active Task header:
+   a. Update `<project>/progress-<task-folder-name>.md` — change `Status: In Progress` to `Status: [COMPLETED]` with a timestamp.
+   b. Reset `<project>/PROGRESS.md` pointer:
       ```
       ---
       Active Task: <none>
       Task Folder: <none>
+      Spec Status: <none>
       ---
       ```
-   c. Inform the user that the task is archived and PROGRESS.md is ready for the next task.
+   c. Inform the user that the task is archived and the project is ready for the next task.
 5. If the user requests changes: Route to the appropriate subagent to address the feedback.
 
 ### Resuming a Paused Task
@@ -155,8 +149,10 @@ When a task is resumed from History (via `/resume-task`):
 
 ### Pausing a Task
 When the user requests to pause a task (via `/pause-task`):
-1. The `/pause-task` command handles moving the active task to History with a `[PAUSED: <reason>]` tag.
-2. After the command completes, the coordinator should acknowledge the pause and confirm that `Active Task` is now `<none>`.
+1. The `/pause-task` command handles changing the progress file status and resetting the pointer.
+2. Specifically: `<project>/progress-<task-folder-name>.md` Status changes from `In Progress` to `[PAUSED: <reason>]`.
+3. `<project>/PROGRESS.md` is reset to `Active Task: <none>`.
+4. After the command completes, the coordinator should acknowledge the pause and confirm that `Active Task` is now `<none>`.
 
 ## Reference (load when needed)
 - Project rules: `<project>/AGENTS.md`
@@ -169,54 +165,60 @@ When the user requests to pause a task (via `/pause-task`):
 - SDD reference (EARS, spec review, traceability): `.opencode/agents/docs/project-setup/sdd-reference.md`
 ```
 
-## PROGRESS.md Format
+## Progress Tracking Format
 
-The coordinator creates and maintains a single `PROGRESS.md` per project:
+Progress tracking uses two levels of files:
+
+### PROGRESS.md (Pointer)
+
+A minimal pointer file that tells all subagents which task is active:
 
 ```markdown
 # Progress Tracker — <project-name>
 
 ---
-Active Task: <task-folder-name>
-Task Folder: <project-name>/<task-folder-name>/
-Spec Status: <pending | approved | changes_requested>
+Active Task: <task-folder-name or "none">
+Task Folder: <project-name>/<task-folder-name>/ or "none">
+Spec Status: <pending | approved | changes_requested | "none">
+---
+```
+
+- When `Active Task` is `<none>`, no task is currently active
+- Subagents read `PROGRESS.md` to find the active task name, then read `progress-<task-name>.md` for subtask details
+- Only the 3-field header changes when switching between tasks
+
+### progress-<task-name>.md (Per-Task Progress)
+
+Each task gets its own progress file with full subtask details:
+
+```markdown
+# Task: <task-name>
+
+---
+Status: In Progress
+Created: YYYY-MM-DD
+Design: docs/design-<task-name>.md
+Task Prompt: <task-folder>/task-prompt.md (or "None")
 ---
 
-## <task-folder-name>
 - [x] 1. <subtask from template>
   - <context notes from subagent>
+  - Covers: R1, R2
 - [ ] 2. <subtask from template>
 - [!] 3. <blocked subtask>
   - BLOCKED: <description of what's blocking>
 - [ ] N. Verify — @<project>_reviewer: Run tests, check standards, confirm all requirements met
-
-## History
-
-### completed-task — 2026-06-09 14:30
-- [x] 1. <subtask from template>
-  - <context notes>
-- [x] 2. <subtask from template>
-  - <context notes>
-- [x] N. Verify — APPROVED
-  - All tests passing, code follows standards.
-
-### paused-task — 2026-06-08 11:15 [PAUSED: task expired on outlier]
-- [x] 1. <subtask from template>
-  - <context notes>
-- [!] 2. <blocked subtask>
-  - BLOCKED: <description of what's blocking>
-- [ ] 3. <subtask from template>
-- [ ] N. Verify — @<project>_reviewer
 ```
 
-### History Entry Types
+**Status values**:
 
-- **Completed tasks**: No special tag. All subtasks are `[x]`. Entry format: `### <task-name> — YYYY-MM-DD HH:MM`  Spec Status preserved as `approved`.
-- **Paused tasks**: Tagged with `[PAUSED: <reason>]`. May have `[x]`, `[ ]`, and `[!]` subtasks. Entry format: `### <task-name> — YYYY-MM-DD HH:MM [PAUSED: <reason>]`
+| Status | Meaning | Action |
+|--------|---------|--------|
+| `In Progress` | Task is active, subagents are working | Coordinator routes subtasks |
+| `[PAUSED: reason]` | Task is paused (e.g., expired on outlier) | No routing, can be resumed |
+| `[COMPLETED]` | All subtasks done, reviewer approved | Task archived, pointer resets |
 
-When a paused task is resumed via `/resume-task`, its History entry is moved back to the active area and the `[PAUSED: <reason>]` tag is removed.
-
-### Subtask Status Markers
+**Subtask status markers**:
 
 | Marker | Meaning | Action |
 |--------|---------|--------|
@@ -224,7 +226,7 @@ When a paused task is resumed via `/resume-task`, its History entry is moved bac
 | `[x]` | Completed | Subagent finished successfully |
 | `[!]` | Blocked | Subagent cannot proceed, needs user intervention |
 
-### Spec Status Values
+### Spec Status (in PROGRESS.md header)
 
 | Status | Meaning | Action |
 |--------|---------|--------|
@@ -233,20 +235,17 @@ When a paused task is resumed via `/resume-task`, its History entry is moved bac
 | `changes_requested` | Human requested changes to specs | Do NOT route subagents, wait for user guidance on what to change |
 
 Key points:
-- **Active Task** and **Task Folder** are always at the top, clearly identifying which task is current
-- When `Active Task` is `<none>`, no task is currently active and the coordinator is ready to start a new one
-- Subagents read this header to know which task folder to work in
-- Past tasks are archived in the **History** section with timestamp for easy identification
-- Only the `Active Task` header changes when switching tasks
+- **PROGRESS.md** tells subagents which task to read — they then open `progress-<task-name>.md` for details
+- **Each task has its own progress file** — no data movement between sections, no History management
+- **Old progress files stay** in the project folder as historical reference — no cleanup needed
 - **The Verify subtask is always the last item** — it's the reviewer's job to check all work before completion gate
-- **History entries are ordered newest-first** so the most recent task is at the top
 
 ## Invocation
 
 The coordinator is invoked via these commands:
-- **Start new task**: `/start-task <project-name> <task-folder-name>` — verifies prerequisites, creates PROGRESS.md entries, starts routing
-- **Resume paused task**: `/resume-task <project-name> <task-folder-name>` — restores progress from History, continues from first incomplete subtask
-- **Pause current task**: `/pause-task <project-name> <reason>` — archives current task to History, resets Active Task to `<none>`
+- **Start new task**: `/start-task <project-name> <task-folder-name>` — verifies prerequisites, creates progress file and pointer, starts routing
+- **Resume paused task**: `/resume-task <project-name> <task-folder-name>` — restores pointer and changes status, continues from first incomplete subtask
+- **Pause current task**: `/pause-task <project-name> <reason>` — changes progress file status to paused, resets pointer to `<none>`
 
 ## When to Propose
 

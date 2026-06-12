@@ -30,8 +30,9 @@ Use this template when creating project AGENTS.md files (~60 lines max):
 ```
 <project-name>/
 ├── AGENTS.md          ← This file (project rules)
-├── PROGRESS.md        ← Task progress tracker (active task + subtask status)
-├── .gitignore         ← Ignores task folders, tracks .md, docs/, *.pdf
+├── PROGRESS.md        ← Minimal pointer: which task is active
+├── progress-<task>.md ← One per task: full subtask status and context (e.g., progress-fix-auth-bug.md)
+├── .gitignore         ← Ignores task folders, tracks .md, docs/, *.pdf, progress-*.md
 ├── docs/
 │   ├── requirements.md  ← EARS requirements with R<n> IDs (from PDFs)
 │   ├── design-<task>.md  ← Per-task technical design (created at task start, one per task)
@@ -54,45 +55,50 @@ Use this template when creating project AGENTS.md files (~60 lines max):
 
 **Every task ends with a verification step**: The last subtask in every template is always "Verify" — routed to the reviewer subagent. After review, the coordinator reports to the user for final approval before marking the task complete.
 
-**Every task starts with spec approval**: Before code is written, the coordinator presents `docs/requirements.md` and `docs/design.md` for human review. No coding until specs are approved. See SDD reference for details.
+**Every task starts with spec approval**: Before code is written, the coordinator presents `docs/requirements.md` and `docs/design-<task-name>.md` for human review. No coding until specs are approved. See SDD reference for details.
 
 ## Progress Tracking
 
-Each project has a `PROGRESS.md` file that tracks task progress. The format is:
+Progress tracking uses two levels of files:
+
+**`PROGRESS.md`** — A minimal pointer that tells subagents which task is active:
 ```markdown
 # Progress Tracker — <project-name>
 
 ---
-Active Task: <task-folder-name>
-Task Folder: <project-name>/<task-folder-name>/
-Spec Status: <pending | approved | changes_requested>
+Active Task: <task-folder-name or "none">
+Task Folder: <project-name>/<task-folder-name>/ or "none">
+Spec Status: <pending | approved | changes_requested | "none">
+---
+```
+
+**`progress-<task-name>.md`** — A per-task file with full subtask status and context notes:
+```markdown
+# Task: <task-name>
+
+---
+Status: In Progress
+Created: YYYY-MM-DD
+Design: docs/design-<task-name>.md
+Task Prompt: <task-folder>/task-prompt.md (or "None")
 ---
 
-## <task-folder-name>
 - [x] 1. <subtask from template>
   - <context notes from subagent>
+  - Covers: R1, R2
 - [ ] 2. <subtask from template>
 - [!] 3. <blocked subtask>
   - BLOCKED: <description of what's blocking>
 - [ ] N. Verify — @<project>_reviewer: Run tests, check standards, confirm all requirements met
-
-## History
-
-### completed-task — 2026-06-09 14:30
-- [x] 1. <subtask from template>
-  - <context notes>
-- [x] N. Verify — APPROVED
-  - All tests passing, code follows standards.
 ```
 
-- The **Active Task** header tells all subagents which task and folder to work on
-- **Spec Status** tracks whether requirements and design have been approved before coding begins (`pending` = awaiting approval, `approved` = coding can start, `changes_requested` = user wants revisions)
-- Subtasks come from `docs/subtasks.md` template
-- Subagents update their subtask status and add context notes
-- `[!]` means blocked — subagent cannot proceed, needs user intervention
-- Completed tasks move to the **History** section with timestamp
-- Paused tasks move to **History** with `[PAUSED: <reason>]` tag — can be resumed with `/resume-task`
-- History is ordered newest-first for easy identification
+- **PROGRESS.md** is the single source of truth for "what task is active right now" — subagents check the `Active Task` field to know which task file to read
+- **progress-<task-name>.md** contains the detailed subtask list, context notes, and status for one specific task
+- Each task gets its own progress file — no data movement between sections, no History to manage
+- Paused tasks: Status changes to `[PAUSED: reason]`, PROGRESS.md pointer resets to `<none>`
+- Resumed tasks: Status changes back to `In Progress`, PROGRESS.md pointer set to the task name
+- Completed tasks: Status changes to `[COMPLETED]`, PROGRESS.md pointer resets to `<none>`
+- Old progress files stay in the project folder as historical reference
 
 ## User vs AI Responsibilities
 
@@ -146,6 +152,7 @@ Each project folder has a `.gitignore` with this content:
 !.gitignore
 !AGENTS.md
 !PROGRESS.md
+!progress-*.md
 !docs/
 !docs/**
 !*.pdf

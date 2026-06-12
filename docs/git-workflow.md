@@ -206,6 +206,7 @@ Each project folder has its own `.gitignore` that uses a whitelist pattern:
 !.gitignore
 !AGENTS.md
 !PROGRESS.md
+!progress-*.md
 !docs/
 !docs/**
 !*.pdf

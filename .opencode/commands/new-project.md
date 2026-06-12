@@ -40,8 +40,9 @@ After Step 2 completes successfully, delegate to the **@project-setup** subagent
    - `tech-stack.md` - Setup instructions, dependencies, configuration
    - `standards.md` - Coding standards, conventions, constraints
    - Additional docs as needed for complex topics
-- Create `$1/PROGRESS.md` with initialized header and empty history section (Active Task: none, Task Folder: none, Spec Status: none)
-- **NOTE**: Do NOT create any `design-<task-name>.md` files — they are per-task files created by the coordinator during `/start-task`, one per task (e.g., `docs/design-fix-auth-bug.md`)
+- Create `$1/PROGRESS.md` with initialized pointer (Active Task: none, Task Folder: none, Spec Status: none)
+- **NOTE**: Per-task progress files (`progress-<task-name>.md`) are created by the coordinator during `/start-task`, not during project setup
+- **NOTE**: Do NOT create any `design-<task-name>.md` files — they are per-task files created by the coordinator during `/start-task`
 - NOTE: `$1/.gitignore` was already created by @pdf-cleaner in Step 1 — do NOT recreate it
 - The AGENTS.md should include: Project Context, Decision Rules, Core Behaviors, Autonomy Levels, Workspace Structure, Workflows, Progress Tracking section, User vs AI Responsibilities, and Reference pointers to the docs/ folder
 - Follow the principle: "AGENTS.md is a routing layer, not an encyclopedia"

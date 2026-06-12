@@ -171,7 +171,7 @@ Enhanced `docs/verification.md` — each criterion references R\<n\> IDs:
 
 ## Spec Status in PROGRESS.md
 
-The active task header includes a `Spec Status` field:
+The PROGRESS.md pointer includes a `Spec Status` field:
 
 ```
 ---
@@ -187,7 +187,7 @@ Spec Status: pending | approved | changes_requested
 | `approved` | Human approved, coding subagents can begin |
 | `changes_requested` | Human requested changes, coordinator waiting for guidance |
 
-When a task is archived to History, the spec status is preserved.
+Spec Status is preserved in the per-task progress files. When a task is paused, its `progress-<task>.md` file keeps its full state — no data movement is needed.
 
 ## Spec Review Gate
 

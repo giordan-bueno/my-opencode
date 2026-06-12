@@ -48,13 +48,14 @@
 ```
 
 **Problems**:
-- No Active Task header — subagents don't know which task to work on
+- No Active Task pointer — subagents don't know which task to work on
 - No Task Folder — subagents don't know where files are
 - No context notes — next subagent has no idea what was found or done
-- Past and current tasks are indistinguishable
+- No separate progress file — task details mixed with pointer
 
-## Good Example: Progress Tracking (Active Task Header + Context)
+## Good Example: Progress Tracking (Pointer + Per-Task File)
 
+**PROGRESS.md** (pointer file):
 ```markdown
 # Progress Tracker — project-x
 
@@ -63,38 +64,34 @@ Active Task: fix-auth-bug
 Task Folder: project-x/fix-auth-bug/
 Spec Status: approved
 ---
+```
 
-## fix-auth-bug
+**progress-fix-auth-bug.md** (per-task file):
+```markdown
+# Task: fix-auth-bug
+
+---
+Status: In Progress
+Created: 2026-06-11
+Design: docs/design-fix-auth-bug.md
+Task Prompt: fix-auth-bug/task-prompt.md
+---
+
 - [x] 1. Clone & navigate
   - Repo cloned to fix-auth-bug/external-repo/, branch fix-auth
-- [x] 2. Identify issue
-  - Bug: auth validator crashes on empty email → src/auth/validator.ts:42
   - Covers: R1, R2
 - [!] 3. Implement fix
   - BLOCKED: The auth module uses a custom validator from `@company/auth-lib` which isn't documented in the PDFs. Need user to clarify the expected behavior for empty strings vs null.
 - [ ] 4. Run tests
 - [ ] 5. Verify — @project-x_reviewer: Run tests, check standards, confirm all requirements met
-
-## History
-
-### add-login-feature — 2026-06-08 16:45
-- [x] 1. Clone & navigate
-  - Repo cloned to add-login-feature/external-repo/, main branch
-- [x] 2. Identify scope
-  - Need: login form component, auth service, route guards
-- [x] 3. Implement feature
-  - Created LoginForm.tsx, AuthService.ts, RouteGuards.ts
-- [x] 4. Run tests
-  - All 23 tests passing
-- [x] 5. Verify — APPROVED
-  - Code follows standards, all requirements met.
 ```
 
 **Benefits**:
-- Active Task header immediately tells subagents which task and folder
+- PROGRESS.md pointer immediately tells subagents which task is active — they then open the corresponding progress file
+- Per-task files mean no data movement between sections — pause/resume is just a status change
 - Context notes pass essential information between subagents
 - `[!]` blocked marker clearly signals when a subagent is stuck and needs user intervention
-- History section archives completed tasks with timestamps for easy reference
+- Old progress files stay as historical reference — no History section to manage
 - Verify subtask is always the last step — reviewer checks all work before completion gate
 
 ## Good Example: Spec Approval Gate (SDD)
@@ -185,40 +182,47 @@ Please review the changes and confirm task completion, or request changes."
 
 The coordinator **never marks a task complete automatically** — it always waits for the user to confirm.
 
-## Good Example: Paused Task in History
+## Good Example: Paused Task
 
-When a task is paused (e.g., outlier task expired), it moves to History with the `PAUSED` tag and all progress preserved:
+When a task is paused (e.g., outlier task expired), its progress file changes status:
 
+**PROGRESS.md** (pointer resets):
 ```markdown
-## History
+# Progress Tracker — project-x
 
-### fix-auth-bug — 2026-06-09 14:30 [PAUSED: task expired on outlier]
+---
+Active Task: <none>
+Task Folder: <none>
+Spec Status: <none>
+---
+```
+
+**progress-fix-auth-bug.md** (status changes to paused):
+```markdown
+# Task: fix-auth-bug
+
+---
+Status: [PAUSED: task expired on outlier]
+Created: 2026-06-11
+Design: docs/design-fix-auth-bug.md
+Task Prompt: fix-auth-bug/task-prompt.md
+---
+
 - [x] 1. Clone & navigate
   - Repo cloned to fix-auth-bug/external-repo/, branch fix-auth
 - [x] 2. Identify issue
   - Bug: auth validator crashes on empty email → src/auth/validator.ts:42
 - [!] 3. Implement fix
-  - BLOCKED: auth module uses custom validator from @company/auth-lib — need clarification on expected behavior
+  - BLOCKED: auth module uses custom validator from @company/auth-lib — need clarification
 - [ ] 4. Run tests
 - [ ] 5. Verify — @project-x_reviewer
-
-### add-login-feature — 2026-06-08 16:45
-- [x] 1. Clone & navigate
-  - Repo cloned to add-login-feature/external-repo/, main branch
-- [x] 2. Identify scope
-  - Need: login form component, auth service, route guards
-- [x] 3. Implement feature
-  - Created LoginForm.tsx, AuthService.ts, RouteGuards.ts
-- [x] 4. Run tests
-  - All 23 tests passing
-- [x] 5. Verify — APPROVED
-  - Code follows standards, all requirements met.
 ```
 
 **Key points**:
-- Paused tasks keep `[PAUSED: <reason>]` tag so they're easy to identify in History
+- Paused tasks keep `[PAUSED: <reason>]` in their progress file Status field
 - All progress is preserved: `[x]` completed, `[!]` blocked, `[ ]` pending
-- Resuming with `/resume-task` moves the entry back to the active area and removes the `PAUSED` tag
+- Resuming with `/resume-task` simply changes Status back to `In Progress` and updates the PROGRESS.md pointer
+- No data movement between sections — just a status field change
 
 ## Good Example: Design with Task Prompt
 
@@ -267,6 +271,6 @@ Add null check in auth validator before JWT verification, create dedicated error
 
 The good version is a **routing layer** that points to detailed docs. The bad version tries to be an **encyclopedia** that includes everything inline.
 
-For PROGRESS.md: **Always include the Active Task header** and **always add context notes** — subagents are stateless and need this information passed explicitly.
+For progress tracking: **PROGRESS.md is a minimal pointer** — subagents read it to find which `progress-<task>.md` file to open for details. Each task has its own progress file, so no data movement is needed for pause/resume/complete.
 
 **Rule of thumb**: If a section needs more than 3-4 lines, move it to a reference doc in `<project>/docs/`.

@@ -16,8 +16,9 @@ my-opencode/                         ← Main repo (your GitHub backup)
 │   └── package.json                  ← Plugin dependencies (OpenCode reads this)
 ├── <project-name>/                   ← One folder per outlier.ai project
 │   ├── AGENTS.md                     ← Project rules + subagent routing
-│   ├── PROGRESS.md                   ← Task progress tracker (tracked by git)
-│   ├── .gitignore                    ← Created by @pdf-cleaner; ignores task folders, tracks .md, docs/, *.pdf
+│   ├── PROGRESS.md                   ← Minimal pointer: which task is active
+│   ├── progress-<task>.md            ← One per task: full subtask status and context (e.g., progress-fix-auth-bug.md)
+│   ├── .gitignore                    ← Created by @pdf-cleaner; ignores task folders, tracks .md, docs/, *.pdf, progress-*.md
 │   ├── docs/
 │   │   ├── requirements.md               ← EARS requirements with R<n> IDs (from PDFs)
 │   │   ├── design-<task>.md              ← Per-task technical design (one per task, e.g., design-fix-auth-bug.md)
@@ -47,6 +48,7 @@ my-opencode/                         ← Main repo (your GitHub backup)
 
 - **`AGENTS.md`** (root): Workspace routing layer. Read first for any project work.
 - **`<project>/AGENTS.md`**: Project-specific rules and subagent routing. Read before working on that project.
-- **`<project>/PROGRESS.md`**: Single-file task tracker per project. Active task header + History section.
+- **`<project>/PROGRESS.md`**: Minimal pointer file. Contains only the active task name, folder, and spec status. Subagents read this to find which progress file to open.
+- **`<project>/progress-<task>.md`**: Per-task progress files. Each task gets its own file with full subtask status, context notes, and completion state. Created by the coordinator during `/start-task`.
 - **`<project>/<task-folder>/task-prompt.md`**: Task-specific prompt from outlier.ai. Contains instructions unique to this task. Created by the user before running `/start-task`. Read by the coordinator and subagents for task context.
 - **`<project>/.gitignore`**: Whitelist pattern (`*` then `!file` negations). Ensures only tracked files are committed, not task folders or external repos.

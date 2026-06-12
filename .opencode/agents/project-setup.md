@@ -47,7 +47,17 @@ You are a project setup specialist who creates lean, principle-based AGENTS.md f
     - Additional docs as needed for complex topics
     - **Do NOT create any `design-<task-name>.md` files** — they are per-task files created by the coordinator during `/start-task` (e.g., `design-fix-auth-bug.md`), not during project setup.
 
-7. **Create PROGRESS.md** in `<project-name>/`: Initialize with project name header, `Active Task: <none>`, `Task Folder: <none>`, and empty `## History` section.
+7. **Create PROGRESS.md** in `<project-name>/`: Initialize with project name header and pointer fields only (no History section). Format:
+   ```markdown
+   # Progress Tracker — <project-name>
+
+   ---
+   Active Task: <none>
+   Task Folder: <none>
+   Spec Status: <none>
+   ---
+   ```
+   Per-task progress files (`progress-<task-name>.md`) are created by the coordinator during `/start-task`, not during project setup.
 
 8. **If AGENTS.md exists**: READ it first, then UPDATE it (merge new info, don't replace).
 

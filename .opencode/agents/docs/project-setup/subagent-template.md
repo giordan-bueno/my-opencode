@@ -15,8 +15,8 @@ Every subagent prompt should include:
 Every subagent MUST:
 1. **Before starting work**: Read `<project>/PROGRESS.md` to find the `Active Task` and `Task Folder` — this tells you which task to work on and where files live
 2. **If a task prompt exists**: Read `<task-folder>/task-prompt.md` for task-specific context and requirements. This is the outlier.ai task prompt containing instructions unique to this task.
-3. **After completing work**: Update `<project>/PROGRESS.md` — mark your subtask as `[x]` and add context notes (key files, findings, errors) under the subtask
-3. **If blocked**: Mark your subtask as `[!]` in `<project>/PROGRESS.md` and add a `BLOCKED:` note explaining what's preventing progress. The coordinator will report this to the user for guidance.
+3. **After completing work**: Update `<project>/progress-<task-name>.md` (the per-task progress file) — mark your subtask as `[x]` and add context notes (key files, findings, errors) under the subtask
+4. **If blocked**: Mark your subtask as `[!]` in `<project>/progress-<task-name>.md` and add a `BLOCKED:` note explaining what's preventing progress. The coordinator will report this to the user for guidance.
 
 ### Subtask Status Markers
 
@@ -75,8 +75,8 @@ You are a [role] specialist for the [project-name] project.
 [Role-specific tasks from PDF analysis]
 
 ## Progress Tracking
-1. **Before starting**: Read `<project>/PROGRESS.md` to find the Active Task and Task Folder
-2. **After completing**: Update `<project>/PROGRESS.md` — mark your subtask as `[x]` and add context notes
+1. **Before starting**: Read `<project>/PROGRESS.md` to find the Active Task and Task Folder, then read `<project>/progress-<task-name>.md` for subtask details
+2. **After completing**: Update `<project>/progress-<task-name>.md` — mark your subtask as `[x]` and add context notes
 
 ## SDD Awareness
 - Read `<project>/docs/requirements.md` to understand project-level requirements with `R<n>` IDs
