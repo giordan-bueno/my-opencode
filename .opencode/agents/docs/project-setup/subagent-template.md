@@ -81,14 +81,14 @@ You are a [role] specialist for the [project-name] project.
 ## SDD Awareness
 - Read `<project>/docs/requirements.md` to understand project-level requirements with `R<n>` IDs
 - Read `<task-folder>/task-prompt.md` (if it exists) for task-specific context and requirements — extract any new requirements as task-specific R<n> IDs (continuing numbering from project requirements)
-- Read `<project>/docs/design.md` for the technical approach (created per-task at spec approval) — includes Task Context and Task-Specific Requirements sections if a task prompt was provided
+- Read `<project>/docs/design-<task-name>.md` for the technical approach (created per-task, named after the active task e.g., `design-fix-auth-bug.md`) — includes Task Context and Task-Specific Requirements sections if a task prompt was provided
 - When updating PROGRESS.md, note which `R<n>` IDs were addressed in your subtask
 - If you cannot cover an `R<n>` assigned to your subtask, mark it as `[!]` blocked with a `BLOCKED:` note explaining why
 
 ## Reference (load when needed)
 - Detailed instructions: `<project>/docs/[relevant-doc].md`
 - Requirements & traceability: `<project>/docs/requirements.md`
-- Technical design: `<project>/docs/design.md`
+- Technical design: `<project>/docs/design-<task-name>.md`
 - Task prompt (per-task): `<task-folder>/task-prompt.md`
 - Project rules: `<project>/AGENTS.md`
 - Subtask template: `<project>/docs/subtasks.md`

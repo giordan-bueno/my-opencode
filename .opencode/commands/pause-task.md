@@ -86,3 +86,5 @@ Delegate to the **@git-committer** subagent with these instructions:
 - This command does NOT delete any task folders or external repos. They remain on disk in case the task is resumed later.
 - Paused tasks can be resumed later with `/resume-task $1 <task-folder-name>`
 - If you cannot re-claim the task on outlier.ai, the paused entry stays in History as an archive.
+- Design files (`docs/design-<task-name>.md`) are per-task and remain in `docs/` — no action needed during pause since they are never overwritten by other tasks.
+- Task prompt files (`<task-folder>/task-prompt.md`) remain in the task folder — no action needed during pause.

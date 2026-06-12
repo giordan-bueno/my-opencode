@@ -12,7 +12,7 @@ Each project has a **subtask template** (`docs/subtasks.md`) defining the ordere
 2. **User creates task prompt** (optional) — e.g., `project-x/fix-auth-bug/task-prompt.md` with the outlier.ai task instructions
 3. **User runs** `/start-task project-x fix-auth-bug`
 4. **/start-task verifies** prerequisites (project folder, coordinator, subtask template, task folder exist; requirements.md exists; detects task-prompt.md if present)
-5. **Spec review gate** — The coordinator reads `docs/requirements.md`, reads `task-prompt.md` (if present), creates `docs/design.md` (including Task Context and Task-Specific Requirements if task prompt exists), and presents both to the user for approval. No coding begins until specs are approved.
+5. **Spec review gate** — The coordinator reads `docs/requirements.md`, reads `task-prompt.md` (if present), creates `docs/design-<task-name>.md` (per-task, e.g., `docs/design-fix-auth-bug.md` — including Task Context and Task-Specific Requirements if task prompt exists), and presents both to the user for approval. No coding begins until specs are approved.
 5. **User approves or requests changes** — If approved, `Spec Status: approved` and coding begins. If changes requested, `Spec Status: changes_requested` and the coordinator waits for guidance.
 6. **Coordinator** reads `docs/subtasks.md`, creates/resets the `Active Task` header in `PROGRESS.md`, starts routing subagents
 7. **Subagents** read `PROGRESS.md` and `docs/requirements.md` to find the active task, R<n> IDs they need to cover, and folder — do their work, update `PROGRESS.md` when done

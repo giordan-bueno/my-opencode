@@ -222,10 +222,10 @@ When a task is paused (e.g., outlier task expired), it moves to History with the
 
 ## Good Example: Design with Task Prompt
 
-When a task has a task-specific prompt from outlier.ai (`task-prompt.md`), the design includes additional sections:
+When a task has a task-specific prompt from outlier.ai (`task-prompt.md`), the design includes additional sections. Note that design files are per-task (e.g., `docs/design-fix-auth-bug.md`):
 
 ```markdown
-## Design — fix-auth-bug
+## Design — fix-auth-bug (file: docs/design-fix-auth-bug.md)
 
 ### Task Context
 Fix the authentication validator crash when email is empty. The task prompt requires null-safe handling with proper error responses and audit trail for all auth failures.

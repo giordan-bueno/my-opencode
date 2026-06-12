@@ -86,11 +86,13 @@ When a task prompt exists:
 3. The coordinator adapts the subtask list based on the task prompt's instructions
 4. The reviewer checks implementation against both project and task-specific requirements
 
-## Design Format (docs/design.md)
+## Design Format (docs/design-<task-name>.md)
 
-**Per-task file** — created/overwritten each time a task starts via `/start-task`. Always created, even for simple tasks.
+**Per-task file** — each task gets its own design file named `docs/design-<task-name>.md` (e.g., `docs/design-fix-auth-bug.md`). Created during the spec review phase of `/start-task`. Always created, even for simple tasks.
 
-**Note**: `design.md` is overwritten when a new task starts. Since only one task is active at a time, this is safe. When pausing and switching tasks, the previous task's design is still in git history.
+**Why per-task**: Previous tasks' designs are preserved, not overwritten. When pausing and resuming, the design file for a task already exists and can be read directly. Completed tasks' designs remain in `docs/` as historical reference.
+
+**No cleanup needed**: Old design files stay in `docs/` permanently. They're small markdown files tracked by git and provide useful context for future tasks in the same project.
 
 ```markdown
 ## Design — <task-name>
@@ -194,7 +196,7 @@ The spec review happens inside `/start-task`, not as a separate command. When th
 1. Check `Spec Status` in PROGRESS.md
 2. If `pending`:
    - Read `docs/requirements.md`
-   - Create/present `docs/design.md`
+   - Create `docs/design-<task-name>.md` (e.g., `docs/design-fix-auth-bug.md`)
    - Present both to the user for approval
    - Wait for response
    - If approved → set `Spec Status: approved`, begin subtask routing

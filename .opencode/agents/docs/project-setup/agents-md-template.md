@@ -34,7 +34,7 @@ Use this template when creating project AGENTS.md files (~60 lines max):
 ├── .gitignore         ← Ignores task folders, tracks .md, docs/, *.pdf
 ├── docs/
 │   ├── requirements.md  ← EARS requirements with R<n> IDs (from PDFs)
-│   ├── design.md        ← Per-task technical design (created at task start)
+│   ├── design-<task>.md  ← Per-task technical design (created at task start, one per task)
 │   ├── subtasks.md    ← Subtask template with R<n> traceability
 │   ├── verification.md ← What "done" looks like (objective criteria for the reviewer)
 │   ├── workflow.md
@@ -112,7 +112,7 @@ Spec Status: <pending | approved | changes_requested>
 
 ## Reference (load when needed)
 - Requirements & traceability: `docs/requirements.md`
-- Technical design (per-task): `docs/design.md`
+- Technical design (per-task): `docs/design-<task-name>.md`
 - Task prompt (per-task): `<task-folder>/task-prompt.md`
 - Detailed workflow: `docs/workflow.md`
 - Tech stack setup: `docs/tech-stack.md`

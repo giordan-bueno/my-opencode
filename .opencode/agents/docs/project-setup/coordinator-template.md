@@ -71,7 +71,7 @@ When the user starts a new task:
    - Add task-specific subtasks based on the task prompt's instructions
    - Update subtask R<n> references to cover both project and task-specific requirements
 5. **Spec Review Phase**: Before routing any coding subagents, check `Spec Status`:
-   - If `pending`: Create `<project>/docs/design.md` for this task. If a task prompt was provided, include a **Task Context** section summarizing the prompt and a **Task-Specific Requirements** section with new R<n> IDs continuing from the project requirements. Present `docs/requirements.md` and `docs/design.md` to the user for approval:
+   - If `pending`: Create `<project>/docs/design-<task-name>.md` (e.g., `docs/design-fix-auth-bug.md`). The design file is named per-task so it is never overwritten by other tasks. If a task prompt was provided, include a **Task Context** section summarizing the prompt and a **Task-Specific Requirements** section with new R<n> IDs continuing from the project requirements. Present `docs/requirements.md` and `docs/design-<task-name>.md` to the user for approval:
      > "Spec for task `<task-name>`:
      > **Requirements**: [list R<n> IDs from requirements.md] + [task-specific R<n> IDs if any]
      > **Task Context**: [brief summary of the task prompt, or "No task-specific prompt"]
@@ -147,9 +147,11 @@ When ALL subtasks (including Verify) are marked `[x]` and the reviewer has appro
 When a task is resumed from History (via `/resume-task`):
 1. The PROGRESS.md has already been updated by the `/resume-task` command — the task section is restored from History to the active area.
 2. Read the active task section to understand what was completed (`[x]`), what's pending (`[ ]`), and what's blocked (`[!]`).
-3. If there are `[!]` blocked subtasks, report them to the user and ask for guidance before continuing.
-4. Start routing from the first `[ ]` or `[!]` subtask — do NOT re-do completed `[x]` subtasks.
-5. If the task folder or external repo has changed since pausing, warn the user and suggest re-verification of context notes.
+3. Read `<task-folder>/task-prompt.md` if it exists — this provides task-specific context and requirements.
+4. Read `<project>/docs/design-<task-name>.md` — this should already exist from when the task was started (the design file is per-task, not overwritten).
+5. If there are `[!]` blocked subtasks, report them to the user and ask for guidance before continuing.
+6. Start routing from the first `[ ]` or `[!]` subtask — do NOT re-do completed `[x]` subtasks.
+7. If the task folder or external repo has changed since pausing, warn the user and suggest re-verification of context notes.
 
 ### Pausing a Task
 When the user requests to pause a task (via `/pause-task`):
@@ -160,7 +162,7 @@ When the user requests to pause a task (via `/pause-task`):
 - Project rules: `<project>/AGENTS.md`
 - Subtask template: `<project>/docs/subtasks.md`
 - Requirements & traceability: `<project>/docs/requirements.md`
-- Technical design (per-task): `<project>/docs/design.md`
+- Technical design (per-task): `<project>/docs/design-<task-name>.md`
 - Task prompt (per-task): `<task-folder>/task-prompt.md`
 - Detailed workflows: `<project>/docs/workflow.md`
 - Verification criteria: `<project>/docs/verification.md`

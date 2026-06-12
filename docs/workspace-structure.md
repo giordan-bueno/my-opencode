@@ -19,6 +19,8 @@ my-opencode/                         ← Main repo (your GitHub backup)
 │   ├── PROGRESS.md                   ← Task progress tracker (tracked by git)
 │   ├── .gitignore                    ← Created by @pdf-cleaner; ignores task folders, tracks .md, docs/, *.pdf
 │   ├── docs/
+│   │   ├── requirements.md               ← EARS requirements with R<n> IDs (from PDFs)
+│   │   ├── design-<task>.md              ← Per-task technical design (one per task, e.g., design-fix-auth-bug.md)
 │   │   ├── subtasks.md               ← Subtask template for every task in this project
 │   │   ├── verification.md          ← Objective criteria for what "done" looks like
 │   │   ├── workflow.md               ← Detailed workflows

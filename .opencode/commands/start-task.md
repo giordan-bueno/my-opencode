@@ -58,9 +58,9 @@ The coordinator should perform the following in sequence:
 
 ### 2b. Spec review gate
 - Read `$1/docs/requirements.md` — if it doesn't exist or is empty, STOP and report that requirements must be created first (@project-setup should have created this)
-- **If a task prompt was provided**: Extract task-specific requirements from it and add them to the design. Continue R<n> numbering from the project requirements (e.g., if project has R1-R5, task-specific requirements start at R6). Add a "Task Context" section to design.md summarizing the task prompt, and a "Task-Specific Requirements" section listing the new R<n> IDs.
-- Create `$1/docs/design.md` for this task (approach, files to modify, R<n> coverage, alternatives, risks). See `.opencode/agents/docs/project-setup/sdd-reference.md` for the design format.
-- Present `$1/docs/requirements.md`, `$1/docs/design.md`, and (if applicable) the task summary to the user for approval:
+- **If a task prompt was provided**: Extract task-specific requirements from it and add them to the design. Continue R<n> numbering from the project requirements (e.g., if project has R1-R5, task-specific requirements start at R6). Add a "Task Context" section to design summarizing the task prompt, and a "Task-Specific Requirements" section listing the new R<n> IDs.
+- Create `$1/docs/design-$2.md` for this task (approach, files to modify, R<n> coverage, alternatives, risks). The design file is named per-task (e.g., `design-fix-auth-bug.md`) so it is never overwritten by other tasks. See `.opencode/agents/docs/project-setup/sdd-reference.md` for the design format.
+- Present `$1/docs/requirements.md`, `$1/docs/design-$2.md`, and (if applicable) the task summary to the user for approval:
   > "Spec for task `$2`:
   > **Requirements**: [list R<n> IDs from requirements.md]
   > **Design**: [summary of approach, files, alternatives]

@@ -26,7 +26,7 @@ Read `$1/PROGRESS.md` and modify it as follows:
 
 1. Find the History entry for `$2` (match the task name after `### ` and before ` — `)
 2. Extract all the subtask lines and context notes from that entry, **removing** the `[PAUSED: <reason>]` suffix from the header
-3. Extract the `Spec Status` from the History entry header (the `[Spec Status: <value>]` suffix). If not present, determine it from context: if `$1/docs/design.md` exists, assume `approved`; otherwise assume `pending`.
+3. Extract the `Spec Status` from the History entry header (the `[Spec Status: <value>]` suffix). If not present, determine it from context: if `$1/docs/design-$2.md` exists, assume `approved`; otherwise assume `pending`.
 4. Set the Active Task header to point to the resumed task, including the preserved Spec Status:
    ```
    ---
@@ -91,9 +91,11 @@ After restoring the task:
    - Project: $1
    - Task: $2 (resumed)
    - Read `$1/PROGRESS.md` — the task has been restored from History with its previous progress
+   - Read `$1/docs/design-$2.md` — the design file for this task should already exist from when it was started (design files are per-task, named after the task)
+   - **If `$1/$2/task-prompt.md` exists**: Read it for task-specific context and requirements. This is the outlier.ai task prompt unique to this task.
    - Check the `Spec Status` in the header:
      - If `approved`: Skip spec review and continue routing from the first incomplete subtask
-     - If `pending`: Run the spec review phase (create `design.md`, present requirements and design for approval) before routing coding subagents
+     - If `pending`: Run the spec review phase (present the existing `design-$2.md` for approval, or create it if missing) before routing coding subagents
      - If `changes_requested`: Report the previously requested changes to the user before proceeding
    - Check which subtask is next (first `[ ]` or `[!]` item) and begin routing
    - If a subtask was `[!]` blocked, ask the user for guidance before routing to a subagent
@@ -110,3 +112,5 @@ Delegate to the **@git-committer** subagent with these instructions:
 - If the task folder doesn't exist, the user needs to recreate it manually before subagents can work in it
 - If the subtask template (`docs/subtasks.md`) has changed since the task was paused, the restored progress reflects the OLD template. The coordinator should be aware of this.
 - Any blockers that existed when the task was paused are still present — the user should resolve them before the coordinator continues routing
+- Design files are per-task (`docs/design-<task-name>.md`) — they are never overwritten by other tasks, so the resumed task's design is intact
+- Task prompt files (`<task-folder>/task-prompt.md`) remain in the task folder — no action needed during resume

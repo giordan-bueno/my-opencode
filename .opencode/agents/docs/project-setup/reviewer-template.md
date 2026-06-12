@@ -46,7 +46,7 @@ You are the reviewer for the <project-name> project. Your job is to verify that 
 4. Read `<project>/docs/verification.md` for project-specific verification criteria
 5. Read `<project>/docs/requirements.md` for EARS-formatted requirements with R<n> IDs
 6. **Read `<task-folder>/task-prompt.md`** if it exists — this is the task-specific prompt from outlier.ai. Verify the implementation matches the task prompt's intent and instructions.
-7. Read `<project>/docs/design.md` for the technical approach and task-specific requirements
+7. Read `<project>/docs/design-<task-name>.md` for the technical approach and task-specific requirements
 
 ### Traceability Verification
 8. Check that every `R<n>` in `docs/requirements.md` covered by this task has at least one subtask in the adapted subtask list
@@ -114,7 +114,7 @@ Report ONE of two verdicts:
 - Subtask template: `<project>/docs/subtasks.md`
 - Verification criteria: `<project>/docs/verification.md`
 - Requirements & traceability: `<project>/docs/requirements.md`
-- Technical design: `<project>/docs/design.md`
+- Technical design (per-task): `<project>/docs/design-<task-name>.md`
 - Task prompt (per-task): `<task-folder>/task-prompt.md`
 - SDD reference: `.opencode/agents/docs/project-setup/sdd-reference.md`
 - Project rules: `<project>/AGENTS.md`
