@@ -24,9 +24,11 @@ If there is no active task, report: "No active task to pause. PROGRESS.md shows 
 Read `$1/PROGRESS.md` and modify it as follows:
 
 1. Read the current Active Task header and the active task section (everything from `## <task-name>` until the next `##` heading or the `## History` section)
-2. Copy the entire active task section into the `## History` section, adding a timestamp and reason:
+2. Read the current `Spec Status` from the PROGRESS.md header (e.g., `pending`, `approved`, or `changes_requested`).
+
+3. Copy the entire active task section into the `## History` section, adding a timestamp, reason, and preserved Spec Status:
    ```
-   ### <task-folder-name> — [YYYY-MM-DD HH:MM] [PAUSED: <reason>]
+   ### <task-folder-name> — [YYYY-MM-DD HH:MM] [PAUSED: <reason>] [Spec Status: <saved from header>]
    - [x] 1. <completed subtask>
      - <context notes preserved as-is>
    - [ ] 2. <pending subtask>
@@ -35,12 +37,13 @@ Read `$1/PROGRESS.md` and modify it as follows:
    ... all subtasks preserved exactly as they are
    ```
 3. Insert this entry at the **top** of the History section (newest first)
-4. Delete the active task section from the main area
-5. Reset the Active Task header:
+5. Delete the active task section from the main area
+6. Reset the Active Task header:
    ```
    ---
    Active Task: <none>
    Task Folder: <none>
+   Spec Status: <none>
    ---
    ```
 
@@ -51,11 +54,12 @@ The result should look like:
 ---
 Active Task: <none>
 Task Folder: <none>
+Spec Status: <none>
 ---
 
 ## History
 
-### fix-auth-bug — 2026-06-09 14:30 [PAUSED: task expired on outlier]
+### fix-auth-bug — 2026-06-09 14:30 [PAUSED: task expired on outlier] [Spec Status: approved]
 - [x] 1. Clone & navigate
   - Repo cloned to fix-auth-bug/external-repo/, branch fix-auth
 - [x] 2. Identify issue

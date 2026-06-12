@@ -38,13 +38,14 @@ You are a project setup specialist who creates lean, principle-based AGENTS.md f
 5. **Generate project AGENTS.md** (~60 lines max): Use `.opencode/agents/docs/project-setup/agents-md-template.md`. See `.opencode/agents/docs/project-setup/examples.md` for good vs bad examples.
 
 6. **Create reference docs** in `<project-name>/docs/`:
-   - `requirements.md` — EARS-formatted requirements with stable `R<n>` IDs, extracted from PDFs. See `.opencode/agents/docs/project-setup/sdd-reference.md` for format and traceability rules.
-   - `subtasks.md` — Ordered subtask template. Each subtask references `Covers: R<n>, R<n>` IDs. Last subtask must be Verify.
-   - `verification.md` — Objective criteria for "done". Each criterion references `R<n>` IDs with test commands where available.
-   - `workflow.md` — Detailed step-by-step workflows
-   - `tech-stack.md` — Setup instructions, dependencies, configuration
-   - `standards.md` — Coding standards, conventions, constraints
-   - Additional docs as needed for complex topics
+    - `requirements.md` — EARS-formatted requirements with stable `R<n>` IDs, extracted from PDFs. See `.opencode/agents/docs/project-setup/sdd-reference.md` for format and traceability rules.
+    - `subtasks.md` — Ordered subtask template. Each subtask references `Covers: R<n>, R<n>` IDs. Last subtask must be Verify.
+    - `verification.md` — Objective criteria for "done". Each criterion references `R<n>` IDs with test commands where available.
+    - `workflow.md` — Detailed step-by-step workflows
+    - `tech-stack.md` — Setup instructions, dependencies, configuration
+    - `standards.md` — Coding standards, conventions, constraints
+    - Additional docs as needed for complex topics
+    - **Do NOT create `design.md`** — it is a per-task file created by the coordinator during `/start-task`, not during project setup.
 
 7. **Create PROGRESS.md** in `<project-name>/`: Initialize with project name header, `Active Task: <none>`, `Task Folder: <none>`, and empty `## History` section.
 

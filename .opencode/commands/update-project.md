@@ -33,6 +33,7 @@ After Step 2 completes successfully, delegate to the **@project-setup** subagent
 - Read the existing `$1/AGENTS.md` first to understand current rules and structure.
 - Read existing reference docs in `$1/docs/` to understand what's already documented.
 - Read the existing `$1/docs/subtasks.md` to understand the current subtask template.
+- Read the existing `$1/docs/requirements.md` to understand current requirements and R<n> IDs.
 - **Read the existing `$1/PROGRESS.md`** to preserve its format and any existing task history. Do NOT reset or delete task history — only update the subtask template if it changed, and preserve the `Active Task` header format.
 - Read the existing `$1/docs/verification.md` if it exists, to understand current verification criteria.
 - Check existing subagents in `.opencode/agents/` that match the pattern `$1_*.md` to understand current subagent setup.
@@ -41,6 +42,7 @@ After Step 2 completes successfully, delegate to the **@project-setup** subagent
 - **Merge** the new information while maintaining the lean routing layer approach:
   - Update `$1/AGENTS.md` only if new principles, behaviors, or autonomy rules are needed (keep it ~60 lines)
   - Add or update reference docs in `$1/docs/` for detailed workflows, tech stack changes, or new standards
+  - Update `$1/docs/requirements.md` with any new or changed requirements from the new PDFs, continuing R<n> numbering from the existing max ID
   - Update `$1/docs/subtasks.md` if the new PDFs introduce new steps or change the task workflow
   - Add any new rules, steps, or constraints not already present
   - Update any rules that have changed or been clarified in the new PDFs

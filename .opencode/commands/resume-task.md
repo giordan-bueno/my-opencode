@@ -26,11 +26,13 @@ Read `$1/PROGRESS.md` and modify it as follows:
 
 1. Find the History entry for `$2` (match the task name after `### ` and before ` — `)
 2. Extract all the subtask lines and context notes from that entry, **removing** the `[PAUSED: <reason>]` suffix from the header
-3. Set the Active Task header to point to the resumed task:
+3. Extract the `Spec Status` from the History entry header (the `[Spec Status: <value>]` suffix). If not present, determine it from context: if `$1/docs/design.md` exists, assume `approved`; otherwise assume `pending`.
+4. Set the Active Task header to point to the resumed task, including the preserved Spec Status:
    ```
    ---
    Active Task: $2
    Task Folder: $1/$2/
+   Spec Status: <extracted or inferred value>
    ---
    ```
 4. Add the restored task section to the active area (before `## History`):
@@ -52,6 +54,7 @@ The result should look like:
 ---
 Active Task: fix-auth-bug
 Task Folder: project-x/fix-auth-bug/
+Spec Status: approved
 ---
 
 ## fix-auth-bug
@@ -88,6 +91,10 @@ After restoring the task:
    - Project: $1
    - Task: $2 (resumed)
    - Read `$1/PROGRESS.md` — the task has been restored from History with its previous progress
+   - Check the `Spec Status` in the header:
+     - If `approved`: Skip spec review and continue routing from the first incomplete subtask
+     - If `pending`: Run the spec review phase (create `design.md`, present requirements and design for approval) before routing coding subagents
+     - If `changes_requested`: Report the previously requested changes to the user before proceeding
    - Check which subtask is next (first `[ ]` or `[!]` item) and begin routing
    - If a subtask was `[!]` blocked, ask the user for guidance before routing to a subagent
 

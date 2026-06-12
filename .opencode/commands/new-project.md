@@ -33,13 +33,15 @@ After Step 2 completes successfully, delegate to the **@project-setup** subagent
 - Read all clean PDF files inside the `$1/` folder
 - Create a **lean, principle-based** `$1/AGENTS.md` (~60 lines) that serves as a routing layer
 - Create detailed reference docs in `$1/docs/` folder:
-  - `subtasks.md` - Ordered subtask template defining the steps every task in this project must follow, with subagent assignments
-  - `verification.md` - Objective criteria for what "done" looks like (what the reviewer checks against, extracted from PDF requirements)
-  - `workflow.md` - Step-by-step workflows from the PDFs
-  - `tech-stack.md` - Setup instructions, dependencies, configuration
-  - `standards.md` - Coding standards, conventions, constraints
-  - Additional docs as needed for complex topics
-- Create `$1/PROGRESS.md` with initialized header and empty history section (Active Task: none, Task Folder: none)
+   - `requirements.md` - EARS-formatted requirements with stable R<n> IDs, extracted from PDFs (see `.opencode/agents/docs/project-setup/sdd-reference.md` for format)
+   - `subtasks.md` - Ordered subtask template defining the steps every task in this project must follow, with subagent assignments
+   - `verification.md` - Objective criteria for what "done" looks like (what the reviewer checks against, extracted from PDF requirements)
+   - `workflow.md` - Step-by-step workflows from the PDFs
+   - `tech-stack.md` - Setup instructions, dependencies, configuration
+   - `standards.md` - Coding standards, conventions, constraints
+   - Additional docs as needed for complex topics
+- Create `$1/PROGRESS.md` with initialized header and empty history section (Active Task: none, Task Folder: none, Spec Status: none)
+- **NOTE**: Do NOT create `$1/docs/design.md` — it is a per-task file created by the coordinator during `/start-task`, not during project setup
 - NOTE: `$1/.gitignore` was already created by @pdf-cleaner in Step 1 — do NOT recreate it
 - The AGENTS.md should include: Project Context, Decision Rules, Core Behaviors, Autonomy Levels, Workspace Structure, Workflows, Progress Tracking section, User vs AI Responsibilities, and Reference pointers to the docs/ folder
 - Follow the principle: "AGENTS.md is a routing layer, not an encyclopedia"
@@ -64,4 +66,4 @@ After Step 2 completes successfully, delegate to the **@project-setup** subagent
 After Step 3 completes successfully, delegate to the **@git-committer** subagent with these instructions:
 - Commit the `$1/AGENTS.md`, `$1/PROGRESS.md`, `$1/docs/` folder, and any created subagent files (in `.opencode/agents/`) to the main workspace repository
 - Note: `$1/.gitignore` and `$1/*.pdf` were already committed in Step 2 — do NOT re-add unless they changed
-- Use commit message: `docs($1): add project rules, subtask template, and subagents from instruction PDFs`
+- Use commit message: `docs($1): add project rules, requirements, subtask template, and subagents from instruction PDFs`

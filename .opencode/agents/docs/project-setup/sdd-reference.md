@@ -60,9 +60,21 @@ WHILE the system is in production mode, the system MUST log all data modificatio
 | All changes are traceable | R4 |
 ```
 
+### When PDFs lack system requirements
+
+Not all outlier.ai projects are software development projects. Some PDFs are purely procedural (steps to follow on a website) with no "system MUST" statements. In these cases:
+
+- Derive minimal requirements from the subtask template steps — each step that has a verifiable outcome becomes an `R<n>`
+- Focus on **what constitutes "done"** rather than system behavior
+- Example: "Clone the repo and navigate to the correct branch" → `R1: The task folder MUST contain the correct repo checked out to the specified branch`
+- Keep requirements concise and verifiable — avoid inflating the count
+- When EARS doesn't fit naturally, `MUST` statements are acceptable (e.g., `The task MUST pass all project tests`)
+
 ## Design Format (docs/design.md)
 
 **Per-task file** — created/overwritten each time a task starts via `/start-task`. Always created, even for simple tasks.
+
+**Note**: `design.md` is overwritten when a new task starts. Since only one task is active at a time, this is safe. When pausing and switching tasks, the previous task's design is still in git history.
 
 ```markdown
 ## Design — <task-name>
