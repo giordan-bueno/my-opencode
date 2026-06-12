@@ -37,9 +37,10 @@ Delegate to the **@${1}_coordinator** subagent with these instructions:
 
 The coordinator should perform the following in sequence:
 
-### 2a. Setup PROGRESS.md
+### 2a. Update PROGRESS.md pointer and create progress file
+
 - Read `$1/PROGRESS.md` to check if there's already an active task. If `Active Task` is not `<none>`, ask the user whether to switch tasks or continue the current one.
-- Create or update the `Active Task` header in `$1/PROGRESS.md`:
+- Update the `$1/PROGRESS.md` pointer:
   ```
   ---
   Active Task: $2
@@ -47,22 +48,32 @@ The coordinator should perform the following in sequence:
   Spec Status: pending
   ---
   ```
-- Add a new task section below the header using the subtask template from `$1/docs/subtasks.md`. **If a task prompt was provided**, adapt the subtask list based on the task prompt's context — add task-specific steps, skip project steps that don't apply, and include task-specific requirements as additional R<n> IDs in the design. The last subtask must always be the **Verify** step routed to the reviewer subagent:
-  ```
-  ## $2
+- Create a new `$1/progress-$2.md` file with the subtask list:
+  ```markdown
+  # Task: $2
+
+  ---
+  Status: In Progress
+  Created: [current date]
+  Design: docs/design-$2.md
+  Task Prompt: $1/$2/task-prompt.md (or "None")
+  ---
+
   - [ ] 1. <subtask from template>
   - [ ] 2. <subtask from template>
   [... all subtasks from template]
   - [ ] N. Verify — @${1}_reviewer: Run tests, check standards, confirm all requirements met
   ```
+  **If a task prompt was provided**, adapt the subtask list based on the task prompt's context — add task-specific steps, skip project steps that don't apply, and include task-specific requirements as additional R<n> IDs in the design. The last subtask must always be the **Verify** step routed to the reviewer subagent.
 
 ### 2b. Spec review gate
 - Read `$1/docs/requirements.md` — if it doesn't exist or is empty, STOP and report that requirements must be created first (@project-setup should have created this)
 - **If a task prompt was provided**: Extract task-specific requirements from it and add them to the design. Continue R<n> numbering from the project requirements (e.g., if project has R1-R5, task-specific requirements start at R6). Add a "Task Context" section to design summarizing the task prompt, and a "Task-Specific Requirements" section listing the new R<n> IDs.
-- Create `$1/docs/design-$2.md` for this task (approach, files to modify, R<n> coverage, alternatives, risks). The design file is named per-task (e.g., `design-fix-auth-bug.md`) so it is never overwritten by other tasks. See `.opencode/agents/docs/project-setup/sdd-reference.md` for the design format.
+- Create `$1/docs/design-$2.md` for this task (approach, files to modify, R<n> coverage, alternatives, risks). The design file is named per-task (e.g., `docs/design-fix-auth-bug.md`) so it is never overwritten by other tasks. See `.opencode/agents/docs/project-setup/sdd-reference.md` for the design format.
 - Present `$1/docs/requirements.md`, `$1/docs/design-$2.md`, and (if applicable) the task summary to the user for approval:
   > "Spec for task `$2`:
   > **Requirements**: [list R<n> IDs from requirements.md]
+  > **Task Context**: [brief summary of the task prompt, or "No task-specific prompt"]
   > **Design**: [summary of approach, files, alternatives]
   > Approve spec and proceed? (y/n/changes)"
 - **Do NOT route any coding subagents until the user approves the spec**
@@ -71,7 +82,7 @@ The coordinator should perform the following in sequence:
 
 ### 2c. Route subtasks
 - After spec approval, begin routing the first subtask to the appropriate project subagent
-- After each subagent completes, update PROGRESS.md with results and move to the next subtask
+- After each subagent completes, update `$1/progress-$2.md` with results and move to the next subtask
 - After ALL subtasks (including Verify) are `[x]` and the reviewer approves, **report to the user for final approval** — do NOT mark the task complete automatically
 
 See `.opencode/agents/docs/project-setup/sdd-reference.md` for the SDD process, EARS syntax, and traceability rules.

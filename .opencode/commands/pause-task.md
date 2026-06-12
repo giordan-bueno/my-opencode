@@ -1,9 +1,9 @@
 ---
-description: Pause the current task and archive progress to history. Usage: /pause-task <project-name> <reason>
+description: Pause the current task and update its progress file status. Usage: /pause-task <project-name> <reason>
 agent: build
 ---
 
-Pausing the current task. The active task's progress will be archived to the History section of PROGRESS.md so it can be resumed later.
+Pausing the current task. The task's progress file will be marked as paused and the PROGRESS.md pointer will be reset.
 
 - **Project name**: $1
 - **Reason**: $ARGUMENTS
@@ -19,26 +19,15 @@ Before pausing, confirm:
 
 If there is no active task, report: "No active task to pause. PROGRESS.md shows Active Task: <none>."
 
-## Step 2: Archive the active task to History
+## Step 2: Update progress file and reset pointer
 
-Read `$1/PROGRESS.md` and modify it as follows:
+Read `$1/PROGRESS.md` to get the active task name, then:
 
-1. Read the current Active Task header and the active task section (everything from `## <task-name>` until the next `##` heading or the `## History` section)
-2. Read the current `Spec Status` from the PROGRESS.md header (e.g., `pending`, `approved`, or `changes_requested`).
-
-3. Copy the entire active task section into the `## History` section, adding a timestamp, reason, and preserved Spec Status:
-   ```
-   ### <task-folder-name> — [YYYY-MM-DD HH:MM] [PAUSED: <reason>] [Spec Status: <saved from header>]
-   - [x] 1. <completed subtask>
-     - <context notes preserved as-is>
-   - [ ] 2. <pending subtask>
-   - [!] 3. <blocked subtask>
-     - BLOCKED: <blocked reason preserved as-is>
-   ... all subtasks preserved exactly as they are
-   ```
-3. Insert this entry at the **top** of the History section (newest first)
-5. Delete the active task section from the main area
-6. Reset the Active Task header:
+1. Read the current `Active Task` from `$1/PROGRESS.md` (this gives you the task name, e.g., `fix-auth-bug`)
+2. Read `$1/progress-<task-name>.md` — the per-task progress file
+3. Change the `Status` field in the progress file from `In Progress` to `[PAUSED: <reason>]`
+4. Read the current `Spec Status` from the PROGRESS.md header
+5. Reset `$1/PROGRESS.md` to:
    ```
    ---
    Active Task: <none>
@@ -48,6 +37,8 @@ Read `$1/PROGRESS.md` and modify it as follows:
    ```
 
 The result should look like:
+
+**PROGRESS.md** (pointer reset):
 ```markdown
 # Progress Tracker — <project-name>
 
@@ -56,10 +47,19 @@ Active Task: <none>
 Task Folder: <none>
 Spec Status: <none>
 ---
+```
 
-## History
+**progress-fix-auth-bug.md** (status changed):
+```markdown
+# Task: fix-auth-bug
 
-### fix-auth-bug — 2026-06-09 14:30 [PAUSED: task expired on outlier] [Spec Status: approved]
+---
+Status: [PAUSED: task expired on outlier]
+Created: 2026-06-11
+Design: docs/design-fix-auth-bug.md
+Task Prompt: fix-auth-bug/task-prompt.md
+---
+
 - [x] 1. Clone & navigate
   - Repo cloned to fix-auth-bug/external-repo/, branch fix-auth
 - [x] 2. Identify issue
@@ -68,23 +68,18 @@ Spec Status: <none>
   - BLOCKED: awaiting clarification on empty string vs null behavior
 - [ ] 4. Run tests
 - [ ] 5. Verify — @<project>_reviewer
-
-### add-login-feature — 2026-06-08 16:45
-- [x] 1. Clone & navigate
-  - Repo cloned to add-login-feature/external-repo/, main
-... etc
 ```
 
 ## Step 3: Commit the paused progress
 
 Delegate to the **@git-committer** subagent with these instructions:
-- Commit the updated `$1/PROGRESS.md` to the main workspace repository
-- Use commit message: `docs($1): pause task — <reason>`
+- Commit `$1/PROGRESS.md` and `$1/progress-<task-name>.md` to the main workspace repository
+- Use commit message: `docs($1): pause task <task-name> — <reason>`
 
 ## Notes
 
 - This command does NOT delete any task folders or external repos. They remain on disk in case the task is resumed later.
 - Paused tasks can be resumed later with `/resume-task $1 <task-folder-name>`
-- If you cannot re-claim the task on outlier.ai, the paused entry stays in History as an archive.
 - Design files (`docs/design-<task-name>.md`) are per-task and remain in `docs/` — no action needed during pause since they are never overwritten by other tasks.
 - Task prompt files (`<task-folder>/task-prompt.md`) remain in the task folder — no action needed during pause.
+- The task's progress file stays in the project folder with `Status: [PAUSED: <reason>]` as a clear marker.

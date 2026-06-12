@@ -44,8 +44,8 @@ When facing ambiguity:
 | `/new-project <name> <file.pdf ...>` | Create project from watermarked PDFs |
 | `/update-project <name> <file.pdf ...>` | Update project with new PDFs |
 | `/start-task <project> <folder>` | Start task, spec review gate, invoke coordinator |
-| `/pause-task <project> <reason>` | Archive active task to History |
-| `/resume-task <project> <folder>` | Restore paused task from History |
+| `/pause-task <project> <reason>` | Change progress file status to paused, reset pointer |
+| `/resume-task <project> <folder>` | Restore pointer, change status back to In Progress |
 
 **Working on a project**: Read `<project>/AGENTS.md` for context and rules.
 
