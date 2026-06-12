@@ -70,6 +70,22 @@ Not all outlier.ai projects are software development projects. Some PDFs are pur
 - Keep requirements concise and verifiable — avoid inflating the count
 - When EARS doesn't fit naturally, `MUST` statements are acceptable (e.g., `The task MUST pass all project tests`)
 
+### Task prompts and task-specific requirements
+
+Many outlier.ai tasks come with a **task prompt** — specific instructions, context, or a prompt to implement/fix that's unique to each task. These are stored in `<task-folder>/task-prompt.md`.
+
+Task prompts add **task-specific requirements** that complement the project-level requirements:
+
+- **Project-level requirements** (in `docs/requirements.md`): Stable R<n> IDs derived from the project PDFs. These apply to ALL tasks in the project. Example: R1-R5.
+- **Task-specific requirements** (in `docs/design.md` "Task-Specific Requirements" section): New R<n> IDs derived from the task prompt, continuing numbering from the project requirements. These apply only to THIS task. Example: R6-R8.
+- The reviewer verifies BOTH: project R<n> and task-specific R<n> must be covered.
+
+When a task prompt exists:
+1. The coordinator reads `task-prompt.md` before creating `design.md`
+2. The coordinator extracts new requirements from the task prompt, continuing R<n> numbering from `requirements.md`
+3. The coordinator adapts the subtask list based on the task prompt's instructions
+4. The reviewer checks implementation against both project and task-specific requirements
+
 ## Design Format (docs/design.md)
 
 **Per-task file** — created/overwritten each time a task starts via `/start-task`. Always created, even for simple tasks.
@@ -79,13 +95,22 @@ Not all outlier.ai projects are software development projects. Some PDFs are pur
 ```markdown
 ## Design — <task-name>
 
+### Task Context
+<Brief summary of the task prompt from outlier.ai, or "No task-specific prompt — project-level requirements only">
+
+### Task-Specific Requirements
+<If a task prompt was provided, extract requirements unique to this task as R<n> IDs continuing from the project requirements. If project has R1-R5, task-specific requirements start at R6.>
+
+### R6: <task-specific requirement from prompt>
+<Description of the requirement extracted from the task prompt>
+
 ### Approach
 <Chosen approach with brief rationale>
 
 ### Files to Modify
 | File | Change Type | R<n> Covered |
 |------|------------|--------------|
-| src/auth/middleware.ts | Modify | R1, R2 |
+| src/auth/middleware.ts | Modify | R1, R2, R6 |
 | src/errors/handler.ts | Create | R3 |
 | src/middleware/logger.ts | Modify | R4 |
 
@@ -106,10 +131,11 @@ Not all outlier.ai projects are software development projects. Some PDFs are pur
 
 The `R<n>` IDs create a chain that the reviewer verifies:
 
-1. **Every `R<n>` must appear in at least one subtask** in `docs/subtasks.md`
-2. **Every subtask must reference at least one `R<n>`** (except the Verify subtask, which implicitly covers all)
-3. **Every `R<n>` must have at least one verification criterion** in `docs/verification.md`
-4. **The reviewer checks the full chain**: R\<n\> → subtask → implementation → test
+1. **Every project-level `R<n>` must appear in at least one subtask** in the adapted subtask list (from `docs/subtasks.md` template, possibly adapted for the task)
+2. **Every task-specific `R<n>` must appear in at least one subtask** in the adapted subtask list
+3. **Every subtask must reference at least one `R<n>`** (except the Verify subtask, which implicitly covers all)
+4. **Every `R<n>` (project and task-specific) must have at least one verification criterion** in `docs/verification.md`
+5. **The reviewer checks the full chain**: R\<n\> → subtask → implementation → test
 
 If any `R<n>` is untested or uncovered, the reviewer reports `CHANGES_REQUESTED`.
 

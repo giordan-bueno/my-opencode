@@ -42,6 +42,7 @@ Use this template when creating project AGENTS.md files (~60 lines max):
 │   ├── standards.md
 │   └── [other-docs].md
 ├── <task-folder>/     ← One per task (user-created, gitignored)
+│   ├── task-prompt.md ← Task-specific prompt from outlier.ai (gitignored, per-task)
 │   └── [external-repo]/  ← Cloned repo for this task (gitignored)
 └── *.pdf              ← Clean instruction PDFs
 ```
@@ -112,6 +113,7 @@ Spec Status: <pending | approved | changes_requested>
 ## Reference (load when needed)
 - Requirements & traceability: `docs/requirements.md`
 - Technical design (per-task): `docs/design.md`
+- Task prompt (per-task): `<task-folder>/task-prompt.md`
 - Detailed workflow: `docs/workflow.md`
 - Tech stack setup: `docs/tech-stack.md`
 - Coding standards: `docs/standards.md`

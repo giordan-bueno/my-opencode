@@ -25,6 +25,7 @@ my-opencode/                         ← Main repo (your GitHub backup)
 │   │   ├── tech-stack.md             ← Setup, dependencies, configuration
 │   │   └── standards.md              ← Coding standards, conventions
 │   ├── <task-folder>/                ← One per task (user-created, gitignored)
+│   │   ├── task-prompt.md            ← Task-specific prompt from outlier.ai (per-task, gitignored)
 │   │   └── [external-repo]/          ← Cloned repo for this task (gitignored)
 │   └── *.pdf                         ← Clean instruction PDFs
 ├── docs/                             ← Workspace-level reference docs
@@ -45,4 +46,5 @@ my-opencode/                         ← Main repo (your GitHub backup)
 - **`AGENTS.md`** (root): Workspace routing layer. Read first for any project work.
 - **`<project>/AGENTS.md`**: Project-specific rules and subagent routing. Read before working on that project.
 - **`<project>/PROGRESS.md`**: Single-file task tracker per project. Active task header + History section.
+- **`<project>/<task-folder>/task-prompt.md`**: Task-specific prompt from outlier.ai. Contains instructions unique to this task. Created by the user before running `/start-task`. Read by the coordinator and subagents for task context.
 - **`<project>/.gitignore`**: Whitelist pattern (`*` then `!file` negations). Ensures only tracked files are committed, not task folders or external repos.

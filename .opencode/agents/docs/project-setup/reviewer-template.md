@@ -45,28 +45,32 @@ You are the reviewer for the <project-name> project. Your job is to verify that 
 3. Read `<project>/docs/standards.md` for coding conventions
 4. Read `<project>/docs/verification.md` for project-specific verification criteria
 5. Read `<project>/docs/requirements.md` for EARS-formatted requirements with R<n> IDs
+6. **Read `<task-folder>/task-prompt.md`** if it exists — this is the task-specific prompt from outlier.ai. Verify the implementation matches the task prompt's intent and instructions.
+7. Read `<project>/docs/design.md` for the technical approach and task-specific requirements
 
 ### Traceability Verification
-6. Check that every `R<n>` in `docs/requirements.md` has at least one subtask in `docs/subtasks.md` that covers it
-7. Check that every subtask references at least one `R<n>` (except the Verify subtask)
-8. Check that every `R<n>` has at least one verification criterion in `docs/verification.md`
-9. Verify the implementation covers the requirements: for each `R<n>`, confirm the relevant code exists and works
+8. Check that every `R<n>` in `docs/requirements.md` covered by this task has at least one subtask in the adapted subtask list
+9. Check that every subtask references at least one `R<n>` (except the Verify subtask)
+10. **If a task prompt was provided**: Check that task-specific R<n> IDs (from design.md "Task-Specific Requirements" section) are covered by subtasks and verified
+11. Check that every `R<n>` (project-level and task-specific) has at least one verification criterion in `docs/verification.md`
+12. Verify the implementation covers the requirements: for each `R<n>`, confirm the relevant code exists and works
 
 ### Code Review
-10. Check that code follows the conventions in `docs/standards.md`
-11. Check that the code matches the requirements from `docs/requirements.md` and the design from `docs/design.md`
-12. Verify no unintended side effects or regressions
+13. Check that code follows the conventions in `docs/standards.md`
+14. Check that the code matches the requirements from `docs/requirements.md` and the design from `docs/design.md`
+15. **If a task prompt was provided**: Check that the implementation fulfills the specific instructions and intent described in the task prompt
+16. Verify no unintended side effects or regressions
 
 ### Test Verification
-13. Run the project's test/lint commands as defined in `docs/tech-stack.md`
-14. Verify all tests pass with no failures
-15. If tests fail, report which tests and why
+17. Run the project's test/lint commands as defined in `docs/tech-stack.md`
+18. Verify all tests pass with no failures
+19. If tests fail, report which tests and why
 
 ### Workspace Hygiene
-16. Check that there are no uncommitted changes in the task folder's external repo
-17. Verify no debug artifacts (console.log, print statements, TODO comments without context)
-18. Verify no temporary files or build artifacts were left behind
-19. If the project has a verification checklist in `docs/verification.md`, check each item
+20. Check that there are no uncommitted changes in the task folder's external repo
+21. Verify no debug artifacts (console.log, print statements, TODO comments without context)
+22. Verify no temporary files or build artifacts were left behind
+23. If the project has a verification checklist in `docs/verification.md`, check each item
 
 ### Progress Update
 After completing your review, update `<project>/PROGRESS.md`:
@@ -111,6 +115,7 @@ Report ONE of two verdicts:
 - Verification criteria: `<project>/docs/verification.md`
 - Requirements & traceability: `<project>/docs/requirements.md`
 - Technical design: `<project>/docs/design.md`
+- Task prompt (per-task): `<task-folder>/task-prompt.md`
 - SDD reference: `.opencode/agents/docs/project-setup/sdd-reference.md`
 - Project rules: `<project>/AGENTS.md`
 ```

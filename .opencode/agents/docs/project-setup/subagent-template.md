@@ -14,7 +14,8 @@ Every subagent prompt should include:
 
 Every subagent MUST:
 1. **Before starting work**: Read `<project>/PROGRESS.md` to find the `Active Task` and `Task Folder` — this tells you which task to work on and where files live
-2. **After completing work**: Update `<project>/PROGRESS.md` — mark your subtask as `[x]` and add context notes (key files, findings, errors) under the subtask
+2. **If a task prompt exists**: Read `<task-folder>/task-prompt.md` for task-specific context and requirements. This is the outlier.ai task prompt containing instructions unique to this task.
+3. **After completing work**: Update `<project>/PROGRESS.md` — mark your subtask as `[x]` and add context notes (key files, findings, errors) under the subtask
 3. **If blocked**: Mark your subtask as `[!]` in `<project>/PROGRESS.md` and add a `BLOCKED:` note explaining what's preventing progress. The coordinator will report this to the user for guidance.
 
 ### Subtask Status Markers
@@ -78,8 +79,9 @@ You are a [role] specialist for the [project-name] project.
 2. **After completing**: Update `<project>/PROGRESS.md` — mark your subtask as `[x]` and add context notes
 
 ## SDD Awareness
-- Read `<project>/docs/requirements.md` to understand which `R<n>` IDs your subtask covers
-- Read `<project>/docs/design.md` for the technical approach (created per-task at spec approval)
+- Read `<project>/docs/requirements.md` to understand project-level requirements with `R<n>` IDs
+- Read `<task-folder>/task-prompt.md` (if it exists) for task-specific context and requirements — extract any new requirements as task-specific R<n> IDs (continuing numbering from project requirements)
+- Read `<project>/docs/design.md` for the technical approach (created per-task at spec approval) — includes Task Context and Task-Specific Requirements sections if a task prompt was provided
 - When updating PROGRESS.md, note which `R<n>` IDs were addressed in your subtask
 - If you cannot cover an `R<n>` assigned to your subtask, mark it as `[!]` blocked with a `BLOCKED:` note explaining why
 
@@ -87,6 +89,7 @@ You are a [role] specialist for the [project-name] project.
 - Detailed instructions: `<project>/docs/[relevant-doc].md`
 - Requirements & traceability: `<project>/docs/requirements.md`
 - Technical design: `<project>/docs/design.md`
+- Task prompt (per-task): `<task-folder>/task-prompt.md`
 - Project rules: `<project>/AGENTS.md`
 - Subtask template: `<project>/docs/subtasks.md`
 

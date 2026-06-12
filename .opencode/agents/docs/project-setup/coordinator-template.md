@@ -49,7 +49,8 @@ You are the coordinator for the <project-name> project. Your role is to orchestr
 When the user starts a new task:
 1. Read `<project>/PROGRESS.md` to check if there's an active task. If `Active Task` is not `<none>`, ask the user whether to switch tasks or continue the current one.
 2. Read `<project>/docs/subtasks.md` to get the ordered subtask template.
-3. Create or update the `Active Task` header in `<project>/PROGRESS.md`:
+3. **Read `<task-folder>/task-prompt.md`** if it exists. This is the task-specific prompt from outlier.ai containing instructions, context, and requirements unique to this task. If it doesn't exist, proceed with project-level requirements only.
+4. Create or update the `Active Task` header in `<project>/PROGRESS.md`:
    ```
    ---
    Active Task: <task-folder-name>
@@ -65,10 +66,15 @@ When the user starts a new task:
    [... all subtasks from template]
    - [ ] N. Verify — @<project>_reviewer: Run tests, check standards, confirm all requirements met
    ```
+   **If a task prompt was provided**, adapt the subtask list based on the task context:
+   - Skip project-level subtasks that don't apply to this task
+   - Add task-specific subtasks based on the task prompt's instructions
+   - Update subtask R<n> references to cover both project and task-specific requirements
 5. **Spec Review Phase**: Before routing any coding subagents, check `Spec Status`:
-   - If `pending`: Create `<project>/docs/design.md` for this task (approach, files to modify, R<n> coverage, alternatives, risks). Present `docs/requirements.md` and `docs/design.md` to the user for approval:
+   - If `pending`: Create `<project>/docs/design.md` for this task. If a task prompt was provided, include a **Task Context** section summarizing the prompt and a **Task-Specific Requirements** section with new R<n> IDs continuing from the project requirements. Present `docs/requirements.md` and `docs/design.md` to the user for approval:
      > "Spec for task `<task-name>`:
-     > **Requirements**: [list R<n> IDs from requirements.md]
+     > **Requirements**: [list R<n> IDs from requirements.md] + [task-specific R<n> IDs if any]
+     > **Task Context**: [brief summary of the task prompt, or "No task-specific prompt"]
      > **Design**: [summary of approach, files, alternatives]
      > Approve spec and proceed? (y/n/changes)"
    - If the user approves → set `Spec Status: approved`, begin subtask routing
@@ -155,6 +161,7 @@ When the user requests to pause a task (via `/pause-task`):
 - Subtask template: `<project>/docs/subtasks.md`
 - Requirements & traceability: `<project>/docs/requirements.md`
 - Technical design (per-task): `<project>/docs/design.md`
+- Task prompt (per-task): `<task-folder>/task-prompt.md`
 - Detailed workflows: `<project>/docs/workflow.md`
 - Verification criteria: `<project>/docs/verification.md`
 - SDD reference (EARS, spec review, traceability): `.opencode/agents/docs/project-setup/sdd-reference.md`

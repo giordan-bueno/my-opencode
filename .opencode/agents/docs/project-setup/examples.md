@@ -112,7 +112,9 @@ Spec Status: pending
 Coordinator presents to user:
 > "Spec for task 'fix-auth-bug':
 > **Requirements**: R1 (auth required), R2 (login redirect), R3 (error display), R4 (audit logging)
-> **Design**: Add JWT middleware to 3 routes, create error handler, add audit logger
+> **Task Context**: Fix the authentication validator crash when email is empty — the prompt asks for null-safe handling with proper error responses
+> **Task-Specific Requirements**: R5 (null-safe email validation), R6 (proper error response for empty inputs)
+> **Design**: Add null check in validator, create error response handler, add audit logging
 > **Alternatives considered**: Session-based auth (rejected — PDF requires JWT)
 > Approve spec and proceed? (y/n/changes)"
 
@@ -218,7 +220,50 @@ When a task is paused (e.g., outlier task expired), it moves to History with the
 - All progress is preserved: `[x]` completed, `[!]` blocked, `[ ]` pending
 - Resuming with `/resume-task` moves the entry back to the active area and removes the `PAUSED` tag
 
-## Key Takeaway
+## Good Example: Design with Task Prompt
+
+When a task has a task-specific prompt from outlier.ai (`task-prompt.md`), the design includes additional sections:
+
+```markdown
+## Design — fix-auth-bug
+
+### Task Context
+Fix the authentication validator crash when email is empty. The task prompt requires null-safe handling with proper error responses and audit trail for all auth failures.
+
+### Task-Specific Requirements
+### R5: Null-safe email validation
+WHEN a user submits a form with an empty email field, the system MUST validate gracefully without crashing and return a structured error response.
+
+### R6: Error response format
+IF an authentication request fails validation, THEN the system MUST return a JSON error response with fields: `error`, `message`, `statusCode`.
+
+### Approach
+Add null check in auth validator before JWT verification, create dedicated error response handler for validation failures.
+
+### Files to Modify
+| File | Change Type | R<n> Covered |
+|------|------------|--------------|
+| src/auth/validator.ts | Modify | R1, R2, R5, R6 |
+| src/errors/handler.ts | Create | R3, R6 |
+| src/middleware/logger.ts | Modify | R4 |
+
+### Alternatives Considered
+1. **Silent fail with default** — Rejected: Task prompt explicitly requires structured error responses
+2. **Global error boundary** — Rejected: Per-route handlers provide better error context
+
+### Risks
+- R5 edge case: null vs empty string vs undefined — must handle all three
+- R6 response format must match the exact structure specified in the task prompt
+
+### Dependencies
+- jsonwebtoken@^9.0
+- Existing Express middleware in src/middleware/
+```
+
+**Key points**:
+- Task-specific R<n> IDs continue from project requirements (project has R1-R4, task-specific starts at R5)
+- Task Context summarizes the task prompt so subagents understand the specific task they're working on
+- Files to Modify table includes both project and task-specific R<n> IDs
 
 The good version is a **routing layer** that points to detailed docs. The bad version tries to be an **encyclopedia** that includes everything inline.
 
