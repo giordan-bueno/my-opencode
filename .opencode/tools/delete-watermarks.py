@@ -89,4 +89,34 @@ def sanitize_pdf_dynamic(input_path, output_path):
     )
 
     print("Applying massive sanitization on internal page streams...")
-    for page in
+    for page in doc:
+        contents = page.get_contents()
+        for xref in contents:
+            original_stream = doc.xref_stream(xref)
+            if original_stream:
+                clean_stream = massive_font_pattern.sub(b"", original_stream)
+                doc.update_stream(xref, clean_stream)
+
+    # =========================================================================
+    # PHASE 4: SAVING AND COMPACTING THE FILE
+    # =========================================================================
+    print("Saving and compacting the final file...")
+    doc.save(output_path, garbage=3, deflate=True)
+    doc.close()
+
+    print(
+        f"\nProcess completed successfully!\nClean file saved at: {output_path}"
+    )
+
+
+if __name__ == "__main__":
+    # If OpenCode sends the arguments, map them dynamically
+    if len(sys.argv) > 2:
+        input_file = sys.argv[1]
+        output_file = sys.argv[2]
+    else:
+        # Default values for manual local testing
+        input_file = "instructions.pdf"
+        output_file = "instructions_clean.pdf"
+
+    sanitize_pdf_dynamic(input_file, output_file)
