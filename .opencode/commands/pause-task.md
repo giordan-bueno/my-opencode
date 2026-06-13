@@ -58,6 +58,7 @@ Status: [PAUSED: task expired on outlier]
 Created: 2026-06-11
 Design: docs/design-fix-auth-bug.md
 Task Prompt: fix-auth-bug/task-prompt.md
+Spec Status: approved
 ---
 
 - [x] 1. Clone & navigate

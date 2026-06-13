@@ -25,15 +25,13 @@ If the task folder `$1/$2/` doesn't exist, warn the user: "Task folder '$1/$2/' 
 Read `$1/progress-$2.md` and `$1/PROGRESS.md`, then:
 
 1. Read the `Status` field from `$1/progress-$2.md` — it should be `[PAUSED: <reason>]`
-2. Determine the `Spec Status` for the task:
-   - If the progress file contains a `Design:` field pointing to an existing `$1/docs/design-$2.md`, use `approved`
-   - Otherwise, use `pending`
+2. Read the `Spec Status` field from `$1/progress-$2.md` — it preserves the spec status from when the task was paused (pending, approved, or changes_requested)
 3. Update `$1/PROGRESS.md` pointer to:
    ```
    ---
    Active Task: $2
    Task Folder: $1/$2/
-   Spec Status: <approved or pending>
+   Spec Status: <from progress file>
    ---
    ```
 4. Update `$1/progress-$2.md` — change `Status: [PAUSED: <reason>]` to `Status: In Progress`

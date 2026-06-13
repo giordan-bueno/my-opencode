@@ -49,15 +49,16 @@ The coordinator should perform the following in sequence:
   ---
   ```
 - Create a new `$1/progress-$2.md` file with the subtask list:
-  ```markdown
-  # Task: $2
+   ```markdown
+   # Task: $2
 
-  ---
-  Status: In Progress
-  Created: [current date]
-  Design: docs/design-$2.md
-  Task Prompt: $1/$2/task-prompt.md (or "None")
-  ---
+   ---
+   Status: In Progress
+   Created: [current date]
+   Design: docs/design-$2.md
+   Task Prompt: $1/$2/task-prompt.md (or "None")
+   Spec Status: pending
+   ---
 
   - [ ] 1. <subtask from template>
   - [ ] 2. <subtask from template>

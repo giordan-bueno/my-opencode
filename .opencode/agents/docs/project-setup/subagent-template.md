@@ -38,7 +38,7 @@ Completed subtask:
 
 Blocked subtask:
 ```markdown
-- [!]] 4. Run integration tests
+- [!] 4. Run integration tests
   - BLOCKED: Integration test suite requires a database connection that's not configured.
   - Need: Database URL and credentials from user to proceed.
 ```

@@ -75,6 +75,7 @@ Status: In Progress
 Created: 2026-06-11
 Design: docs/design-fix-auth-bug.md
 Task Prompt: fix-auth-bug/task-prompt.md
+Spec Status: approved
 ---
 
 - [x] 1. Clone & navigate
@@ -206,6 +207,7 @@ Status: [PAUSED: task expired on outlier]
 Created: 2026-06-11
 Design: docs/design-fix-auth-bug.md
 Task Prompt: fix-auth-bug/task-prompt.md
+Spec Status: approved
 ---
 
 - [x] 1. Clone & navigate
@@ -300,6 +302,8 @@ Created: 2026-06-12
 Design: docs/design-fix-auth-bug-fb1.md
 Task Prompt: fix-auth-bug/task-prompt.md
 Feedback From: fix-auth-bug/feedback-1.md
+Previous: progress-fix-auth-bug.md
+Spec Status: pending
 ---
 
 - [ ] 1. Fix email plus sign handling — @project-x_coder: Update regex to accept + in email addresses. Covers: R9
@@ -316,6 +320,7 @@ Status: [COMPLETED]
 Created: 2026-06-11
 Design: docs/design-fix-auth-bug.md
 Task Prompt: fix-auth-bug/task-prompt.md
+Spec Status: approved
 ---
 
 - [x] 1. Clone & navigate

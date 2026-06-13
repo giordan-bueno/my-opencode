@@ -18,12 +18,12 @@ my-opencode/                         ← Main repo (your GitHub backup)
 │   ├── AGENTS.md                     ← Project rules + subagent routing
 │   ├── PROGRESS.md                   ← Minimal pointer: which task is active
 │   ├── progress-<task>.md            ← One per task: full subtask status and context (e.g., progress-fix-auth-bug.md)
-│   │   ├── progress-<task>-fb1.md    ← Feedback round progress (e.g., progress-fix-auth-bug-fb1.md)
+│   ├── progress-<task>-fb1.md       ← Feedback round progress (e.g., progress-fix-auth-bug-fb1.md)
 │   ├── .gitignore                    ← Created by @pdf-cleaner; ignores task folders, tracks .md, docs/, *.pdf, progress-*.md
 │   ├── docs/
 │   │   ├── requirements.md               ← EARS requirements with R<n> IDs (from PDFs)
 │   │   ├── design-<task>.md              ← Per-task technical design (one per task, e.g., design-fix-auth-bug.md)
-│   │   ├── design-<task>-fb1.md      ← Feedback round designs (e.g., design-fix-auth-bug-fb1.md)
+│   │   ├── design-<task>-fb1.md          ← Feedback round designs (e.g., design-fix-auth-bug-fb1.md)
 │   │   ├── subtasks.md               ← Subtask template for every task in this project
 │   │   ├── verification.md          ← Objective criteria for what "done" looks like
 │   │   ├── workflow.md               ← Detailed workflows

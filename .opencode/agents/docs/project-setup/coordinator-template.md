@@ -67,6 +67,7 @@ When the user starts a new task:
    Created: YYYY-MM-DD
    Design: docs/design-<task-folder-name>.md
    Task Prompt: <task-folder>/task-prompt.md (or "None")
+   Spec Status: pending
    ---
 
    - [ ] 1. <subtask from template>
@@ -78,7 +79,7 @@ When the user starts a new task:
    - Skip project-level subtasks that don't apply to this task
    - Add task-specific subtasks based on the task prompt's instructions
    - Update subtask R<n> references to cover both project and task-specific requirements
-5. **Spec Review Phase**: Before routing any coding subagents, check `Spec Status`:
+6. **Spec Review Phase**: Before routing any coding subagents, check `Spec Status`:
    - If `pending`: Create `<project>/docs/design-<task-name>.md` (e.g., `docs/design-fix-auth-bug.md`). The design file is named per-task so it is never overwritten by other tasks. If a task prompt was provided, include a **Task Context** section summarizing the prompt and a **Task-Specific Requirements** section with new R<n> IDs continuing from the project requirements. Present `docs/requirements.md` and `docs/design-<task-name>.md` to the user for approval:
      > "Spec for task `<task-name>`:
      > **Requirements**: [list R<n> IDs from requirements.md] + [task-specific R<n> IDs if any]
@@ -199,6 +200,7 @@ Status: In Progress
 Created: YYYY-MM-DD
 Design: docs/design-<task-name>.md
 Task Prompt: <task-folder>/task-prompt.md (or "None")
+Spec Status: pending | approved | changes_requested
 ---
 
 - [x] 1. <subtask from template>
@@ -208,6 +210,22 @@ Task Prompt: <task-folder>/task-prompt.md (or "None")
 - [!] 3. <blocked subtask>
   - BLOCKED: <description of what's blocking>
 - [ ] N. Verify — @<project>_reviewer: Run tests, check standards, confirm all requirements met
+```
+
+**Feedback round progress files** (`progress-<task>-fb<N>.md`) include two additional fields:
+
+```markdown
+# Task: <task-name>-fb<N> (Feedback Round <N>)
+
+---
+Status: In Progress
+Created: YYYY-MM-DD
+Previous: progress-<task-name>.md (or progress-<task-name>-fb<N-1>.md)
+Feedback: <task-folder>/feedback-<N>.md
+Design: docs/design-<task-name>-fb<N>.md
+Task Prompt: <task-folder>/task-prompt.md (or "None")
+Spec Status: pending | approved | changes_requested
+---
 ```
 
 **Status values**:

@@ -18,8 +18,6 @@ This workspace uses a **two-repository structure** to separate project managemen
 
 **Push destination**: Your own GitHub repository (for backup/sync across PCs)
 
-**Push destination**: Your own GitHub repository (for backup/sync across PCs)
-
 **Ignores**: External repos inside project folders (via `.gitignore`)
 
 ### External Project Repositories

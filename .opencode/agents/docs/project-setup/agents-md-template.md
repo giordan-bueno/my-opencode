@@ -32,12 +32,12 @@ Use this template when creating project AGENTS.md files (~60 lines max):
 ├── AGENTS.md          ← This file (project rules)
 ├── PROGRESS.md        ← Minimal pointer: which task is active
 ├── progress-<task>.md ← One per task: full subtask status and context (e.g., progress-fix-auth-bug.md)
-│   ├── progress-<task>-fb1.md ← Feedback round progress (e.g., progress-fix-auth-bug-fb1.md)
+├── progress-<task>-fb1.md ← Feedback round progress (e.g., progress-fix-auth-bug-fb1.md)
 ├── .gitignore         ← Ignores task folders, tracks .md, docs/, *.pdf, progress-*.md
 ├── docs/
 │   ├── requirements.md  ← EARS requirements with R<n> IDs (from PDFs)
 │   ├── design-<task>.md  ← Per-task technical design (created at task start, one per task)
-│   │   ├── design-<task>-fb1.md ← Feedback round designs (e.g., design-fix-auth-bug-fb1.md)
+│   ├── design-<task>-fb1.md ← Feedback round designs (e.g., design-fix-auth-bug-fb1.md)
 │   ├── subtasks.md    ← Subtask template with R<n> traceability
 │   ├── verification.md ← What "done" looks like (objective criteria for the reviewer)
 │   ├── workflow.md
@@ -84,6 +84,7 @@ Status: In Progress
 Created: YYYY-MM-DD
 Design: docs/design-<task-name>.md
 Task Prompt: <task-folder>/task-prompt.md (or "None")
+Spec Status: pending | approved | changes_requested
 ---
 
 - [x] 1. <subtask from template>

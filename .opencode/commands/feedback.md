@@ -17,11 +17,13 @@ Before applying feedback, confirm:
 - The project folder `$1/` exists
 - The project has a coordinator subagent (`@${1}_coordinator`) defined in `.opencode/agents/`
 - The task folder `$1/$2/` exists
-- The original progress file `$1/progress-$2.md` exists and its Status is `[COMPLETED]` or `[COMPLETED: Feedback Round N]`
+- The original progress file `$1/progress-$2.md` exists and its Status is `[COMPLETED]` (the task must be completed before applying feedback)
 - The feedback file `$1/$2/$3` exists in the task folder
 - If this is not the first feedback round, check that previous feedback progress files are completed (e.g., `progress-$2-fb1.md` must be `[COMPLETED]` before creating `progress-$2-fb2.md`)
 
-If any prerequisite is missing, STOP and report the issue to the user with clear instructions.
+If any prerequisite is missing, STOP and report the issue to the user with clear instructions. Specifically:
+- If the original task's status is not `[COMPLETED]`, report: "Task '$2' is not completed yet (status: <current status>). Complete the task using `/start-task` before applying feedback."
+- If a previous feedback round is not completed, report: "Feedback round <N-1> is not completed yet. Complete it before starting a new feedback round."
 
 **Determine the feedback round number**:
 - List all `progress-$2-fb*.md` files in `$1/` to find the current round number
@@ -53,17 +55,18 @@ The coordinator should perform the following in sequence:
   Note: The Task Folder stays the same (same repo, same codebase). Only the Active Task name changes to include the feedback suffix.
 
 - Create a new `$1/progress-$2-fb<N>.md` file:
-  ```markdown
-  # Task: $2 (Feedback Round <N>)
+   ```markdown
+   # Task: $2 (Feedback Round <N>)
 
-  ---
-  Status: In Progress
-  Created: [current date]
-  Previous: progress-$2.md (or progress-$2-fb<N-1>.md for subsequent rounds)
-  Feedback: $2/$3
-  Design: docs/design-$2-fb<N>.md
-  Task Prompt: $2/task-prompt.md (or "None")
-  ---
+   ---
+   Status: In Progress
+   Created: [current date]
+   Previous: progress-$2.md (or progress-$2-fb<N-1>.md for subsequent rounds)
+   Feedback: $2/$3
+   Design: docs/design-$2-fb<N>.md
+   Task Prompt: $2/task-prompt.md (or "None")
+   Spec Status: pending
+   ---
 
   - [ ] 1. <subtask derived from feedback>
   - [ ] 2. <subtask derived from feedback>
@@ -73,13 +76,14 @@ The coordinator should perform the following in sequence:
 
   **The coordinator should read the feedback file** and derive subtasks from it. The subtasks should address every item in the QC feedback. The Verify subtask must always be last.
 
-- Mark the original (or previous feedback) progress file as completed if not already:
-  - In `$1/progress-$2.md` (or `$1/progress-$2-fb<N-1>.md`), change Status to `[COMPLETED]`
+- Mark the original (or previous feedback) progress file as completed if not already (it should already be `[COMPLETED]` from the task's completion gate, but update it if needed):
+  - In `$1/progress-$2.md` (or `$1/progress-$2-fb<N-1>.md`), ensure Status is `[COMPLETED]`
 
 ### 2b. Spec review gate
 
 - Read `$1/docs/requirements.md` to get project-level requirements
 - Read `$1/$2/$3` (the feedback file) to extract feedback-specific requirements
+- Read `$1/docs/design-$2.md` (the original task design) to understand the context and find the last R<n> ID used — feedback R<n> IDs must continue from this number
 - Read `$1/$2/task-prompt.md` if it exists, for original task context
 - Create `$1/docs/design-$2-fb<N>.md` for this feedback round. This design should:
   - Include a **Feedback Context** section summarizing the QC feedback

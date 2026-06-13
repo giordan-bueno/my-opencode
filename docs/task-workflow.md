@@ -89,6 +89,7 @@ Status: In Progress | [PAUSED: reason] | [COMPLETED]
 Created: YYYY-MM-DD
 Design: docs/design-<task-name>.md
 Task Prompt: <task-folder>/task-prompt.md (or "None")
+Spec Status: pending | approved | changes_requested
 ---
 
 - [x] 1. <completed subtask>
@@ -98,6 +99,21 @@ Task Prompt: <task-folder>/task-prompt.md (or "None")
 - [!] 3. <blocked subtask>
   - BLOCKED: <description of what's blocking>
 - [ ] N. Verify — @<project>_reviewer: Run tests, check standards, confirm all requirements met
+```
+
+**Feedback round progress files** (`progress-<task>-fb<N>.md`) include two additional fields:
+```markdown
+# Task: <task-name>-fb<N> (Feedback Round <N>)
+
+---
+Status: In Progress
+Created: YYYY-MM-DD
+Previous: progress-<task-name>.md (or progress-<task-name>-fb<N-1>.md)
+Feedback: <task-folder>/feedback-<N>.md
+Design: docs/design-<task-name>-fb<N>.md
+Task Prompt: <task-folder>/task-prompt.md (or "None")
+Spec Status: pending | approved | changes_requested
+---
 ```
 
 ## Subtask Status Markers
