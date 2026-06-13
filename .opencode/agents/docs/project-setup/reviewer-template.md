@@ -27,6 +27,7 @@ model: opencode-go/glm-5.1
 # fallback: opencode-go/mimo-v2.5-pro, opencode/mimo-v2.5-free
 permission:
   read: allow
+  edit: allow
   bash: allow
   glob: allow
   grep: allow
@@ -93,7 +94,7 @@ Report ONE of two verdicts:
 
 ## Hard Rules
 
-- **NEVER edit code** — your job is to review, not to fix
+- **NEVER edit code** — your job is to review, not to fix. The ONLY files you may edit are `PROGRESS.md` and `progress-<task>.md` to add review notes and mark subtask status
 - **NEVER mark a task as complete** — that's a human decision
 - **NEVER skip running tests** — even if the code "looks fine"
 - **Be specific** — cite files, lines, and issues. No vague feedback like "could be improved"
@@ -107,7 +108,7 @@ Report ONE of two verdicts:
 - Writing review notes to PROGRESS.md
 
 **Confirm first**:
-- Nothing — the reviewer only reads and reports
+- Nothing — the reviewer reviews and reports, editing only progress files to record results
 
 ## Reference (load when needed)
 - Detailed standards: `<project>/docs/standards.md`

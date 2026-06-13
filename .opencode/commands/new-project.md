@@ -6,7 +6,7 @@ agent: build
 A new outlier.ai project needs to be set up. Here are the details:
 
 - **Project name**: $1
-- **Watermarked PDF files**: $ARGUMENTS
+- **Watermarked PDF files**: $2 .. $N (all arguments after the project name)
 
 Execute the following steps in order:
 
@@ -14,7 +14,7 @@ Execute the following steps in order:
 
 Delegate to the **@pdf-cleaner** subagent with these instructions:
 - Project name: $1
-- PDF files to clean: all PDF paths provided after the project name
+- PDF files to clean: $2 .. $N (all PDF paths after the project name — do NOT include the project name as a PDF path)
 - The subagent should use the `delete-watermarks` tool for each PDF, saving clean versions into the `$1/` folder.
 - The subagent should also create a `.gitignore` file inside the `$1/` folder with the standard project .gitignore template (ignore everything by default, un-ignore .gitignore, AGENTS.md, PROGRESS.md, docs/, docs/**, *.pdf).
 - If this step fails, STOP and report the error to the user. Do not proceed to Step 2.

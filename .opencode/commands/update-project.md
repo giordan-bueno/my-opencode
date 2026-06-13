@@ -6,7 +6,7 @@ agent: build
 An existing outlier.ai project needs to be updated with new instructions. Here are the details:
 
 - **Project name**: $1
-- **New watermarked PDF files**: $ARGUMENTS
+- **New watermarked PDF files**: $2 .. $N (all arguments after the project name)
 
 Execute the following steps in order:
 
@@ -14,7 +14,7 @@ Execute the following steps in order:
 
 Delegate to the **@pdf-cleaner** subagent with these instructions:
 - Project name: $1
-- PDF files to clean: all PDF paths provided after the project name
+- PDF files to clean: $2 .. $N (all PDF paths after the project name — do NOT include the project name as a PDF path)
 - The subagent should use the `delete-watermarks` tool for each PDF, saving clean versions into the existing `$1/` folder.
 - Note: The `$1/` folder and `.gitignore` already exist — do NOT recreate them. Only clean and save the PDFs.
 - If this step fails, STOP and report the error to the user. Do not proceed to Step 2.
@@ -60,7 +60,7 @@ After Step 2 completes successfully, delegate to the **@project-setup** subagent
   - **No maximum limit**: Create as many subagents as the PDFs require
   - **Non-overlapping responsibilities**: Each subagent must have a single, well-defined scope. No two subagents should handle the same task type.
   - Use underscore naming convention: `$1_<role>.md`
-  - Model selection: fast for mechanical tasks, reasoning for coding/testing, balanced for setup/config and coordination
+  - Model selection: fast for mechanical tasks, coding for coding/testing, reasoning for review/planning, balanced for setup/config and coordination
 - **Update existing subagents** if their responsibilities have changed:
   - If new PDFs clarify or expand an existing subagent's role, update its prompt
   - If new PDFs contradict an existing subagent's instructions, update to reflect new information

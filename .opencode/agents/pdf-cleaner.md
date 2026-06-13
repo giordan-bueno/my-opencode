@@ -7,6 +7,7 @@ model: opencode-go/deepseek-v4-flash
 permission:
   read: allow
   edit: allow
+  write: allow
   bash: allow
   glob: allow
   delete-watermarks: allow

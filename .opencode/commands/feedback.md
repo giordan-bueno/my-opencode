@@ -97,21 +97,23 @@ The coordinator should perform the following in sequence:
   > **Design**: [summary of approach to address feedback]
   > Approve spec and proceed? (y/n/changes)"
 - **Do NOT route any coding subagents until the user approves the spec**
-- If the user approves → set `Spec Status: approved` in PROGRESS.md header, begin subtask routing
+- If the user approves → set `Spec Status: approved` in PROGRESS.md header, begin subtask routing (Step 4)
 - If the user requests changes → set `Spec Status: changes_requested`, report what needs changing, wait for user guidance
 
-### 2c. Route subtasks
+## Step 3: Commit feedback setup files
 
-- After spec approval, begin routing the first subtask to the appropriate project subagent
-- After each subagent completes, update `$1/progress-$2-fb<N>.md` with results and move to the next subtask
-- After ALL subtasks (including Verify) are `[x]` and the reviewer approves, **report to the user for final approval** — do NOT mark the task complete automatically
-
-## Step 3: Commit the feedback setup
-
-Delegate to the **@git-committer** subagent with these instructions:
+After Step 2a and 2b complete (progress file created, design file created, spec review presented to user), delegate to the **@git-committer** subagent with these instructions:
 - Commit `$1/PROGRESS.md`, `$1/progress-$2-fb<N>.md`, and `$1/docs/design-$2-fb<N>.md` to the main workspace repository
 - If the original progress file status changed, commit that too
-- Use commit message: `docs($1): apply feedback round <N> to task $2`
+- Use commit message: `docs($1): setup feedback round <N> for task $2`
+
+Note: This commit captures the feedback setup files before coding begins. If the spec review results in changes, those changes will be committed separately as the task progresses.
+
+## Step 4: Route subtasks (after spec approval)
+
+- The coordinator routes subtasks based on the progress file and spec approval
+- After each subagent completes, update `$1/progress-$2-fb<N>.md` with results and move to the next subtask
+- After ALL subtasks (including Verify) are `[x]` and the reviewer approves, **report to the user for final approval** — do NOT mark the task complete automatically
 
 ## Notes
 

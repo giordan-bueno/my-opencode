@@ -87,3 +87,11 @@ The coordinator should perform the following in sequence:
 - After ALL subtasks (including Verify) are `[x]` and the reviewer approves, **report to the user for final approval** — do NOT mark the task complete automatically
 
 See `.opencode/agents/docs/project-setup/sdd-reference.md` for the SDD process, EARS syntax, and traceability rules.
+
+## Step 3: Commit task setup files
+
+After Step 2a and 2b complete (progress file created, design file created, spec review presented to user), delegate to the **@git-committer** subagent with these instructions:
+- Commit `$1/PROGRESS.md`, `$1/progress-$2.md`, and `$1/docs/design-$2.md` to the main workspace repository
+- Use commit message: `docs($1): start task $2 — progress file and design`
+
+Note: This commit captures the task setup files before coding begins. If the spec review results in changes, those changes will be committed separately as the task progresses.

@@ -104,4 +104,4 @@ You are a [role] specialist for the [project-name] project.
 - **User-help subagents**: `edit: deny`, `bash: deny` (read-only assistance)
 - **Testing subagents**: `edit: allow`, `bash: allow` (need to run tests)
 - **Setup subagents**: `edit: allow`, `bash: allow` (need to configure environment)
-- **Review subagents**: `edit: deny`, `bash: allow` (read code, run linters)
+- **Review subagents**: `edit: allow` (may edit progress files only), `bash: allow` (read code, run linters)
