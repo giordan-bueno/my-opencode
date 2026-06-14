@@ -56,16 +56,22 @@ The coordinator should perform the following in sequence:
    Status: In Progress
    Created: [current date]
    Design: docs/design-$2.md
-   Task Prompt: $1/$2/task-prompt.md (or "None")
+   Task Prompt: $2/task-prompt.md (or "None")
    Spec Status: pending
    ---
 
   - [ ] 1. <subtask from template>
   - [ ] 2. <subtask from template>
   [... all subtasks from template]
-  - [ ] N. Verify — @${1}_reviewer: Run tests, check standards, confirm all requirements met
-  ```
-  **If a task prompt was provided**, adapt the subtask list based on the task prompt's context — add task-specific steps, skip project steps that don't apply, and include task-specific requirements as additional R<n> IDs in the design. The last subtask must always be the **Verify** step routed to the reviewer subagent.
+- [ ] 1. Explore codebase and report findings — @${1}_coder: Read relevant source files, existing test suite, hidden dependencies. Produce Code Exploration section in design file
+   - [ ] 2. <subtask from template>
+   [... implementation subtasks from template]
+   - [ ] N-1. Write and run tests — @${1}_tester: Write tests covering R<n> IDs per Test Plan + code-driven tests from exploration. Run test suite and report results
+   - [ ] N. Verify — @${1}_reviewer: Review test results, check R<n> traceability, verify standards, confirm all requirements met
+   ```
+   **If a task prompt is provided**, adapt the subtask list based on the task prompt's context — add task-specific steps, skip project steps that don't apply, and include task-specific requirements as additional R<n> IDs in the design. For coding projects, always include a "Write and run tests" subtask before the Verify step and an "Explore codebase" subtask as the first implementation step. For TDD projects, include "Write fail-to-pass tests" before exploration and implementation, and "Write pass-to-pass tests + code-driven tests" after implementation. The last subtask must always be the **Verify** step routed to the reviewer subagent.
+
+   After the coder completes the "Explore codebase" subtask, read the Code Exploration section in `docs/design-$2.md` and revise the subtask list in the progress file if the exploration suggests changes (e.g., splitting subtasks, adding steps, reordering).
 
 ### 2b. Spec review gate
 - Read `$1/docs/requirements.md` — if it doesn't exist or is empty, STOP and report that requirements must be created first (@project-setup should have created this)

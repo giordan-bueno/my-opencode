@@ -4,7 +4,7 @@ This workspace uses **Spec-Driven Development (SDD)**: requirements and design m
 
 ## Task Lifecycle
 
-Each project has a **subtask template** (`docs/subtasks.md`) defining the ordered steps every task must follow. Every template ends with a **Verify** step handled by the reviewer subagent.
+Each project has a **subtask template** (`docs/subtasks.md`) defining the ordered steps every task must follow. For coding projects, the template includes an "Explore codebase" subtask before implementation, a "Write and run tests" subtask before the Verify step, and a final Verify step. The explorer subtask (typically the coder) reads the codebase and produces a Code Exploration report that may revise the subtask list and expand the test plan.
 
 ### Starting a New Task
 
@@ -98,7 +98,8 @@ Spec Status: pending | approved | changes_requested
 - [ ] 2. <pending subtask>
 - [!] 3. <blocked subtask>
   - BLOCKED: <description of what's blocking>
-- [ ] N. Verify — @<project>_reviewer: Run tests, check standards, confirm all requirements met
+- [ ] N. Write and run tests — @<project>_tester: Write tests covering R<n> IDs per Test Plan, run test suite, report results
+- [ ] N+1. Verify — @<project>_reviewer: Review test results, check R<n> traceability, verify standards, confirm all requirements met
 ```
 
 **Feedback round progress files** (`progress-<task>-fb<N>.md`) include two additional fields:
@@ -148,6 +149,7 @@ When a subtask is `[!]` blocked, the subagent adds a `BLOCKED:` note explaining 
 |---------|---------|
 | `/new-project <name> <file1.pdf> [file2.pdf ...]` | Create a new project from watermarked PDFs |
 | `/update-project <name> <file1.pdf> [file2.pdf ...]` | Update an existing project with new PDFs |
+| `/add-subagent <project-name> <role>` | Add a new subagent to an existing project |
 | `/start-task <project-name> <task-folder-name>` | Start a new task, verify prerequisites, create progress file, invoke coordinator |
 | `/pause-task <project-name> <reason>` | Change progress file status to paused, reset pointer |
 | `/resume-task <project-name> <task-folder-name>` | Restore pointer, change status back to In Progress |

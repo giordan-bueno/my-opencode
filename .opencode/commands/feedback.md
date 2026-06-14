@@ -68,10 +68,11 @@ The coordinator should perform the following in sequence:
    Spec Status: pending
    ---
 
-  - [ ] 1. <subtask derived from feedback>
-  - [ ] 2. <subtask derived from feedback>
-  [... subtasks addressing the QC feedback]
-  - [ ] N. Verify — @${1}_reviewer: Confirm all feedback items addressed, run tests, check standards
+- [ ] 1. Explore codebase and report findings — @${1}_coder: Read relevant source files, identify changes from feedback, hidden dependencies, produce Code Exploration section in design file
+   - [ ] 2. <subtask derived from feedback>
+   [... subtasks addressing the QC feedback]
+   - [ ] N-1. Write and run tests — @${1}_tester: Write tests covering feedback R<n> IDs per Test Plan + code-driven tests from exploration. Run test suite and report results
+   - [ ] N. Verify — @${1}_reviewer: Review test results, check R<n> traceability for feedback items, verify standards
   ```
 
   **The coordinator should read the feedback file** and derive subtasks from it. The subtasks should address every item in the QC feedback. The Verify subtask must always be last.
@@ -86,9 +87,11 @@ The coordinator should perform the following in sequence:
 - Read `$1/docs/design-$2.md` (the original task design) to understand the context and find the last R<n> ID used — feedback R<n> IDs must continue from this number
 - Read `$1/$2/task-prompt.md` if it exists, for original task context
 - Create `$1/docs/design-$2-fb<N>.md` for this feedback round. This design should:
-  - Include a **Feedback Context** section summarizing the QC feedback
-  - Include a **Feedback Requirements** section with new R<n> IDs continuing from the original task's numbering (e.g., if the original task ended at R8, feedback requirements start at R9)
-  - List files to modify and which R<n> they cover
+- Include a **Feedback Context** section summarizing the QC feedback
+   - Include a **Feedback Requirements** section with new R<n> IDs continuing from the original task's numbering (e.g., if the original task ended at R8, feedback requirements start at R9)
+   - Include a **Test Plan** section for feedback-specific tests
+   - Leave a **Code Exploration** section placeholder for the coder to fill in after exploring the codebase
+   - List files to modify and which R<n> they cover
   - Reference the previous design if relevant (e.g., "Building on the approach in design-$2.md, the feedback requires...")
 - Present `$1/docs/requirements.md`, `$1/docs/design-$2-fb<N>.md`, and the feedback summary to the user for approval:
   > "Feedback Round <N> for task '$2':
@@ -113,6 +116,7 @@ Note: This commit captures the feedback setup files before coding begins. If the
 
 - The coordinator routes subtasks based on the progress file and spec approval
 - After each subagent completes, update `$1/progress-$2-fb<N>.md` with results and move to the next subtask
+- After the coder completes the "Explore codebase" subtask, read the Code Exploration section in `docs/design-$2-fb<N>.md` and revise the subtask list if the exploration suggests changes
 - After ALL subtasks (including Verify) are `[x]` and the reviewer approves, **report to the user for final approval** — do NOT mark the task complete automatically
 
 ## Notes
