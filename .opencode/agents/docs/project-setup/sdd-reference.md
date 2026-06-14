@@ -1,14 +1,14 @@
 # Spec-Driven Development (SDD) Reference
 
-This workspace uses an adapted SDD workflow inspired by [harness-sdd](https://github.com/betta-tech/harness-sdd). The core principle: **requirements and design are approved by the human BEFORE any code is written.** Every requirement gets a stable `R<n>` ID that traces through design → subtasks → code → review.
+This workspace uses an adapted SDD workflow inspired by [harness-sdd](https://github.com/betta-tech/harness-sdd). The core principle: **requirements and design are approved by the human BEFORE any code is written.** Every requirement gets a stable `R<n>` ID that traces through design → code exploration → subtasks → code → tests → review.
 
 ## The SDD Flow
 
 ```
-/new-project → (project-setup produces docs + requirements) → /start-task → (spec review gate) → (code) → (review) → (user confirms)
+/new-project → (project-setup produces docs + requirements) → /start-task → (spec review gate) → (code exploration) → (revised subtasks + design) → (code) → (tests) → (review) → (user confirms)
 ```
 
-The `/start-task` command checks spec status before routing subagents. If specs aren't approved yet, the coordinator presents them for human review.
+The spec review gate approves the **draft** design based on requirements and task prompt. After approval, the coder explores the codebase and the design is revised based on findings (hidden dependencies, existing tests, code patterns). Subtasks and the test plan are then updated to reflect code-driven discoveries before implementation begins.
 
 ## Requirements Format (docs/requirements.md)
 
@@ -159,6 +159,56 @@ Fix email regex to allow plus signs, add error codes to existing error responses
 ### Dependencies
 - jsonwebtoken@^9.0
 - Existing Express middleware in src/middleware/
+
+### Test Plan
+For each R<n> covered by this task, define how it will be tested. This is created by the coordinator during the spec review phase and read by the tester subagent.
+
+| R<n> | Test Type | Test File | Description |
+|------|-----------|-----------|-------------|
+| R1 | Fail-to-pass | tests/auth.test.ts | Verify unauthenticated requests are blocked |
+| R2 | Pass-to-pass | tests/auth.test.ts | Verify valid credentials redirect to dashboard |
+| R3 | Standard | tests/errors.test.ts | Verify API failures return error messages |
+| R4 | Standard | tests/audit.test.ts | Verify audit log records timestamp, user ID, and action |
+| R6 | Fail-to-pass | tests/auth.test.ts | Verify empty email returns structured error |
+
+Test types:
+- **Fail-to-pass** (TDD RED phase): Test must FAIL before implementation, PASS after. Write before the coder implements.
+- **Pass-to-pass**: Test must PASS before and after changes. Used to verify no regressions.
+- **Standard**: Test must PASS after implementation. Write after or alongside implementation.
+```
+
+### Code Exploration
+
+After spec approval and before implementation, the coder explores the codebase. This section is populated **after** the exploration subtask completes, revising the draft design based on actual code findings.
+
+```markdown
+### Code Exploration
+
+#### Existing Code Affected
+- `src/auth/middleware.ts:42` — Existing `validateToken()` function that needs modification for R1
+- `src/auth/session.ts:15` — Session auth system that must coexist with new JWT auth (not mentioned in spec)
+- `src/errors/handler.ts` — Existing error handler that needs a new error type for R3
+
+#### Existing Test Suite
+- `tests/auth.test.ts` — 12 existing tests, all must continue passing (regression baseline)
+- `tests/errors.test.ts` — 4 existing tests for error handling
+
+#### Hidden Dependencies
+- JWT secret must be in `process.env.JWT_SECRET` (not mentioned in PDF, discovered in `src/config.ts:8`)
+- Auth middleware must be registered before session middleware in `src/app.ts:23`
+
+#### Subtask Revisions
+Based on code exploration, the original subtask plan is revised:
+- Original subtask "Implement auth middleware" is split into:
+  - "Modify existing auth middleware to add JWT support" (R1, R2)
+  - "Add error type for auth validation failures" (R3)
+- Original subtask "Add audit logger" should reuse existing `logAction()` utility in `src/utils/logger.ts`
+
+#### Code-Driven Tests (supplementary to Test Plan above)
+- REGRESSION: All 12 existing tests in `tests/auth.test.ts` must pass after changes (Pass-to-pass)
+- EDGE CASE: `validateToken(null)` should return 401 — discovered from reading `src/auth/middleware.ts:37` (Standard)
+- INTEGRATION: JWT auth and session auth must coexist — discovered from `src/app.ts:23` middleware order (Standard)
+```
 ```
 
 ## Traceability Rules
@@ -169,7 +219,7 @@ The `R<n>` IDs create a chain that the reviewer verifies:
 2. **Every task-specific `R<n>` must appear in at least one subtask** in the adapted subtask list
 3. **Every subtask must reference at least one `R<n>`** (except the Verify subtask, which implicitly covers all)
 4. **Every `R<n>` (project and task-specific) must have at least one verification criterion** in `docs/verification.md`
-5. **The reviewer checks the full chain**: R\<n\> → subtask → implementation → test
+5. **The reviewer checks the full chain**: R\<n\> → design Test Plan → subtask → implementation → test
 
 If any `R<n>` is untested or uncovered, the reviewer reports `CHANGES_REQUESTED`.
 
@@ -177,13 +227,33 @@ If any `R<n>` is untested or uncovered, the reviewer reports `CHANGES_REQUESTED`
 
 Enhanced `docs/subtasks.md` format — each subtask references which requirements it covers:
 
-```markdown
-## Subtask Template
+### Standard Coding Project Template
 
-1. **Implement auth middleware** — @<project>_coder: Add JWT middleware to protected routes. Covers: R1, R2
-2. **Add error handler** — @<project>_coder: Create error boundary for API calls. Covers: R3
-3. **Add audit logger** — @<project>_coder: Log all data modifications with required fields. Covers: R4
-4. **Verify** — @<project>_reviewer: Confirm R1-R4 are met, run tests, check standards
+```markdown
+## Subtask Template — Coding Projects
+
+1. **Explore codebase and report findings** — @<project>_coder: Read relevant source files, existing test suite, hidden dependencies. Produce Code Exploration section in design file. Revise subtask plan if needed. Covers: all R<n>
+2. **Implement auth middleware** — @<project>_coder: Add JWT middleware to protected routes. Covers: R1, R2
+3. **Add error handler** — @<project>_coder: Create error boundary for API calls. Covers: R3
+4. **Add audit logger** — @<project>_coder: Log all data modifications with required fields. Covers: R4
+5. **Write and run tests** — @<project>_tester: Write tests covering R1-R4 per Test Plan + code-driven tests from exploration. Run test suite and report results. Covers: R1, R2, R3, R4
+6. **Verify** — @<project>_reviewer: Review test results, check R<n> traceability, verify standards, confirm all requirements met
+```
+
+### TDD Project Template (Fail-to-Pass)
+
+For projects that use Test-Driven Development (specified in `docs/testing.md`):
+
+```markdown
+## Subtask Template — TDD Projects
+
+1. **Write fail-to-pass tests** — @<project>_tester: Write failing tests for R1-R4 per draft Test Plan (RED phase). Covers: R1, R2, R3, R4
+2. **Explore codebase and report findings** — @<project>_coder: Read relevant source files, existing test suite, hidden dependencies. Produce Code Exploration section in design file. Revise subtask plan if needed. Covers: all R<n>
+3. **Implement auth middleware** — @<project>_coder: Add JWT middleware to protected routes. Covers: R1, R2
+4. **Add error handler** — @<project>_coder: Create error boundary for API calls. Covers: R3
+5. **Add audit logger** — @<project>_coder: Log all data modifications with required fields. Covers: R4
+6. **Write pass-to-pass + code-driven tests, run full suite** — @<project>_tester: Write pass-to-pass tests, add code-driven tests from exploration, run full suite, all must pass (GREEN phase). Covers: R1, R2, R3, R4
+7. **Verify** — @<project>_reviewer: Review test results, check R<n> traceability, verify standards, confirm all requirements met
 ```
 
 ## Verification Format with Traceability
@@ -193,13 +263,32 @@ Enhanced `docs/verification.md` — each criterion references R\<n\> IDs:
 ```markdown
 ## Verification Criteria
 
-- [ ] R1: Auth middleware blocks unauthenticated access (test: `npm test -- auth.test.ts`)
-- [ ] R2: Successful login redirects to dashboard (test: `npm test -- login.test.ts`)
-- [ ] R3: Error handler catches API failures gracefully (test: `npm test -- errors.test.ts`)
-- [ ] R4: Audit logger records timestamp, user ID, and action (test: `npm test -- audit.test.ts`)
+- [ ] R1: Auth middleware blocks unauthenticated access
+  - Verification: Automated test
+  - Test command: `npm test -- auth.test.ts`
+  - Test type: Fail-to-pass
+- [ ] R2: Successful login redirects to dashboard
+  - Verification: Automated test
+  - Test command: `npm test -- auth.test.ts`
+  - Test type: Pass-to-pass
+- [ ] R3: Error handler catches API failures gracefully
+  - Verification: Automated test
+  - Test command: `npm test -- errors.test.ts`
+  - Test type: Standard
+- [ ] R4: Audit logger records timestamp, user ID, and action
+  - Verification: Automated test
+  - Test command: `npm test -- audit.test.ts`
+  - Test type: Standard
 - [ ] Code follows conventions defined in docs/standards.md
+  - Verification: Manual code review
 - [ ] No debug artifacts left (no console.log, print statements)
+  - Verification: Manual code review
 ```
+
+Where test types are:
+- **Fail-to-pass**: Test must FAIL before implementation and PASS after (TDD RED/GREEN)
+- **Pass-to-pass**: Test must PASS before and after changes (regression check)
+- **Standard**: Test must PASS after implementation
 
 ## Spec Status in PROGRESS.md
 

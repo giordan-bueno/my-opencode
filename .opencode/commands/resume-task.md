@@ -59,7 +59,7 @@ After restoring the task:
    - **If `$1/$2/task-prompt.md` exists**: Read it for task-specific context and requirements
    - Check the `Spec Status` in the PROGRESS.md header:
      - If `approved`: Skip spec review and continue routing from the first incomplete subtask
-     - If `pending`: Run the spec review phase (present existing `design-$2.md` for approval, or create it if missing) before routing coding subagents
+     - If `pending`: Run the spec review phase — present the existing `design-$2.md` for approval (it was already created when the task was started) before routing coding subagents
      - If `changes_requested`: Report the previously requested changes to the user before proceeding
    - Check which subtask is next (first `[ ]` or `[!]` item in `progress-$2.md`) and begin routing
    - If a subtask was `[!]` blocked, ask the user for guidance before routing to a subagent

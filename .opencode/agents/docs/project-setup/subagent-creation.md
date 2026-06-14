@@ -46,14 +46,14 @@ When analyzing the PDFs, look for these common patterns:
 - **Coordinator** (`<project>_coordinator`) — orchestrates all other subagents, manages PROGRESS.md, handles routing. Tier: balanced. See `coordinator-template.md`.
 
 **Propose for coding projects**:
-- **Coder** (`<project>_coder`) — implements code changes, writes tests. Tier: coding. Reads `docs/requirements.md` (R<n> IDs) and `docs/design.md` (technical approach) before implementing.
-- **Reviewer** (`<project>_reviewer`) — verifies completed work, checks standards, runs tests, validates R<n> traceability. Never edits code. Tier: reasoning. Always proposed AFTER the coder. See `reviewer-template.md`.
+- **Coder** (`<project>_coder`) — implements code changes, explores codebase before implementation. Tier: coding. Reads `docs/requirements.md` (R<n> IDs), `docs/design.md` (technical approach, Code Exploration section), and the actual codebase before implementing. Also responsible for the "Explore codebase" subtask that discovers hidden dependencies, existing tests, and code-driven test needs.
+- **Tester** (`<project>_tester`) — writes test files tracing R<n> IDs, runs test suites, reports results. Never edits implementation files. Tier: coding. Always proposed alongside the coder for coding projects. See `tester-template.md`.
+- **Reviewer** (`<project>_reviewer`) — verifies completed work, checks standards, validates R<n> traceability (reads test results, does not re-run). Never edits code. Tier: reasoning. Always proposed AFTER the tester. See `reviewer-template.md`.
 
 **Propose based on PDF content**:
-- **Tester** (`<project>_tester`) — runs and verifies test suites. Tier: coding. If separate from coder.
 - **Navigator** (`<project>_navigator`) — assists user with outlier.ai website tasks. Tier: fast.
 
-**Every coding project should have at least**: coordinator + coder + reviewer. The reviewer is the last subtask in every template — it verifies all work before the human completion gate.
+**Every coding project should have at least**: coordinator + coder + tester + reviewer. The tester writes and runs tests before the reviewer verifies. The reviewer reads test results (does not re-run) and validates R<n> traceability.
 
 ## Approval Workflow
 
@@ -65,6 +65,7 @@ For each identified subagent:
    Tier: [fast/balanced/coding/reasoning]
    Model: opencode-go/<primary>
    Fallback: opencode-go/<fallback1> [, opencode/<fallback2>]
+   Skills: [list skills the subagent should invoke, or "None"]
    Purpose: [brief description from PDF analysis]
    Complexity: [why this tier was chosen - reference specific PDF keywords]
    
@@ -86,6 +87,28 @@ For each identified subagent:
 - Each subagent owns one specific area of the project
 - If responsibilities overlap, merge them into one subagent or clarify the boundaries
 - The coordinator handles routing; other subagents handle execution
+
+## Skills Assignment
+
+Subagents can invoke OpenCode skills (e.g., `git-commit`) during task execution. Skills are declared in two places:
+
+1. **Frontmatter `# skills:` comment** — Documents which skills the subagent is expected to use. Left empty by default; add skill names when a specific subagent needs them (e.g., `# skills: git-commit` for a coder that should commit its work).
+2. **Prompt `## Skills` section** — Describes when and how to use each skill. Left as "None assigned" by default; add entries when a skill is assigned.
+
+### Which subagents get skills?
+
+| Role | `skill` permission | Typical skills |
+|------|-------------------|----------------|
+| Coordinator | `allow` | May invoke skills for setup or routing |
+| Coder | `allow` | `git-commit` (if tasks require committing code) |
+| Tester | `allow` | `git-commit` (if tasks require committing test files) |
+| Reviewer | `deny` | None — reviewers read and report, never modify state |
+| Navigator | `deny` | None — read-only assistance |
+| Setup specialist | `allow` | `git-commit` (if tasks require committing configs) |
+
+### Skill usage per task
+
+The coordinator decides whether a skill is needed on a per-task basis by reading `task-prompt.md` and `design-<task-name>.md`. When a task requires committing code, the coordinator includes "use git-commit skill" in the subtask instructions. When it doesn't, the skill is not mentioned.
 
 ## Naming Convention
 

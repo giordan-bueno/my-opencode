@@ -43,6 +43,7 @@ When facing ambiguity:
 |---------|---------|
 | `/new-project <name> <file.pdf ...>` | Create project from watermarked PDFs |
 | `/update-project <name> <file.pdf ...>` | Update project with new PDFs |
+| `/add-subagent <project> <role>` | Add a new subagent to an existing project |
 | `/start-task <project> <folder>` | Start task, spec review gate, invoke coordinator |
 | `/pause-task <project> <reason>` | Change progress file status to paused, reset pointer |
 | `/resume-task <project> <folder>` | Restore pointer, change status back to In Progress |
@@ -70,9 +71,13 @@ Before any code is written, requirements and design must be approved by the huma
 - **@git-committer** - Handles commits for both main and external repos (Fast)
 
 **Project-specific** (dynamic, created by @project-setup per project):
-- **@<project>_coordinator** - Routes tasks to the right project subagent (Balanced)
-- **@<project>_<role>** - Project-specific subagents (coder=Coding, reviewer=Reasoning, etc.)
+- **@<project>_coordinator** - Routes tasks to the right project subagent, reads AGENTS.md for subagent discovery (Balanced)
+- **@<project>_<role>** - Project-specific subagents (coder=Coding, tester=Coding, reviewer=Reasoning, etc.)
+- Subagents read `<project>/AGENTS.md` dynamically for project context — no hardcoded project info in prompts
 - Stored in `.opencode/agents/<project>_<role>.md`, tracked in main repo
+- Add new subagents with `/add-subagent <project> <role>` without re-running full project setup
+
+**Skills**: Subagents can invoke OpenCode skills (e.g., `git-commit`). Skills are declared in the `# skills:` frontmatter field and the `## Skills` prompt section. The coordinator decides per-task whether a skill is needed.
 
 ## Reference (load when needed)
 

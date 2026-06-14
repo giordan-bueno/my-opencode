@@ -4,6 +4,7 @@ mode: subagent
 model: opencode-go/deepseek-v4-flash
 # tier: fast
 # fallback: opencode/deepseek-v4-flash-free
+# skills:
 permission:
   read: allow
   bash: allow

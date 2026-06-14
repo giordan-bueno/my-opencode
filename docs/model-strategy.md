@@ -41,14 +41,15 @@ Subagents use models from 4 tiers. The `model:` field in frontmatter is the prim
 
 ## Subagent Tier Assignments
 
-| Subagent | Tier | Primary |
-|----------|------|---------|
-| @pdf-cleaner | Fast | `opencode-go/deepseek-v4-flash` |
-| @git-committer | Fast | `opencode-go/deepseek-v4-flash` |
-| @project-setup | Reasoning | `opencode-go/glm-5.1` |
-| @\<project\>_coordinator | Balanced | `opencode-go/qwen3.7-plus` |
-| @\<project\>_coder | Coding | `opencode-go/kimi-k2.6` |
-| @\<project\>_reviewer | Reasoning | `opencode-go/glm-5.1` |
+| Subagent | Tier | Primary | Skills |
+|----------|------|---------|-------|
+| @pdf-cleaner | Fast | `opencode-go/deepseek-v4-flash` | None |
+| @git-committer | Fast | `opencode-go/deepseek-v4-flash` | None |
+| @project-setup | Reasoning | `opencode-go/glm-5.1` | None |
+| @\<project\>_coordinator | Balanced | `opencode-go/qwen3.7-plus` | Varies per task |
+| @\<project\>_coder | Coding | `opencode-go/kimi-k2.6` | Varies per task |
+| @\<project\>_tester | Coding | `opencode-go/kimi-k2.6` | Varies per task |
+| @\<project\>_reviewer | Reasoning | `opencode-go/glm-5.1` | None |
 
 ## Setup for Free Tier Fallbacks
 

@@ -215,17 +215,4 @@ This ensures:
 - Only explicitly tracked files are committed
 - No need to manually add task folders to gitignore
 
-**Important**: The `.gitignore` is created by @pdf-cleaner during project setup (Step 1) before any commits, ensuring git tracking works correctly from the start.
-
-### Adding External Repos to Gitignore
-
-When you clone an external repo into a project folder, add it to `.gitignore`:
-
-```bash
-# Example: project-1/my-external-repo/
-echo "project-1/my-external-repo/" >> .gitignore
-git add .gitignore
-git commit -m "chore: add project-1/my-external-repo to gitignore"
-```
-
-This ensures the main repo doesn't track the external repo's files.
+**Important**: The `.gitignore` is created by @pdf-cleaner during project setup (Step 1) before any commits, ensuring git tracking works correctly from the start. External repos inside project task folders are automatically ignored by the per-project `.gitignore` whitelist pattern — no manual additions needed.

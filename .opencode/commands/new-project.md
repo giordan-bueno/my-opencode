@@ -35,7 +35,8 @@ After Step 2 completes successfully, delegate to the **@project-setup** subagent
 - Create detailed reference docs in `$1/docs/` folder:
    - `requirements.md` - EARS-formatted requirements with stable R<n> IDs, extracted from PDFs (see `.opencode/agents/docs/project-setup/sdd-reference.md` for format)
    - `subtasks.md` - Ordered subtask template defining the steps every task in this project must follow, with subagent assignments
-   - `verification.md` - Objective criteria for what "done" looks like (what the reviewer checks against, extracted from PDF requirements)
+   - `verification.md` - Objective criteria for what "done" looks like. Each criterion references `R<n>` IDs with test commands and test types where available.
+   - `testing.md` - Testing strategy, approach, and project-specific rules (TDD, fail-to-pass, test framework, conventions)
    - `workflow.md` - Step-by-step workflows from the PDFs
    - `tech-stack.md` - Setup instructions, dependencies, configuration
    - `standards.md` - Coding standards, conventions, constraints
@@ -48,8 +49,9 @@ After Step 2 completes successfully, delegate to the **@project-setup** subagent
 - Follow the principle: "AGENTS.md is a routing layer, not an encyclopedia"
 - **After creating AGENTS.md**, analyze the PDFs to identify distinct task types that warrant dedicated subagents
 - **Always propose a coordinator subagent** (`$1_coordinator`) that orchestrates the other subagents and manages PROGRESS.md
-- **Always propose a reviewer subagent** (`$1_reviewer`) for projects that involve coding — the reviewer verifies completed work, checks standards, runs tests. Tier: reasoning (`opencode-go/glm-5.1`). See `.opencode/agents/docs/project-setup/reviewer-template.md`
-- Every subtask template in `$1/docs/subtasks.md` must end with a **Verify** step routed to the reviewer subagent
+- **Always propose a tester subagent** (`$1_tester`) for projects that involve coding — the tester writes and runs tests, tracing R<n> IDs. Tier: coding (`opencode-go/kimi-k2.6`). See `.opencode/agents/docs/project-setup/tester-template.md`
+- **Always propose a reviewer subagent** (`$1_reviewer`) for projects that involve coding — the reviewer verifies completed work, checks standards, validates R<n> traceability (reads test results, does not re-run). Tier: reasoning (`opencode-go/glm-5.1`). See `.opencode/agents/docs/project-setup/reviewer-template.md`
+- Every coding project should have at least: coordinator + coder + tester + reviewer
 - For each identified subagent (one at a time):
   - Present proposal to user with: name (`$1_<role>`), tier (fast/balanced/coding/reasoning), primary model, fallback chain, purpose, and complexity reasoning
   - Wait for explicit approval before creating

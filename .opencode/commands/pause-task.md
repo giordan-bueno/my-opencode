@@ -6,7 +6,7 @@ agent: build
 Pausing the current task. The task's progress file will be marked as paused and the PROGRESS.md pointer will be reset.
 
 - **Project name**: $1
-- **Reason**: $ARGUMENTS
+- **Reason**: $2 .. $N (all arguments after the project name)
 
 Execute the following steps:
 

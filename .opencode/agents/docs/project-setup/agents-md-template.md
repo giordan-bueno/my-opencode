@@ -40,6 +40,7 @@ Use this template when creating project AGENTS.md files (~60 lines max):
 │   ├── design-<task>-fb1.md ← Feedback round designs (e.g., design-fix-auth-bug-fb1.md)
 │   ├── subtasks.md    ← Subtask template with R<n> traceability
 │   ├── verification.md ← What "done" looks like (objective criteria for the reviewer)
+│   ├── testing.md     ← Testing strategy, approach, and project-specific rules
 │   ├── workflow.md
 │   ├── tech-stack.md
 │   ├── standards.md
@@ -57,6 +58,8 @@ Use this template when creating project AGENTS.md files (~60 lines max):
 - **Task type B**: [brief description]
 
 **Every task ends with a verification step**: The last subtask in every template is always "Verify" — routed to the reviewer subagent. After review, the coordinator reports to the user for final approval before marking the task complete.
+
+**Every coding task starts with code exploration**: After spec approval, the first subtask for coding projects is "Explore codebase" — routed to the coder. The coder reads relevant source files, identifies hidden dependencies, existing tests, and produces a Code Exploration report in the design file. The coordinator then revises the subtask plan based on findings before routing implementation subtasks.
 
 **Every task starts with spec approval**: Before code is written, the coordinator presents `docs/requirements.md` and `docs/design-<task-name>.md` for human review. No coding until specs are approved. See SDD reference for details.
 
@@ -117,8 +120,12 @@ Spec Status: pending | approved | changes_requested
 ## Project Subagents
 
 - **@<project>_coordinator** - Routes tasks to subagents, manages PROGRESS.md, handles completion gate (tier: balanced)
-- **@<project>_<role1>** - [purpose] (tier: [fast/balanced/coding/reasoning])
-- **@<project>_reviewer** - Verifies completed work, checks standards, runs tests (tier: reasoning)
+- **@<project>_coder** - Implements code changes (tier: coding)
+  - Routes to: implementation subtasks
+- **@<project>_tester** - Writes and runs tests tracing R<n> IDs (tier: coding)
+  - Routes to: test writing subtasks
+- **@<project>_reviewer** - Verifies completed work, checks standards, validates R<n> traceability (tier: reasoning)
+  - Routes to: Verify subtask (always last)
 
 ## Reference (load when needed)
 - Requirements & traceability: `docs/requirements.md`
@@ -126,6 +133,7 @@ Spec Status: pending | approved | changes_requested
 - Task prompt (per-task): `<task-folder>/task-prompt.md`
 - Detailed workflow: `docs/workflow.md`
 - Tech stack setup: `docs/tech-stack.md`
+- Testing strategy: `docs/testing.md`
 - Coding standards: `docs/standards.md`
 - Subtask template: `docs/subtasks.md`
 - Verification criteria: `docs/verification.md`

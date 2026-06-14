@@ -45,7 +45,8 @@ Blocked subtask:
 
 ## Role-Specific Elements
 
-- **Coding subagents**: Implementation guidelines, testing requirements, code review criteria
+- **Coding subagents**: Implementation guidelines, testing requirements, code review criteria, code exploration responsibilities
+- **Testing subagents**: Test-writing strategy, R<n> traceability rules, test framework commands. See `.opencode/agents/docs/project-setup/tester-template.md` for the dedicated tester template
 - **User-help subagents**: Step-by-step procedures, explanation templates, website navigation guidance
 - **Testing subagents**: Test execution commands, validation criteria, error analysis
 - **Setup subagents**: Configuration steps, dependency management, environment setup
@@ -60,19 +61,43 @@ mode: subagent
 model: opencode-go/<primary>
 # tier: [fast/balanced/coding/reasoning]
 # fallback: opencode-go/<fallback1> [, opencode/<fallback2>]
+# skills: 
 permission:
   read: allow
   edit: [allow/deny based on role]
   bash: [allow/deny based on role]
+  glob: [allow/deny based on role]
+  grep: [allow/deny based on role]
+  skill: [allow/deny based on role]
 ---
 
 You are a [role] specialist for the [project-name] project.
 
 ## Project Context
-[2-3 sentences from project AGENTS.md]
+Read `<project>/AGENTS.md` for project rules, context, and available subagents before starting any work.
 
 ## Your Responsibilities
 [Role-specific tasks from PDF analysis]
+
+## Code Exploration
+If you are assigned an "Explore codebase" subtask (typically the first subtask in coding projects after spec approval):
+1. Read `<project>/docs/design-<task-name>.md` → "Files to Modify" section to identify which files to explore
+2. Read the relevant source files in the external repo, paying attention to:
+   - Existing functions and classes that the implementation will affect or extend
+   - Existing test suites and their coverage (regression baseline)
+   - Hidden dependencies, integration points, and configuration not mentioned in the spec
+   - Code patterns, conventions, and utilities that can be reused
+   - Edge cases in the current code that the implementation might affect
+3. Produce a Code Exploration report by updating the `### Code Exploration` section in `<project>/docs/design-<task-name>.md`:
+   - **Existing Code Affected**: Files, functions, line numbers
+   - **Existing Test Suite**: Which tests exist and must keep passing
+   - **Hidden Dependencies**: Things discovered in code not mentioned in PDFs/task prompt
+   - **Subtask Revisions**: Suggest changes to the subtask plan if exploration reveals needed adjustments
+   - **Code-Driven Tests**: Supplementary tests discovered from reading the implementation
+4. Update `<project>/progress-<task-name>.md` — mark the exploration subtask as `[x]` with a summary of key findings
+
+## Skills
+(None assigned. Add skill names here if the subagent needs to invoke specific skills, e.g., `git-commit`.)
 
 ## Progress Tracking
 1. **Before starting**: Read `<project>/PROGRESS.md` to find the Active Task and Task Folder, then read `<project>/progress-<task-name>.md` for subtask details
@@ -100,8 +125,9 @@ You are a [role] specialist for the [project-name] project.
 
 ## Permission Guidelines
 
-- **Coding subagents**: `edit: allow`, `bash: allow` (need to write code and run tests)
-- **User-help subagents**: `edit: deny`, `bash: deny` (read-only assistance)
-- **Testing subagents**: `edit: allow`, `bash: allow` (need to run tests)
-- **Setup subagents**: `edit: allow`, `bash: allow` (need to configure environment)
-- **Review subagents**: `edit: allow` (may edit progress files only), `bash: allow` (read code, run linters)
+- **Coding subagents**: `edit: allow`, `bash: allow`, `glob: allow`, `grep: allow`, `skill: allow` (need to write code, run tests, and may use skills like git-commit)
+- **User-help subagents**: `edit: deny`, `bash: deny`, `glob: allow`, `grep: allow`, `skill: deny` (read-only assistance, but may need to search files)
+- **Testing subagents**: `edit: allow`, `bash: allow`, `glob: allow`, `grep: allow`, `skill: allow` (need to run tests, may commit results)
+- **Setup subagents**: `edit: allow`, `bash: allow`, `glob: allow`, `grep: allow`, `skill: allow` (need to configure environment, may use skills)
+- **Review subagents**: `edit: allow` (may edit progress files only), `bash: allow`, `glob: allow`, `grep: allow`, `skill: deny` (read code, run linters, search files — should NOT invoke skills that modify state)
+- **Coordinator subagents**: `edit: allow`, `bash: allow`, `glob: allow`, `grep: allow`, `skill: allow`, `task: allow` (route to subagents, manage progress, may invoke skills for setup tasks)

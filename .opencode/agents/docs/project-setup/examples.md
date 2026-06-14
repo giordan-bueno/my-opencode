@@ -148,10 +148,26 @@ WHILE the system is in production mode, the system MUST log all data modificatio
 ```markdown
 ## Subtask Template
 
-1. **Implement JWT middleware** — @project-x_coder: Add auth middleware to protected routes. Covers: R1, R2
-2. **Add error handler** — @project-x_coder: Create error boundary for API calls. Covers: R3
-3. **Add audit logger** — @project-x_coder: Log all data modifications with required fields. Covers: R4
-4. **Verify** — @project-x_reviewer: Confirm R1-R4 are met, run tests, check standards
+1. **Explore codebase and report findings** — @project-x_coder: Read relevant source files, existing test suite, hidden dependencies. Produce Code Exploration section in design file. Covers: all R<n>
+2. **Implement JWT middleware** — @project-x_coder: Add JWT middleware to protected routes. Covers: R1, R2
+3. **Add error handler** — @project-x_coder: Create error boundary for API calls. Covers: R3
+4. **Add audit logger** — @project-x_coder: Log all data modifications with required fields. Covers: R4
+5. **Write and run tests** — @project-x_tester: Write tests covering R1-R4 per Test Plan + code-driven tests from exploration. Run test suite and report results. Covers: R1, R2, R3, R4
+6. **Verify** — @project-x_reviewer: Review test results, check R<n> traceability, verify standards, confirm all requirements met
+```
+
+## Good Example: Subtask Template for TDD Project
+
+```markdown
+## Subtask Template — TDD Project
+
+1. **Write fail-to-pass tests** — @project-x_tester: Write failing tests for R1-R4 per draft Test Plan (RED phase). Covers: R1, R2, R3, R4
+2. **Explore codebase and report findings** — @project-x_coder: Read relevant source files, existing test suite, hidden dependencies. Produce Code Exploration section. Covers: all R<n>
+3. **Implement JWT middleware** — @project-x_coder: Add JWT middleware to protected routes. Covers: R1, R2
+4. **Add error handler** — @project-x_coder: Create error boundary for API calls. Covers: R3
+5. **Add audit logger** — @project-x_coder: Log all data modifications with required fields. Covers: R4
+6. **Write pass-to-pass + code-driven tests, run full suite** — @project-x_tester: Write pass-to-pass tests, add code-driven tests from exploration, run full suite, all must pass (GREEN phase). Covers: R1, R2, R3, R4
+7. **Verify** — @project-x_reviewer: Review test results, check R<n> traceability, verify standards, confirm all requirements met
 ```
 
 ## Good Example: Verification Criteria with R<n> References
@@ -159,11 +175,24 @@ WHILE the system is in production mode, the system MUST log all data modificatio
 ```markdown
 ## Verification Criteria
 
-- [ ] R1: JWT middleware blocks unauthenticated access (test: `npm test -- auth.test.ts`)
-- [ ] R2: Successful login redirects to dashboard (test: `npm test -- login.test.ts`)
-- [ ] R3: Error handler catches API failures gracefully (test: `npm test -- errors.test.ts`)
-- [ ] R4: Audit logger records timestamp and user ID (test: `npm test -- audit.test.ts`)
+- [ ] R1: JWT middleware blocks unauthenticated access
+  - Verification: Automated test
+  - Test command: `npm test -- auth.test.ts`
+  - Test type: Fail-to-pass
+- [ ] R2: Successful login redirects to dashboard
+  - Verification: Automated test
+  - Test command: `npm test -- auth.test.ts`
+  - Test type: Pass-to-pass
+- [ ] R3: Error handler catches API failures gracefully
+  - Verification: Automated test
+  - Test command: `npm test -- errors.test.ts`
+  - Test type: Standard
+- [ ] R4: Audit logger records timestamp and user ID
+  - Verification: Automated test
+  - Test command: `npm test -- audit.test.ts`
+  - Test type: Standard
 - [ ] Code follows conventions defined in docs/standards.md
+  - Verification: Manual code review
 - [ ] No debug artifacts left
 ```
 
@@ -276,6 +305,47 @@ The good version is a **routing layer** that points to detailed docs. The bad ve
 For progress tracking: **PROGRESS.md is a minimal pointer** — subagents read it to find which `progress-<task>.md` file to open for details. Each task has its own progress file, so no data movement is needed for pause/resume/complete.
 
 **Rule of thumb**: If a section needs more than 3-4 lines, move it to a reference doc in `<project>/docs/`.
+
+## Good Example: Code Exploration Section
+
+After the coder explores the codebase, the design file gets a Code Exploration section:
+
+```markdown
+### Code Exploration
+
+#### Existing Code Affected
+- `src/auth/middleware.ts:42` — Existing `validateToken()` function. The spec says "Add JWT middleware" but there's already an auth middleware that needs modification, not a new one.
+- `src/auth/session.ts:15` — Session auth system that must coexist with new JWT auth. Not mentioned in the spec.
+- `src/errors/handler.ts` — Existing error handler already returns JSON errors. R3 can reuse it instead of creating a new one.
+
+#### Existing Test Suite
+- `tests/auth.test.ts` — 12 existing tests, all must continue passing after changes (regression baseline)
+- `tests/errors.test.ts` — 4 existing tests for error handling
+
+#### Hidden Dependencies
+- JWT secret must be in `process.env.JWT_SECRET` (discovered in `src/config.ts:8`)
+- Auth middleware must be registered before session middleware in `src/app.ts:23`
+- `logAction()` utility already exists in `src/utils/logger.ts` — should be reused for R4 instead of creating a new logger
+
+#### Subtask Revisions
+Based on code exploration, the original subtask plan is revised:
+- Original subtask "Implement auth middleware" → Split into:
+  - "Modify existing auth middleware to add JWT support" (R1, R2)
+  - "Add error type for auth validation failures" (R3, R6)
+- Original subtask "Add audit logger" → Clarify: reuse existing `logAction()` utility (R4)
+
+#### Code-Driven Tests (supplementary to Test Plan)
+- REGRESSION: All 12 existing tests in `tests/auth.test.ts` must pass after changes (Pass-to-pass)
+- EDGE CASE: `validateToken(null)` should return 401 — discovered from `src/auth/middleware.ts:37` (Standard)
+- INTEGRATION: JWT auth and session auth must coexist without conflicts (Standard)
+```
+
+**Key points**:
+- The Code Exploration section is populated **after** the coder reads the codebase, not during spec review
+- Subtask Revisions show how the plan adapts based on what the coder discovered
+- Code-Driven Tests are supplementary — they don't replace the Test Plan, they extend it
+- Existing Test Suite section provides the regression baseline that the tester must verify
+- The coordinator reads these findings and may update the subtask list in the progress file
 
 ## Good Example: Feedback Round Progress File
 

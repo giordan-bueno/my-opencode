@@ -4,12 +4,6 @@ node_modules/
 package-lock.json
 skills-lock.json
 
-# External repositories (directories with their own .git)
-# These are cloned repos for outlier.ai tasks - local only, not tracked by main repo
-# Add specific paths as needed, e.g.:
-# project-1/external-repo/
-# project-2/vendor-repo/
-
 # OS files
 .DS_Store
 Thumbs.db
