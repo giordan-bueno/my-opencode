@@ -48,9 +48,9 @@ You are a PDF cleaning specialist. Your job is to process watermarked PDF files 
 
 - Always create the project folder AND .gitignore BEFORE processing PDFs.
 - Clean PDFs must be saved inside the project folder, not in the root.
-- If a PDF fails to process, report the error but continue with remaining files.
+- If a PDF fails to process, report the error but continue with remaining files. If ALL PDFs fail, the step is considered failed — report this clearly.
 - Do NOT delete the original watermarked PDFs from the root - the user may want to keep them.
-- Report back with a summary of: project folder created, .gitignore created, PDFs cleaned, and any errors.
+- Report back with a summary of: project folder created, .gitignore created, PDFs cleaned (and how many), PDFs that failed (and how many), and specific errors for each failed PDF.
 
 ## Example
 

@@ -78,7 +78,7 @@ Spec Status: <pending | approved | changes_requested | "none">
 ---
 ```
 
-**`progress-<task-name>.md`** — A per-task file with full subtask status and context notes:
+**`progress-<task-name>.md`** — A per-task file with full subtask status, context notes, and structured handoff:
 ```markdown
 # Task: <task-name>
 
@@ -90,16 +90,34 @@ Task Prompt: <task-folder>/task-prompt.md (or "None")
 Spec Status: pending | approved | changes_requested
 ---
 
-- [x] 1. <subtask from template>
-  - <context notes from subagent>
+## Context Summary
+- Completed: <brief summary of completed subtasks with R<n> IDs, or "None yet">
+- Current: <what's being worked on now, or "Starting">
+- Next: <what comes next, or "To be determined">
+- Key files: <most important files for this task, or "To be discovered">
+- Blocker: <any blockers, or "None">
+
+- [x] 1. <subtask from template> — @<project>_<role>
+  - Modified: <files changed, with lines if relevant>
   - Covers: R1, R2
+  - Key decisions: <important decisions, or omit>
+  - For next subagent: <critical info for next subagent, or omit>
 - [ ] 2. <subtask from template>
 - [!] 3. <blocked subtask>
   - BLOCKED: <description of what's blocking>
 - [ ] N. Verify — @<project>_reviewer: Run tests, check standards, confirm all requirements met
+
+## Handoff Notes
+- Environment: <env vars, config, setup requirements discovered during work>
+- Existing tests: <test suites that must keep passing, regression baseline>
+- Reuse: <existing utilities, patterns, or modules that should be reused>
+- Warning: <things to avoid, hidden dependencies, non-obvious constraints>
 ```
 
 - **PROGRESS.md** is the single source of truth for "what task is active right now" — subagents check the `Active Task` field to know which task file to read
+- **Context Summary** gives a 5-line executive summary at the top of each progress file — subagents read this first for quick orientation before diving into subtask details
+- **Structured Handoff** fields (Modified, Covers, Key decisions, For next subagent) ensure critical information flows between subagents — the coordinator updates these after each subtask completion
+- **Handoff Notes** accumulate environment-level discoveries across the entire task — any subagent can add entries about env vars, test baselines, reusable patterns, or warnings
 - **progress-<task-name>.md** contains the detailed subtask list, context notes, and status for one specific task
 - Each task gets its own progress file — no data movement between sections, no History to manage
 - Paused tasks: Status changes to `[PAUSED: reason]`, PROGRESS.md pointer resets to `<none>`
@@ -126,6 +144,36 @@ Spec Status: pending | approved | changes_requested
   - Routes to: test writing subtasks
 - **@<project>_reviewer** - Verifies completed work, checks standards, validates R<n> traceability (tier: reasoning)
   - Routes to: Verify subtask (always last)
+
+*(If coding subagents are not listed, they will be created after tech discovery during the first task. Use `/add-subagent` to add them later.)*
+
+## Tech Discovery Status
+
+When the project PDFs don't specify the tech stack (language, framework, test runner, etc.), this section tracks what is known and what needs discovery:
+
+```markdown
+## Tech Discovery Status
+- Tech stack: [Known: <details> | Partially known: <what's known> | Discovery required]
+- Testing framework: [Known: <details> | Discovery required]
+- Last updated: [Date or "Pending first task"]
+- Discovery source: [PDFs / First task repo / Task prompt / Feedback]
+```
+
+**If tech stack is "Discovery required"**: Coding subagents (coder, tester, reviewer) should be proposed after the first task discovers the tech stack from the repo. The coordinator can still operate — it routes to available subagents and reports missing subagents to the user.
+
+**When tech is discovered during a task**: The coordinator updates `docs/tech-stack.md`, `docs/testing.md`, and `docs/standards.md` with the discovered information, marks the Tech Discovery Status as "Known" in AGENTS.md, and recommends `/add-subagent` to create coding subagents if they don't exist yet.
+
+## Installed Skills
+
+Skills from [skills.sh](https://www.skills.sh/) extend subagent capabilities with procedural knowledge. Installed skills are listed here and attached to subagents via their `# skills:` frontmatter field.
+
+### Global (available to all projects)
+- git-commit — Conventional commit workflow
+
+### Project-specific (<project>)
+*(No project-specific skills installed yet. Use `/add-skill <project> <source> --skill <name> --attach <role>` to install skills.)*
+
+**Recommended skills for this project's tech stack**: Search [skills.sh](https://www.skills.sh/) by language, framework, or task keywords to discover relevant skills. See `docs/skills-recommendations.md` for search methodology.
 
 ## Reference (load when needed)
 - Requirements & traceability: `docs/requirements.md`

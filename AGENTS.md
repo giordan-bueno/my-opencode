@@ -44,6 +44,8 @@ When facing ambiguity:
 | `/new-project <name> <file.pdf ...>` | Create project from watermarked PDFs |
 | `/update-project <name> <file.pdf ...>` | Update project with new PDFs |
 | `/add-subagent <project> <role>` | Add a new subagent to an existing project |
+| `/add-skill <project> <source> [--skill <name>] [--attach <role>]` | Install a skill from skills.sh and optionally attach to a subagent |
+| `/add-skill --global <source> [--skill <name>]` | Install a skill globally (available to all projects) |
 | `/start-task <project> <folder>` | Start task, spec review gate, invoke coordinator |
 | `/pause-task <project> <reason>` | Change progress file status to paused, reset pointer |
 | `/resume-task <project> <folder>` | Restore pointer, change status back to In Progress |
@@ -77,7 +79,7 @@ Before any code is written, requirements and design must be approved by the huma
 - Stored in `.opencode/agents/<project>_<role>.md`, tracked in main repo
 - Add new subagents with `/add-subagent <project> <role>` without re-running full project setup
 
-**Skills**: Subagents can invoke OpenCode skills (e.g., `git-commit`). Skills are declared in the `# skills:` frontmatter field and the `## Skills` prompt section. The coordinator decides per-task whether a skill is needed.
+**Skills**: Subagents can invoke OpenCode skills (e.g., `git-commit`). Skills come from two sources: (1) Custom skills in `.agents/skills/` (built-in), and (2) the [skills.sh](https://www.skills.sh/) ecosystem (installed via `/add-skill`). Skills are declared in the `# skills:` frontmatter field and the `## Skills` prompt section. The coordinator decides per-task whether a skill is needed. See `docs/skills-recommendations.md` for recommended skills by tech stack.
 
 ## Reference (load when needed)
 
@@ -89,3 +91,4 @@ Before any code is written, requirements and design must be approved by the huma
 - Subagent reference docs: `.opencode/agents/docs/` directory
 - Command definitions: `.opencode/commands/` directory
 - Git commit skill: `.agents/skills/git-commit/SKILL.md`
+- Skill discovery guide: `docs/skills-recommendations.md`

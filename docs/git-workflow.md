@@ -187,10 +187,12 @@ The **@git-committer** subagent handles commits automatically:
 
 The root `.gitignore` file excludes:
 - `node_modules/` - Dependencies
-- `package-lock.json`, `skills-lock.json` - Lock files
+- `package-lock.json` - Lock file (npm)
 - OS files - `.DS_Store`, `Thumbs.db`
 - IDE files - `.vscode/`, `.idea/`
 - Environment files - `.env`, `.env.local`
+
+**Note**: `skills-lock.json` is NOT excluded — it is tracked in git so that installed skills can be restored when cloning the workspace.
 
 ### Per-Project .gitignore
 

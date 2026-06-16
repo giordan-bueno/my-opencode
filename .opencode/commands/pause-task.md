@@ -61,14 +61,30 @@ Task Prompt: fix-auth-bug/task-prompt.md
 Spec Status: approved
 ---
 
-- [x] 1. Clone & navigate
-  - Repo cloned to fix-auth-bug/external-repo/, branch fix-auth
-- [x] 2. Identify issue
-  - Bug: auth validator crashes on empty email → src/auth/validator.ts:42
-- [!] 3. Implement fix
-  - BLOCKED: awaiting clarification on empty string vs null behavior
+## Context Summary
+- Completed: Clone repo (R1), Identify issue (R2) — bug at src/auth/validator.ts:42
+- Current: Implement fix (R3,R5) — blocked on @company/auth-lib API
+- Next: Run tests → Verify
+- Key files: src/auth/validator.ts, src/errors/handler.ts
+- Blocker: Need clarification on empty string vs null handling
+
+- [x] 1. Clone & navigate — @project-x_coder
+  - Modified: .gitmodules, fix-auth-bug/external-repo/
+  - Covers: R1
+- [x] 2. Identify issue — @project-x_coder
+  - Modified: docs/design-fix-auth-bug.md (Code Exploration section)
+  - Covers: R2
+  - For next subagent: Auth middleware registered before session middleware in app.ts:23
+- [!] 3. Implement fix — @project-x_coder
+  - BLOCKED: auth module uses custom validator from @company/auth-lib — need clarification
 - [ ] 4. Run tests
-- [ ] 5. Verify — @<project>_reviewer
+- [ ] 5. Verify — @project-x_reviewer: Run tests, check standards, confirm all requirements met
+
+## Handoff Notes
+- Environment: Requires JWT_SECRET in .env (discovered in src/config.ts:8)
+- Existing tests: tests/auth.test.ts (12 tests) must pass — regression baseline
+- Reuse: logAction() in src/utils/logger.ts for audit logging (R4)
+- Warning: Do NOT modify src/auth/session.ts — it handles session auth separately
 ```
 
 ## Step 3: Commit the paused progress

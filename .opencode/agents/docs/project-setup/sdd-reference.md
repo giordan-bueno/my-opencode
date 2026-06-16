@@ -70,6 +70,27 @@ Not all outlier.ai projects are software development projects. Some PDFs are pur
 - Keep requirements concise and verifiable — avoid inflating the count
 - When EARS doesn't fit naturally, `MUST` statements are acceptable (e.g., `The task MUST pass all project tests`)
 
+### When PDFs lack tech stack information
+
+Some outlier.ai project PDFs don't specify the tech stack (language, framework, test runner, etc.). In these cases:
+
+- `docs/tech-stack.md` is created with a **"## Discovery Required"** section listing what is unknown (language, framework, build tool, package manager, test runner, database, etc.) and how it will be discovered (from the repo during the first task, from task prompts, from feedback)
+- `docs/testing.md` uses the placeholder **"Testing framework: Discovery required — will be determined from the repo during the first task"** instead of guessing
+- `docs/standards.md` uses minimal generic conventions with a note **"To be updated after tech discovery during the first task"**
+- `AGENTS.md` includes a **"## Tech Discovery Status"** section tracking what is known and what needs discovery
+- Coding subagents (coder, tester, reviewer) may be **deferred** until the tech stack is discovered — the coordinator is created first, and coding subagents are added later via `/add-subagent`
+
+**When tech discovery happens** (during `/start-task` or code exploration):
+1. The repo's dependency files are inspected to identify language, framework, test runner, etc.
+2. `docs/tech-stack.md`, `docs/testing.md`, and `docs/standards.md` are updated with discovered information
+3. `AGENTS.md` "Tech Discovery Status" is updated to mark fields as "Known"
+4. If coding subagents don't exist yet, the user is prompted to run `/add-subagent` for each missing role
+5. If coding subagents exist but lack tech-specific context, the user is prompted to run `/add-subagent <project> <role> --update`
+
+This affects the SDD flow:
+- **Design and Test Plan**: If tech stack is unknown at spec review time, the design and test plan use placeholder information (e.g., "test framework: TBD"). After tech discovery during the first task, the coordinator revises the design and test plan with the discovered information.
+- **Test Plan completion**: The full test plan (with test commands, test file paths, and test types) cannot be finalized until the tech stack is known. A partial test plan is created at spec review and revised after tech discovery.
+
 ### Task prompts and task-specific requirements
 
 Many outlier.ai tasks come with a **task prompt** — specific instructions, context, or a prompt to implement/fix that's unique to each task. These are stored in `<task-folder>/task-prompt.md`.
@@ -77,11 +98,11 @@ Many outlier.ai tasks come with a **task prompt** — specific instructions, con
 Task prompts add **task-specific requirements** that complement the project-level requirements:
 
 - **Project-level requirements** (in `docs/requirements.md`): Stable R<n> IDs derived from the project PDFs. These apply to ALL tasks in the project. Example: R1-R5.
-- **Task-specific requirements** (in `docs/design.md` "Task-Specific Requirements" section): New R<n> IDs derived from the task prompt, continuing numbering from the project requirements. These apply only to THIS task. Example: R6-R8.
+- **Task-specific requirements** (in `docs/design-<task-name>.md` "Task-Specific Requirements" section): New R<n> IDs derived from the task prompt, continuing numbering from the project requirements. These apply only to THIS task. Example: R6-R8.
 - The reviewer verifies BOTH: project R<n> and task-specific R<n> must be covered.
 
 When a task prompt exists:
-1. The coordinator reads `task-prompt.md` before creating `design.md`
+1. The coordinator reads `task-prompt.md` before creating `docs/design-<task-name>.md`
 2. The coordinator extracts new requirements from the task prompt, continuing R<n> numbering from `requirements.md`
 3. The coordinator adapts the subtask list based on the task prompt's instructions
 4. The reviewer checks implementation against both project and task-specific requirements
@@ -308,7 +329,50 @@ Spec Status: pending | approved | changes_requested
 | `approved` | Human approved, coding subagents can begin |
 | `changes_requested` | Human requested changes, coordinator waiting for guidance |
 
-Spec Status is preserved in the per-task progress files. When a task is paused, its `progress-<task>.md` file keeps its full state — no data movement is needed.
+### Progress file (per-task)
+
+Each task gets its own progress file with full subtask details, context summary, and structured handoff:
+
+```markdown
+# Task: <task-name>
+
+---
+Status: In Progress
+Created: YYYY-MM-DD
+Design: docs/design-<task-name>.md
+Task Prompt: <task-folder>/task-prompt.md (or "None")
+Spec Status: pending | approved | changes_requested
+---
+
+## Context Summary
+- Completed: <brief summary of completed subtasks with R<n> IDs, or "None yet">
+- Current: <what's being worked on now, or "Starting">
+- Next: <what comes next, or "To be determined">
+- Key files: <most important files for this task, or "To be discovered">
+- Blocker: <any blockers, or "None">
+
+- [x] 1. <completed subtask> — @<project>_<role>
+  - Modified: <files changed, with lines if relevant>
+  - Covers: R1, R2
+  - Key decisions: <important decisions, or omit>
+  - For next subagent: <critical info for next subagent, or omit>
+- [ ] 2. <pending subtask>
+- [ ] N. Verify — @<project>_reviewer: Review test results, check R<n> traceability, verify standards, confirm all requirements met
+
+## Handoff Notes
+- Environment: <env vars, config, setup requirements discovered during work>
+- Existing tests: <test suites that must keep passing, regression baseline>
+- Reuse: <existing utilities, patterns, or modules that should be reused>
+- Warning: <things to avoid, hidden dependencies, non-obvious constraints>
+```
+
+**Context Summary** is updated by every subagent after completing work. It provides a 5-line executive summary that lets any subagent understand the task state without reading the full file.
+
+**Structured Handoff** fields (Modified, Covers, Key decisions, For next subagent) ensure critical information flows between subagents. The coordinator updates these after each subtask completion.
+
+**Handoff Notes** accumulate environment-level discoveries across the entire task. Any subagent can add entries about env vars, test baselines, reusable patterns, or warnings.
+
+Spec Status is preserved in the per-task progress files.
 
 ## Feedback Rounds
 

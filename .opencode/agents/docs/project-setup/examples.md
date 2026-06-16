@@ -50,7 +50,9 @@
 **Problems**:
 - No Active Task pointer — subagents don't know which task to work on
 - No Task Folder — subagents don't know where files are
-- No context notes — next subagent has no idea what was found or done
+- No Context Summary — new subagents must read the entire file to understand task state
+- No structured handoff — informal notes don't guarantee critical information is passed
+- No Handoff Notes — environment discoveries and warnings are lost between subagents
 - No separate progress file — task details mixed with pointer
 
 ## Good Example: Progress Tracking (Pointer + Per-Task File)
@@ -78,19 +80,41 @@ Task Prompt: fix-auth-bug/task-prompt.md
 Spec Status: approved
 ---
 
-- [x] 1. Clone & navigate
-  - Repo cloned to fix-auth-bug/external-repo/, branch fix-auth
-  - Covers: R1, R2
-- [!] 3. Implement fix
-  - BLOCKED: The auth module uses a custom validator from `@company/auth-lib` which isn't documented in the PDFs. Need user to clarify the expected behavior for empty strings vs null.
+## Context Summary
+- Completed: Clone repo (R1), Identify issue (R2) — bug at src/auth/validator.ts:42
+- Current: Implement fix (R3,R5) — blocked on @company/auth-lib API
+- Next: Run tests → Verify
+- Key files: src/auth/validator.ts, src/errors/handler.ts
+- Blocker: Need clarification on empty string vs null handling
+
+- [x] 1. Clone & navigate — @project-x_coder
+  - Modified: .gitmodules, fix-auth-bug/external-repo/
+  - Covers: R1
+  - Key decisions: Cloned specific branch fix-auth
+  - For next subagent: Repo uses npm, run npm install before any work
+- [x] 2. Identify issue — @project-x_coder
+  - Modified: docs/design-fix-auth-bug.md (Code Exploration section)
+  - Covers: R2
+  - Key decisions: Bug is null dereference in validator, not auth logic
+  - For next subagent: Auth middleware must be registered before session middleware in app.ts:23
+- [!] 3. Implement fix — @project-x_coder
+  - BLOCKED: auth module uses custom validator from @company/auth-lib — need clarification
 - [ ] 4. Run tests
 - [ ] 5. Verify — @project-x_reviewer: Run tests, check standards, confirm all requirements met
+
+## Handoff Notes
+- Environment: Requires JWT_SECRET in .env (discovered in src/config.ts:8)
+- Existing tests: tests/auth.test.ts (12 tests) must pass — regression baseline
+- Reuse: logAction() in src/utils/logger.ts for audit logging (R4)
+- Warning: Do NOT modify src/auth/session.ts — it handles session auth separately
 ```
 
 **Benefits**:
 - PROGRESS.md pointer immediately tells subagents which task is active — they then open the corresponding progress file
+- **Context Summary** provides a 5-line quick orientation — new subagents understand task state without reading the entire file
 - Per-task files mean no data movement between sections — pause/resume is just a status change
-- Context notes pass essential information between subagents
+- **Structured handoff** fields (Modified, Covers, Key decisions, For next subagent) ensure critical information flows explicitly between subagents
+- **Handoff Notes** accumulate environment-level discoveries across the entire task — every subagent benefits from prior discoveries
 - `[!]` blocked marker clearly signals when a subagent is stuck and needs user intervention
 - Old progress files stay as historical reference — no History section to manage
 - Verify subtask is always the last step — reviewer checks all work before completion gate
@@ -239,19 +263,40 @@ Task Prompt: fix-auth-bug/task-prompt.md
 Spec Status: approved
 ---
 
-- [x] 1. Clone & navigate
-  - Repo cloned to fix-auth-bug/external-repo/, branch fix-auth
-- [x] 2. Identify issue
-  - Bug: auth validator crashes on empty email → src/auth/validator.ts:42
-- [!] 3. Implement fix
+## Context Summary
+- Completed: Clone repo (R1), Identify issue (R2) — bug at src/auth/validator.ts:42
+- Current: Implement fix (R3,R5) — blocked on @company/auth-lib API
+- Next: Run tests → Verify
+- Key files: src/auth/validator.ts, src/errors/handler.ts
+- Blocker: Need clarification on empty string vs null handling
+
+- [x] 1. Clone & navigate — @project-x_coder
+  - Modified: .gitmodules, fix-auth-bug/external-repo/
+  - Covers: R1
+  - Key decisions: Cloned specific branch fix-auth
+  - For next subagent: Repo uses npm, run npm install before any work
+- [x] 2. Identify issue — @project-x_coder
+  - Modified: docs/design-fix-auth-bug.md (Code Exploration section)
+  - Covers: R2
+  - Key decisions: Bug is null dereference in validator, not auth logic
+  - For next subagent: Auth middleware registered before session middleware in app.ts:23
+- [!] 3. Implement fix — @project-x_coder
   - BLOCKED: auth module uses custom validator from @company/auth-lib — need clarification
 - [ ] 4. Run tests
-- [ ] 5. Verify — @project-x_reviewer
+- [ ] 5. Verify — @project-x_reviewer: Run tests, check standards, confirm all requirements met
+
+## Handoff Notes
+- Environment: Requires JWT_SECRET in .env (discovered in src/config.ts:8)
+- Existing tests: tests/auth.test.ts (12 tests) must pass — regression baseline
+- Reuse: logAction() in src/utils/logger.ts for audit logging (R4)
+- Warning: Do NOT modify src/auth/session.ts — it handles session auth separately
 ```
 
 **Key points**:
 - Paused tasks keep `[PAUSED: <reason>]` in their progress file Status field
 - All progress is preserved: `[x]` completed, `[!]` blocked, `[ ]` pending
+- **Context Summary** is preserved across pause/resume — subagents can instantly understand task state
+- **Handoff Notes** persist across the entire task lifecycle — resuming subagents benefit from prior discoveries
 - Resuming with `/resume-task` simply changes Status back to `In Progress` and updates the PROGRESS.md pointer
 - No data movement between sections — just a status field change
 
@@ -376,9 +421,22 @@ Previous: progress-fix-auth-bug.md
 Spec Status: pending
 ---
 
+## Context Summary
+- Completed: None yet (feedback round)
+- Current: Awaiting spec approval for feedback
+- Next: Explore codebase changes from feedback
+- Key files: src/auth/validator.ts, src/errors/handler.ts (from original task)
+- Blocker: None
+
 - [ ] 1. Fix email plus sign handling — @project-x_coder: Update regex to accept + in email addresses. Covers: R9
 - [ ] 2. Add error codes to API responses — @project-x_coder: Add error_code field to all auth error responses. Covers: R10
 - [ ] 3. Verify — @project-x_reviewer: Confirm R9-R10 are met, run tests, check feedback addressed
+
+## Handoff Notes
+- Environment: JWT_SECRET required in .env (from original task)
+- Existing tests: tests/auth.test.ts (12 tests) must pass — regression baseline from original task
+- Reuse: logAction() in src/utils/logger.ts for audit logging (from original task)
+- Warning: Auth middleware order must be preserved — JWT before session (app.ts:23)
 ```
 
 **progress-fix-auth-bug.md** (original, now completed):
@@ -393,10 +451,35 @@ Task Prompt: fix-auth-bug/task-prompt.md
 Spec Status: approved
 ---
 
-- [x] 1. Clone & navigate
-- [x] 2. Implement fix
-- [x] 3. Run tests
-- [x] 4. Verify — @project-x_reviewer
+## Context Summary
+- Completed: All subtasks (R1-R8)
+- Current: Completed
+- Next: Feedback round fb1
+- Key files: src/auth/validator.ts, src/errors/handler.ts
+- Blocker: None
+
+- [x] 1. Clone & navigate — @project-x_coder
+  - Modified: .gitmodules, fix-auth-bug/external-repo/
+  - Covers: R1
+- [x] 2. Identify issue — @project-x_coder
+  - Modified: docs/design-fix-auth-bug.md (Code Exploration section)
+  - Covers: R2
+- [x] 3. Implement fix — @project-x_coder
+  - Modified: src/auth/validator.ts:42, src/errors/handler.ts:15-20
+  - Covers: R3, R5
+  - Key decisions: Used null-safe operator instead of try/catch
+- [x] 4. Run tests — @project-x_tester
+  - Modified: tests/auth.test.ts (12 tests), tests/errors.test.ts (4 tests)
+  - Covers: R1-R8
+  - Results: 16 passed, 0 failed
+- [x] 5. Verify — @project-x_reviewer
+  - APPROVED: All R1-R8 requirements covered, all tests passing, code follows standards
+
+## Handoff Notes
+- Environment: JWT_SECRET required in .env (discovered in src/config.ts:8)
+- Existing tests: tests/auth.test.ts (12 tests) must pass — regression baseline
+- Reuse: logAction() in src/utils/logger.ts for audit logging (R4)
+- Warning: Do NOT modify src/auth/session.ts — it handles session auth separately
 ```
 
 **Key points**:
@@ -405,3 +488,74 @@ Spec Status: approved
 - R<n> IDs continue from original task (original was R1-R8, feedback starts R9)
 - Same task folder and repo — feedback works on the same codebase
 - Multiple feedback rounds: `-fb1`, `-fb2`, etc.
+
+## Good Example: Context Summary for Quick Orientation
+
+When a new subagent starts working on a task, it reads the Context Summary first for instant orientation:
+
+```
+## Context Summary
+- Completed: Clone repo (R1), Implement auth fix (R3,R5), Run tests (R1-R6)
+- Current: Verify — reviewer checking all work
+- Next: Completion gate after verification
+- Key files: src/auth/validator.ts, src/errors/handler.ts, tests/auth.test.ts
+- Blocker: None
+```
+
+This gives the subagent everything it needs to understand the task state in 5 lines — no need to scroll through all subtask entries. The subagent can then scroll to the relevant subtask for details.
+
+**Key guidelines**:
+- Keep Context Summary to exactly 5 lines
+- Update `Current` and `Next` after every subtask completion
+- Add important file paths to `Key files` as they're discovered
+- Set `Blocker` to `None` when resolved, or describe the blocker when one exists
+
+## Good Example: Structured Handoff Between Subagents
+
+The structured handoff fields ensure critical information flows between subagents:
+
+```markdown
+- [x] 2. Implement JWT middleware — @project-x_coder
+  - Modified: src/auth/middleware.ts:23-45, src/routes/index.ts:12
+  - Covers: R1, R2
+  - Key decisions: Used existing validateToken() function instead of creating a new one
+  - For next subagent: JWT middleware must be registered BEFORE session middleware in app.ts:23. This order is critical.
+```
+
+Without structured handoff, the next subagent (tester) might not know about the middleware order dependency and write tests that pass in isolation but fail in integration.
+
+**Field guidelines**:
+- **Modified** (required): Always list files changed. Include line numbers for targeted changes.
+- **Covers** (required): Always list R<n> IDs. This is how the reviewer traces requirements.
+- **Key decisions** (optional): Use when an implementation choice affects future work.
+- **For next subagent** (optional): Use for non-obvious information that the next subagent might miss.
+
+## Good Example: Handoff Notes Accumulated Over Task
+
+Handoff Notes grow as subagents discover environment-level information:
+
+**After exploration subtask**:
+```markdown
+## Handoff Notes
+- Environment: JWT_SECRET required in .env (discovered in src/config.ts:8)
+- Existing tests: tests/auth.test.ts (12 tests) must pass — regression baseline
+- Reuse: logAction() in src/utils/logger.ts can be used for audit logging
+- Warning: Auth middleware must be registered BEFORE session middleware (app.ts:23)
+```
+
+**After tester subtask** (added entries):
+```markdown
+## Handoff Notes
+- Environment: JWT_SECRET required in .env (discovered in src/config.ts:8)
+- Existing tests: tests/auth.test.ts (12 tests) must pass — regression baseline — all 12 still passing
+- Reuse: logAction() in src/utils/logger.ts can be used for audit logging
+- Warning: Auth middleware must be registered BEFORE session middleware (app.ts:23)
+- Environment: Test suite uses jest --runInBand (sequential execution required, discovered in package.json)
+- Existing tests: tests/errors.test.ts (4 tests) — must also pass after changes
+```
+
+**Key points**:
+- Any subagent can add entries (not just the coordinator)
+- Entries accumulate — they're never removed during a task
+- When starting a feedback round, copy relevant Handoff Notes from the original task to the feedback progress file
+- Handoff Notes survive pause/resume cycles because they're part of the progress file

@@ -35,6 +35,10 @@ Read `$1/progress-$2.md` and `$1/PROGRESS.md`, then:
    ---
    ```
 4. Update `$1/progress-$2.md` — change `Status: [PAUSED: <reason>]` to `Status: In Progress`
+5. Update the **Context Summary** in `$1/progress-$2.md`:
+   - `Current`: Update to reflect which subtask is next (first `[ ]` or `[!]` item)
+   - `Next`: Update to preview the following subtask
+   - `Blocker`: Set to `None` if all blockers were resolved, or keep existing blocker description if still unresolved
 
 ## Step 3: Notify the user and route to coordinator
 
@@ -48,7 +52,7 @@ After restoring the task:
    > Note: If the external repo or task folder has changed since pausing, subagents should re-verify their context before continuing."
 
 2. If there are `[!]` blocked subtasks in the progress file, remind the user:
-   > "This task has blocked subtasks. Resolve the blockers before continuing, or skip them with `/start-task`."
+   > "This task has blocked subtasks. Resolve the blockers before continuing, or start a different task with `/start-task` and come back to this one later."
 
 3. Delegate to the **@${1}_coordinator** subagent with these instructions:
    - Project: $1
@@ -74,7 +78,7 @@ Delegate to the **@git-committer** subagent with these instructions:
 
 - Resumed tasks preserve ALL previous progress — completed subtasks stay `[x]`, blocked subtasks stay `[!]`, pending subtasks stay `[ ]`
 - If the task folder doesn't exist, the user needs to recreate it manually before subagents can work in it
-- If the subtask template (`docs/subtasks.md`) has changed since the task was paused, the progress file reflects the OLD template. The coordinator should be aware of this.
+- **If the subtask template (`docs/subtasks.md`) has changed since the task was paused**: The progress file reflects the ORIGINAL template from when the task was started. The coordinator should compare the current `docs/subtasks.md` with the subtask list in the progress file and inform the user of any discrepancies. The coordinator may add new subtasks to the progress file (marking them `[ ]`) if the template adds required steps, but should NOT remove completed subtasks or reorder existing ones.
 - Any blockers that existed when the task was paused are still present — the user should resolve them before the coordinator continues routing
 - Design files are per-task (`docs/design-<task-name>.md`) — they are never overwritten by other tasks, so the resumed task's design is intact
 - Task prompt files (`<task-folder>/task-prompt.md`) remain in the task folder — no action needed during resume

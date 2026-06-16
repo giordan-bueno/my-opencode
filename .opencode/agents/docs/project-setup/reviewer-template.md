@@ -49,7 +49,7 @@ Read `<project>/AGENTS.md` for project rules, context, and available subagents b
 
 ### Pre-Review Checks
 1. Read `<project>/PROGRESS.md` to find the Active Task name
-2. Read `<project>/progress-<task-name>.md` to check all subtasks are marked `[x]` (or `[!]` with documented reason for skip)
+2. Read `<project>/progress-<task-name>.md` — start with the **Context Summary** for quick orientation, then check all subtasks are marked `[x]` (or `[!]` with documented reason for skip)
 3. Read `<project>/docs/subtasks.md` to understand what each subtask required
 4. Read `<project>/docs/standards.md` for coding conventions
 5. Read `<project>/docs/verification.md` for project-specific verification criteria
@@ -57,35 +57,46 @@ Read `<project>/AGENTS.md` for project rules, context, and available subagents b
 7. **Read `<task-folder>/task-prompt.md`** if it exists — this is the task-specific prompt from outlier.ai. Verify the implementation matches the task prompt's intent and instructions.
 8. Read `<project>/docs/design-<task-name>.md` for the technical approach and task-specific requirements
 9. **Read the Code Exploration section** in `<project>/docs/design-<task-name>.md` — check that code-driven findings were addressed in the implementation and that code-driven tests exist for discovered edge cases, regressions, and integration points
+10. **Check Handoff Notes** at the bottom of `<project>/progress-<task-name>.md` — these contain environment warnings, hidden dependencies, and important context accumulated during the task
 
 ### Traceability Verification
 9. Check that every `R<n>` in `docs/requirements.md` covered by this task has at least one subtask in the adapted subtask list
 10. Check that every subtask references at least one `R<n>` (except the Verify subtask)
-11. **If a task prompt was provided**: Check that task-specific R<n> IDs (from design.md "Task-Specific Requirements" section) are covered by subtasks and verified
+11. **If a task prompt was provided**: Check that task-specific R<n> IDs (from `docs/design-<task-name>.md` "Task-Specific Requirements" section) are covered by subtasks and verified
 12. Check that every `R<n>` (project-level and task-specific) has at least one verification criterion in `docs/verification.md`
 13. **Check R<n> test traceability**: Verify that every `R<n>` covered by this task has at least one test case in the test suite, traced through the Test Plan in `docs/design-<task-name>.md`
 14. Verify the implementation covers the requirements: for each `R<n>`, confirm the relevant code exists and works
 
 ### Code Review
-14. Check that code follows the conventions in `docs/standards.md`
-15. Check that the code matches the requirements from `docs/requirements.md` and the design from `docs/design.md`
-16. **If a task prompt was provided**: Check that the implementation fulfills the specific instructions and intent described in the task prompt
-17. Verify no unintended side effects or regressions
+15. Check that code follows the conventions in `docs/standards.md`
+16. Check that the code matches the requirements from `docs/requirements.md` and the design from `docs/design-<task-name>.md`
+17. **If a task prompt was provided**: Check that the implementation fulfills the specific instructions and intent described in the task prompt
+18. Verify no unintended side effects or regressions
 
 ### Test Results Verification
-18. Read the tester's progress notes in `<project>/progress-<task-name>.md` for test results (pass/fail counts, which R<n> IDs are covered)
-19. If tests fail, check whether the tester identified implementation bugs that need coder fixes
-20. Do NOT re-run tests — the tester has already run them. Verify that the tester's results are complete and accurate by reviewing the test files briefly
+19. Read the tester's progress notes in `<project>/progress-<task-name>.md` for test results (pass/fail counts, which R<n> IDs are covered)
+20. If tests fail, check whether the tester identified implementation bugs that need coder fixes
+21. Do NOT re-run tests — the tester has already run them. Verify that the tester's results are complete and accurate by reviewing the test files briefly
 
 ### Workspace Hygiene
-21. Check that there are no uncommitted changes in the task folder's external repo
-22. Verify no debug artifacts (console.log, print statements, TODO comments without context)
-23. Verify no temporary files or build artifacts were left behind
-24. If the project has a verification checklist in `docs/verification.md`, check each item
+22. Check that there are no uncommitted changes in the task folder's external repo
+23. Verify no debug artifacts (console.log, print statements, TODO comments without context)
+24. Verify no temporary files or build artifacts were left behind
+25. If the project has a verification checklist in `docs/verification.md`, check each item
 
 ### Progress Update
 After completing your review, update `<project>/progress-<task-name>.md`:
-- Add review notes under the "Verify" subtask
+- Add structured review notes under the "Verify" subtask:
+  - **Modified**: None (reviewer does not modify code files)
+  - **Covers**: All R<n> IDs reviewed (or list of IDs with issues)
+  - **Key decisions**: Approval verdict and key findings
+  - **For next subagent**: If CHANGES_REQUESTED, list specific files and issues that need fixing
+- Update the **Context Summary** at the top:
+  - `Completed`: Update with verification result
+  - `Current`: "Awaiting completion gate" or "Changes requested — routing back to coder"
+  - `Next`: "Completion gate" or "Fix issues identified in review"
+  - `Key files`: No change unless review discovered important files
+  - `Blocker`: None (or describe if review found a blocking issue)
 - Mark the "Verify" subtask as `[x]` if approved, or leave `[ ]` if changes are needed
 - Be specific: cite file names, line numbers, what needs fixing
 

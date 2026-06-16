@@ -13,10 +13,26 @@ Every subagent prompt should include:
 ## Progress Tracking
 
 Every subagent MUST:
-1. **Before starting work**: Read `<project>/PROGRESS.md` to find the `Active Task` and `Task Folder` — this tells you which task to work on and where files live
+1. **Before starting work**: Read `<project>/PROGRESS.md` to find the `Active Task` and `Task Folder` — this tells you which task to work on and where files live. Then read `<project>/progress-<task-name>.md` — start with the **Context Summary** at the top for a quick orientation, then scroll to your assigned subtask.
 2. **If a task prompt exists**: Read `<task-folder>/task-prompt.md` for task-specific context and requirements. This is the outlier.ai task prompt containing instructions unique to this task.
-3. **After completing work**: Update `<project>/progress-<task-name>.md` (the per-task progress file) — mark your subtask as `[x]` and add context notes (key files, findings, errors) under the subtask
-4. **If blocked**: Mark your subtask as `[!]` in `<project>/progress-<task-name>.md` and add a `BLOCKED:` note explaining what's preventing progress. The coordinator will report this to the user for guidance.
+3. **After completing work**: Update `<project>/progress-<task-name>.md` with structured handoff information:
+   - Mark your subtask as `[x]` and add the following structured fields:
+     - **Modified** (required): Files you changed, with line numbers if relevant
+     - **Covers** (required): R<n> IDs addressed by your work
+     - **Key decisions** (optional): Important implementation choices that affect future work
+     - **For next subagent** (optional): Critical information the next subagent needs but might not discover on its own
+   - Update the **Context Summary** at the top of the progress file:
+     - `Completed`: Add your subtask summary with R<n> IDs
+     - `Current`: Update to reflect the next subtask
+     - `Next`: Update to preview the following subtask
+     - `Key files`: Add any important files you discovered or modified
+     - `Blocker`: Set to `None` if you resolved a blocker, or add one if you discovered one
+   - Add entries to **Handoff Notes** if you discovered:
+     - Environment requirements (env vars, config, setup)
+     - Existing tests that must keep passing (regression baseline)
+     - Existing utilities or patterns that should be reused
+     - Warnings about hidden dependencies or non-obvious constraints
+4. **If blocked**: Mark your subtask as `[!]` in `<project>/progress-<task-name>.md` and add a `BLOCKED:` note explaining what's preventing progress. Update the Context Summary `Blocker` line. The coordinator will report this to the user for guidance.
 
 ### Subtask Status Markers
 
@@ -28,12 +44,13 @@ Every subagent MUST:
 
 Example PROGRESS.md entries:
 
-Completed subtask:
+Completed subtask with structured handoff:
 ```markdown
-- [x] 3. Implement the fix
-  - Fixed auth validator in src/auth/validator.ts:42
-  - Added null check for empty email field
-  - All existing tests still pass
+- [x] 3. Implement the fix — @project_coder
+  - Modified: src/auth/validator.ts:42, src/errors/handler.ts:15-20
+  - Covers: R3, R5
+  - Key decisions: Used null-safe operator instead of try/catch
+  - For next subagent: Auth middleware registered before session middleware in app.ts:23
 ```
 
 Blocked subtask:
@@ -46,9 +63,8 @@ Blocked subtask:
 ## Role-Specific Elements
 
 - **Coding subagents**: Implementation guidelines, testing requirements, code review criteria, code exploration responsibilities
-- **Testing subagents**: Test-writing strategy, R<n> traceability rules, test framework commands. See `.opencode/agents/docs/project-setup/tester-template.md` for the dedicated tester template
+- **Testing subagents**: Test-writing strategy, R<n> traceability rules, test framework commands, test execution and reporting. See `.opencode/agents/docs/project-setup/tester-template.md` for the dedicated tester template
 - **User-help subagents**: Step-by-step procedures, explanation templates, website navigation guidance
-- **Testing subagents**: Test execution commands, validation criteria, error analysis
 - **Setup subagents**: Configuration steps, dependency management, environment setup
 - **Reviewer subagents**: See `.opencode/agents/docs/project-setup/reviewer-template.md` for the dedicated reviewer template
 
@@ -99,9 +115,32 @@ If you are assigned an "Explore codebase" subtask (typically the first subtask i
 ## Skills
 (None assigned. Add skill names here if the subagent needs to invoke specific skills, e.g., `git-commit`.)
 
+### Installing Skills
+
+Skills can be added to subagents at any time using the `/add-skill` command. Skills come from two sources:
+
+1. **Custom skills** in `.agents/skills/` (e.g., `git-commit`)
+2. **skills.sh ecosystem** — community skills discovered by searching [skills.sh](https://www.skills.sh/)
+
+To discover relevant skills, search skills.sh by keyword:
+- By language/framework: `https://www.skills.sh/?q=python`, `?q=react`, `?q=rust`, etc.
+- By task type: `https://www.skills.sh/?q=tdd`, `?q=debugging`, `?q=testing`, etc.
+- CLI search: `npx skills find <keyword>`
+
+To install a discovered skill:
+```bash
+/add-skill <project> <source> --skill <name> --attach <role>
+```
+
+When a skill is installed and attached to a subagent:
+1. The skill's `SKILL.md` is placed in `<project>/.agents/skills/<skill-name>/` (project-scoped) or `.agents/skills/<skill-name>/` (global)
+2. The skill name is added to the subagent's `# skills:` frontmatter field
+3. A description of when to invoke the skill is added to this `## Skills` section
+4. The subagent invokes the skill via OpenCode's skill system when the relevant task arises
+
 ## Progress Tracking
-1. **Before starting**: Read `<project>/PROGRESS.md` to find the Active Task and Task Folder, then read `<project>/progress-<task-name>.md` for subtask details
-2. **After completing**: Update `<project>/progress-<task-name>.md` — mark your subtask as `[x]` and add context notes
+1. **Before starting**: Read `<project>/PROGRESS.md` to find the Active Task and Task Folder, then read `<project>/progress-<task-name>.md` — start with the **Context Summary** at the top for a quick orientation, then scroll to your assigned subtask
+2. **After completing**: Update `<project>/progress-<task-name>.md` with structured handoff information — mark your subtask `[x]` with Modified, Covers, Key decisions, and For next subagent fields. Update the Context Summary and add entries to Handoff Notes as needed.
 
 ## SDD Awareness
 - Read `<project>/docs/requirements.md` to understand project-level requirements with `R<n>` IDs

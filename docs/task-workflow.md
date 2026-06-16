@@ -92,15 +92,44 @@ Task Prompt: <task-folder>/task-prompt.md (or "None")
 Spec Status: pending | approved | changes_requested
 ---
 
-- [x] 1. <completed subtask>
-  - <context notes from subagent>
+## Context Summary
+- Completed: <brief summary of completed subtasks with R<n> IDs, or "None yet">
+- Current: <what's being worked on now, or "Starting">
+- Next: <what comes next, or "To be determined">
+- Key files: <most important files for this task, or "To be discovered">
+- Blocker: <any blockers, or "None">
+
+- [x] 1. <completed subtask> — @<project>_<role>
+  - Modified: <files changed, with lines if relevant>
   - Covers: R1, R2
+  - Key decisions: <important implementation decisions, or omit>
+  - For next subagent: <critical info the next subagent needs, or omit>
 - [ ] 2. <pending subtask>
 - [!] 3. <blocked subtask>
   - BLOCKED: <description of what's blocking>
 - [ ] N. Write and run tests — @<project>_tester: Write tests covering R<n> IDs per Test Plan, run test suite, report results
 - [ ] N+1. Verify — @<project>_reviewer: Review test results, check R<n> traceability, verify standards, confirm all requirements met
+
+## Handoff Notes
+- Environment: <env vars, config, setup requirements discovered during work>
+- Existing tests: <test suites that must keep passing, regression baseline>
+- Reuse: <existing utilities, patterns, or modules that should be reused>
+- Warning: <things to avoid, hidden dependencies, non-obvious constraints>
 ```
+
+**Context Summary** is updated by every subagent after completing work. It provides a 5-line executive summary that lets any subagent understand the task state without reading the full progress file. Key guidelines:
+- Keep it to 5 lines maximum
+- Update `Current` and `Next` after each subtask completion
+- Update `Key files` and `Blocker` as discoveries are made during work
+- Remove `Blocker` line or set to `None` when resolved
+
+**Structured Handoff** fields under each completed subtask ensure critical information flows between subagents:
+- **Modified** (required): Files changed during this subtask, with line numbers if relevant
+- **Covers** (required): R<n> IDs addressed by this subtask
+- **Key decisions** (optional): Important implementation choices that affect future work
+- **For next subagent** (optional): Critical information the next subagent needs but might not discover on its own
+
+**Handoff Notes** at the bottom accumulate important environment-level information discovered during the task. Any subagent can add entries. These persist across the entire task lifecycle.
 
 **Feedback round progress files** (`progress-<task>-fb<N>.md`) include two additional fields:
 ```markdown
@@ -115,6 +144,13 @@ Design: docs/design-<task-name>-fb<N>.md
 Task Prompt: <task-folder>/task-prompt.md (or "None")
 Spec Status: pending | approved | changes_requested
 ---
+
+## Context Summary
+- Completed: None yet
+- Current: Starting feedback round
+- Next: Explore codebase changes from feedback
+- Key files: <same as original task, or updated>
+- Blocker: None
 ```
 
 ## Subtask Status Markers
@@ -142,6 +178,29 @@ Spec Status: pending | approved | changes_requested
 | `changes_requested` | Human requested changes, coordinator waiting for guidance |
 
 When a subtask is `[!]` blocked, the subagent adds a `BLOCKED:` note explaining what's preventing progress. The coordinator reports this to the user and waits for guidance.
+
+## Test Failure Protocol
+
+When the tester reports failing tests, the coordinator follows a structured retry protocol:
+
+1. **Attempt 1**: Route to coder to fix the failing tests. Coder reads tester's notes, fixes implementation, updates progress.
+2. **Attempt 2**: If still failing, route to coder again with error output from previous run and more specific instructions.
+3. **Attempt 3**: If still failing, route to coder one final time for thorough diagnosis.
+4. **After 3 failed attempts**: Report to the user with options:
+   - Provide additional guidance and re-route to coder
+   - Skip the failing test and continue (mark as known issue in progress)
+   - Route to reviewer to evaluate if the test is critical or can be deferred
+
+Each attempt is recorded in the progress file's subtask notes (e.g., "Attempt 2/3: Fixed null check, test still failing"). The coordinator tracks attempt count per failing test.
+
+## Subagent Failure Recovery
+
+If a subagent produces no output, crashes, or leaves the progress file in an inconsistent state (no `[x]` or `[!]` marker after starting):
+
+1. **Check for partial changes**: Read the progress file and relevant code files to assess what was completed
+2. **If no changes were made**: Re-route the same subtask to a fresh subagent invocation
+3. **If partial changes were made**: Mark the subtask as `[!]` blocked with a note like "Subagent failed mid-task — partial changes detected in [files]. Manual review needed."
+4. **Report to the user**: Describe what happened, what was partially completed, and recommend next steps
 
 ## Commands
 

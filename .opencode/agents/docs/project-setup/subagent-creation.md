@@ -46,7 +46,7 @@ When analyzing the PDFs, look for these common patterns:
 - **Coordinator** (`<project>_coordinator`) — orchestrates all other subagents, manages PROGRESS.md, handles routing. Tier: balanced. See `coordinator-template.md`.
 
 **Propose for coding projects**:
-- **Coder** (`<project>_coder`) — implements code changes, explores codebase before implementation. Tier: coding. Reads `docs/requirements.md` (R<n> IDs), `docs/design.md` (technical approach, Code Exploration section), and the actual codebase before implementing. Also responsible for the "Explore codebase" subtask that discovers hidden dependencies, existing tests, and code-driven test needs.
+- **Coder** (`<project>_coder`) — implements code changes, explores codebase before implementation. Tier: coding. Reads `docs/requirements.md` (R<n> IDs), `docs/design-<task-name>.md` (technical approach, Code Exploration section), and the actual codebase before implementing. Also responsible for the "Explore codebase" subtask that discovers hidden dependencies, existing tests, and code-driven test needs. **Note**: There is no fixed coder template because coding tasks vary widely across projects (different languages, frameworks, paradigms). The coder subagent prompt is generated dynamically by @project-setup based on the project's PDF instructions, tech stack, and coding standards. Use the general subagent template and customize the "Your Responsibilities" section based on the project's specific coding requirements.
 - **Tester** (`<project>_tester`) — writes test files tracing R<n> IDs, runs test suites, reports results. Never edits implementation files. Tier: coding. Always proposed alongside the coder for coding projects. See `tester-template.md`.
 - **Reviewer** (`<project>_reviewer`) — verifies completed work, checks standards, validates R<n> traceability (reads test results, does not re-run). Never edits code. Tier: reasoning. Always proposed AFTER the tester. See `reviewer-template.md`.
 
@@ -54,6 +54,18 @@ When analyzing the PDFs, look for these common patterns:
 - **Navigator** (`<project>_navigator`) — assists user with outlier.ai website tasks. Tier: fast.
 
 **Every coding project should have at least**: coordinator + coder + tester + reviewer. The tester writes and runs tests before the reviewer verifies. The reviewer reads test results (does not re-run) and validates R<n> traceability.
+
+## Deferred Subagent Creation
+
+When the project PDFs do not specify a tech stack (language, framework, test runner), coding subagents (coder, tester, reviewer) cannot be fully configured. In this case:
+
+1. **During project setup**: Propose only the coordinator subagent. Tell the user: "The PDFs don't specify a tech stack. I'll create the coordinator now. After the first task discovers the tech stack from the repo, use `/add-subagent` to create coding subagents with the discovered information."
+2. **During the first task** (`/start-task`): If a cloned repo exists in the task folder, the coordinator performs tech discovery by inspecting the repo's dependency files (package.json, requirements.txt, Cargo.toml, go.mod, pom.xml, etc.) and the task prompt. If new tech stack info is discovered:
+   - Update `docs/tech-stack.md`, `docs/testing.md`, and `docs/standards.md` with the discovered information
+   - Update the "Tech Discovery Status" section in `<project>/AGENTS.md`
+   - Recommend `/add-subagent` to the user to create coding subagents (coder, tester, reviewer) if they don't exist yet
+3. **After tech discovery**: The user runs `/add-subagent <project> coder`, `/add-subagent <project> tester`, and `/add-subagent <project> reviewer` to create the missing subagents with project-specific information from the discovered tech stack. The `/add-subagent` command reads the updated docs and task prompt to generate appropriate role-specific prompts.
+4. **During code exploration**: Even if coding subagents exist, the coder's exploration may discover additional tech details (hidden dependencies, specific libraries, test frameworks not mentioned in PDFs). The coordinator updates docs with these findings.
 
 ## Approval Workflow
 
@@ -90,7 +102,12 @@ For each identified subagent:
 
 ## Skills Assignment
 
-Subagents can invoke OpenCode skills (e.g., `git-commit`) during task execution. Skills are declared in two places:
+Subagents can invoke OpenCode skills during task execution. Skills come from two sources:
+
+1. **Custom skills** (in `.agents/skills/`): Written for this workspace, e.g., `git-commit`
+2. **skills.sh ecosystem** (installed via `/add-skill`): Community skills from [skills.sh](https://www.skills.sh/), e.g., `tdd`, `systematic-debugging`, framework-specific best practices
+
+Skills are declared in two places:
 
 1. **Frontmatter `# skills:` comment** — Documents which skills the subagent is expected to use. Left empty by default; add skill names when a specific subagent needs them (e.g., `# skills: git-commit` for a coder that should commit its work).
 2. **Prompt `## Skills` section** — Describes when and how to use each skill. Left as "None assigned" by default; add entries when a skill is assigned.
@@ -100,11 +117,42 @@ Subagents can invoke OpenCode skills (e.g., `git-commit`) during task execution.
 | Role | `skill` permission | Typical skills |
 |------|-------------------|----------------|
 | Coordinator | `allow` | May invoke skills for setup or routing |
-| Coder | `allow` | `git-commit` (if tasks require committing code) |
-| Tester | `allow` | `git-commit` (if tasks require committing test files) |
+| Coder | `allow` | `git-commit` (if tasks require committing code), plus framework-specific skills (TDD, debugging, etc.) |
+| Tester | `allow` | `git-commit` (if tasks require committing test files), plus TDD skills |
 | Reviewer | `deny` | None — reviewers read and report, never modify state |
 | Navigator | `deny` | None — read-only assistance |
 | Setup specialist | `allow` | `git-commit` (if tasks require committing configs) |
+
+### skills.sh Integration
+
+Subagents can also use skills from the [skills.sh](https://www.skills.sh/) ecosystem. These are reusable instruction packs installed via the `/add-skill` command. When a skill from skills.sh is relevant to a subagent's role (based on the project's tech stack), it should be discovered and installed via dynamic search.
+
+**Discovering skills**: Do NOT rely on static recommendation lists — skills.sh is constantly updated. Instead, search dynamically:
+
+1. **Search by language**: `https://www.skills.sh/?q=python`, `?q=rust`, `?q=go`, `?q=typescript`, etc.
+2. **Search by framework**: `https://www.skills.sh/?q=react`, `?q=django`, `?q=nextjs`, `?q=fastapi`, etc.
+3. **Search by task type**: `https://www.skills.sh/?q=tdd`, `?q=debugging`, `?q=testing`, `?q=verification`, `?q=code-review`, etc.
+4. **CLI search** (if available): `npx skills find <keyword>`
+5. **Browse by topic**: https://www.skills.sh/topic/testing, https://www.skills.sh/topic/agent-workflows, etc.
+
+**Search keywords by role**:
+
+| Role | Search keyword suggestions |
+|------|---------------------------|
+| Coder | `<language>`, `<framework>`, `tdd`, `debugging`, `best-practices` |
+| Tester | `<language>`, `<test-framework>`, `tdd`, `testing`, `verification` |
+| Reviewer | `code-review`, `verification`, `best-practices`, `<language>` |
+| Coordinator | `planning`, `workflow`, `subagent`, `task-management` |
+
+**Evaluating skills**: Prefer skills with 1K+ installs, security audit passes, and reputable sources. Read the skill description to verify relevance before installing.
+
+**Installing a skill**: `/add-skill <project> <source> --skill <name> --attach <role>`
+
+**Order of operations**:
+1. Create subagents first (via `/add-subagent` or during project setup)
+2. Search skills.sh for relevant skills based on the project's tech stack
+3. Then install and attach skills (via `/add-skill`)
+4. Skills are optional — only install what's relevant to the project's tech stack
 
 ### Skill usage per task
 

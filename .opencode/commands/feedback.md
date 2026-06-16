@@ -55,25 +55,35 @@ The coordinator should perform the following in sequence:
   Note: The Task Folder stays the same (same repo, same codebase). Only the Active Task name changes to include the feedback suffix.
 
 - Create a new `$1/progress-$2-fb<N>.md` file:
-   ```markdown
-   # Task: $2 (Feedback Round <N>)
+    ```markdown
+    # Task: $2 (Feedback Round <N>)
 
-   ---
-   Status: In Progress
-   Created: [current date]
-   Previous: progress-$2.md (or progress-$2-fb<N-1>.md for subsequent rounds)
-   Feedback: $2/$3
-   Design: docs/design-$2-fb<N>.md
-   Task Prompt: $2/task-prompt.md (or "None")
-   Spec Status: pending
-   ---
+    ---
+    Status: In Progress
+    Created: [current date]
+    Previous: progress-$2.md (or progress-$2-fb<N-1>.md for subsequent rounds)
+    Feedback: $2/$3
+    Design: docs/design-$2-fb<N>.md
+    Task Prompt: $2/task-prompt.md (or "None")
+    Spec Status: pending
+    ---
 
-- [ ] 1. Explore codebase and report findings — @${1}_coder: Read relevant source files, identify changes from feedback, hidden dependencies, produce Code Exploration section in design file
-   - [ ] 2. <subtask derived from feedback>
-   [... subtasks addressing the QC feedback]
-   - [ ] N-1. Write and run tests — @${1}_tester: Write tests covering feedback R<n> IDs per Test Plan + code-driven tests from exploration. Run test suite and report results
-   - [ ] N. Verify — @${1}_reviewer: Review test results, check R<n> traceability for feedback items, verify standards
-  ```
+    ## Context Summary
+    - Completed: None yet (feedback round)
+    - Current: Awaiting spec approval
+    - Next: Address feedback items after spec approval
+    - Key files: To be reviewed
+    - Blocker: None
+
+ - [ ] 1. Explore codebase and report findings — @${1}_coder: Read relevant source files, identify changes from feedback, hidden dependencies, produce Code Exploration section in design file
+    - [ ] 2. <subtask derived from feedback>
+    [... subtasks addressing the QC feedback]
+    - [ ] N-1. Write and run tests — @${1}_tester: Write tests covering feedback R<n> IDs per Test Plan + code-driven tests from exploration. Run test suite and report results
+    - [ ] N. Verify — @${1}_reviewer: Review test results, check R<n> traceability for feedback items, verify standards
+
+    ## Handoff Notes
+    (Inherit relevant notes from original progress file, add new discoveries during feedback round)
+    ```
 
   **The coordinator should read the feedback file** and derive subtasks from it. The subtasks should address every item in the QC feedback. The Verify subtask must always be last.
 
@@ -86,6 +96,7 @@ The coordinator should perform the following in sequence:
 - Read `$1/$2/$3` (the feedback file) to extract feedback-specific requirements
 - Read `$1/docs/design-$2.md` (the original task design) to understand the context and find the last R<n> ID used — feedback R<n> IDs must continue from this number
 - Read `$1/$2/task-prompt.md` if it exists, for original task context
+- **Read the Handoff Notes from `$1/progress-$2.md`** (or the most recent feedback progress file) — copy relevant entries to the new progress file's Handoff Notes section. Environment variables, existing test baselines, reusable patterns, and warnings should carry forward to the feedback round.
 - Create `$1/docs/design-$2-fb<N>.md` for this feedback round. This design should:
 - Include a **Feedback Context** section summarizing the QC feedback
    - Include a **Feedback Requirements** section with new R<n> IDs continuing from the original task's numbering (e.g., if the original task ended at R8, feedback requirements start at R9)

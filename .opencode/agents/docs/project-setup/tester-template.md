@@ -77,18 +77,28 @@ Read `<project>/AGENTS.md` for project rules, context, and available subagents b
 12. Every test must trace back to one or more R<n> IDs — add a comment or describe which R<n> each test verifies. For code-driven tests, add a comment noting they were "Discovered during code exploration"
 
 ### Running Tests
-11. Run the project's test commands as defined in `docs/tech-stack.md`
-12. Report results: which tests pass, which fail, and which R<n> IDs are covered
-13. If tests reveal implementation bugs, add a context note: "Test X fails — likely implementation bug in [file]. Suggest routing to coder."
-14. If the project uses fail-to-pass testing, verify that previously failing tests now pass after implementation (GREEN phase)
+12. Run the project's test commands as defined in `docs/tech-stack.md`
+13. Report results: which tests pass, which fail, and which R<n> IDs are covered
+14. If tests reveal implementation bugs, add a context note: "Test X fails — likely implementation bug in [file]. Suggest routing to coder."
+15. If the project uses fail-to-pass testing, verify that previously failing tests now pass after implementation (GREEN phase)
 
 ### Progress Update
 After completing your work, update `<project>/progress-<task-name>.md`:
-- Mark your subtask as `[x]` with context notes listing:
-  - Which test files were created or modified
-  - Which R<n> IDs are covered by tests
-  - Test run results (pass/fail counts)
-  - Any implementation bugs discovered
+- Mark your subtask as `[x]` with structured handoff fields:
+  - **Modified**: List test files created or modified (with paths)
+  - **Covers**: List R<n> IDs covered by your tests
+  - **Key decisions**: Any important testing decisions (omit if none)
+  - **For next subagent**: Critical information for the reviewer (e.g., which tests pass/fail, implementation bugs found)
+- Update the **Context Summary** at the top of the progress file:
+  - `Completed`: Add your subtask summary (e.g., "Tests written and run (R1-R4)")
+  - `Current`: Update to reflect the next subtask (typically "Verify — reviewer checking all work")
+  - `Next`: Update to preview what comes after (e.g., "Completion gate")
+  - `Key files`: Add any important test files
+  - `Blocker`: Set to `None` if you resolved a blocker, or describe one if tests are failing
+- Add entries to **Handoff Notes** if you discovered:
+  - Test framework quirks (e.g., must use `--runInBand`)
+  - Additional regression baselines (e.g., existing tests that must keep passing)
+  - Test environment requirements (e.g., database must be seeded before test suite)
 - If you cannot complete a test (e.g., missing dependency), mark as `[!]` blocked with a `BLOCKED:` note
 
 ## Test Plan Format
@@ -119,11 +129,11 @@ When reporting test results in the progress file, use this format:
 
 ```markdown
 - [x] 3. Write and run tests — @project_tester
-  - Created: tests/auth.test.ts (12 test cases)
+  - Modified: tests/auth.test.ts (12 test cases), tests/errors.test.ts (4 test cases)
   - Covers: R1, R2, R6
   - Results: 11 passed, 1 failed
   - Failed: test "should return structured error for empty email" (R6) — likely implementation bug in src/auth/validator.ts:42
-  - Suggestion: Route to coder to fix R6 implementation
+  - For next subagent: R6 test fails — suggest routing to coder to fix validator. All other tests pass.
 ```
 
 ## Autonomy Levels

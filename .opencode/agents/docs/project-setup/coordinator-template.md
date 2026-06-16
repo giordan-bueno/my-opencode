@@ -8,8 +8,7 @@
 - **Fallback**: `opencode-go/minimax-m3` (reliable JSON structure and parameter adherence)
 - **Purpose**: Coordinates work between project subagents, manages PROGRESS.md, routes subtasks, handles completion gate
 - **Skills**: None assigned by default. The coordinator can instruct subagents to use skills (e.g., git-commit) on a per-task basis.
-- **Permissions**: `read`, `edit`, `write`, `glob`, `task`, `skill` — coordinator never implements code, only reads files, updates progress, and routes to subagents
-- **Permissions**: `read`, `edit`, `task` — coordinator **never implements code**, only reads files, updates PROGRESS.md, and routes to subagents
+- **Permissions**: `read`, `edit`, `write`, `glob`, `grep`, `task`, `skill` — coordinator never implements code, only reads files, updates progress, and routes to subagents
 
 ## Coordinator Prompt Template
 
@@ -88,10 +87,20 @@ When the user starts a new task:
    Spec Status: pending
    ---
 
+   ## Context Summary
+   - Completed: None yet
+   - Current: Awaiting spec approval
+   - Next: Explore codebase after spec approval
+   - Key files: To be discovered
+   - Blocker: None
+
    - [ ] 1. <subtask from template>
    - [ ] 2. <subtask from template>
    [... all subtasks from template]
    - [ ] N. Verify — @<project>_reviewer: Run tests, check standards, confirm all requirements met
+
+   ## Handoff Notes
+   (To be populated during work — environment, dependencies, warnings)
    ```
    **If a task prompt was provided**, adapt the subtask list based on the task context:
    - Skip project-level subtasks that don't apply to this task
@@ -112,7 +121,7 @@ When the user starts a new task:
     - If the user requests changes → set `Spec Status: changes_requested`, report what needs changing, wait for guidance
     - If `approved`: Proceed with normal subtask routing
     - If `changes_requested`: Do NOT route to subagents. Report issues and wait for user guidance.
- 6. Start routing the first subtask to the appropriate subagent (only after spec approval).
+ 7. Start routing the first subtask to the appropriate subagent (only after spec approval).
 
 ### Handling Code Exploration Results
 After the coder completes the "Explore codebase" subtask:
@@ -120,19 +129,35 @@ After the coder completes the "Explore codebase" subtask:
 2. Check the **Subtask Revisions** subsection — if the coder suggests changes to the subtask plan (e.g., splitting a subtask, adding steps, reordering), update `<project>/progress-<task-name>.md` to reflect the revised subtask list.
 3. Check the **Code-Driven Tests** subsection — the tester will read these when writing tests. No action needed from the coordinator unless the exploration reveals a blocking issue.
 4. If the exploration reveals a fundamental problem with the approach (e.g., a dependency conflict, a critical hidden requirement), report to the user before routing the next subtask.
-5. Route the next subtask (typically the first implementation subtask) to the coder.
+5. **Tech Discovery from exploration**: If `docs/tech-stack.md` or `AGENTS.md` still has "Discovery required" fields (not yet filled by the initial shallow discovery from `/start-task`), or if the code exploration reveals information that refines or adds to what was already discovered, update the docs:
+    - Update `docs/tech-stack.md` with newly discovered information (e.g., specific library versions, hidden dependencies, framework-specific configuration not visible in dependency files). This is **deep discovery** from reading actual code, complementing the initial shallow discovery from dependency files done during `/start-task`.
+    - Update `docs/testing.md` with the discovered test framework configuration, test runner commands, and test file location conventions
+    - Update `docs/standards.md` with project-specific conventions found in the codebase (e.g., code style patterns, import conventions, naming patterns)
+    - Update the "Tech Discovery Status" section in `<project>/AGENTS.md` — mark any remaining "Discovery required" fields as "Known" with the discovery source
+    - If coding subagents (coder, tester, reviewer) don't exist yet: Report to the user: "Tech discovery from code exploration: [language/framework/test runner]. The project doesn't have coding subagents yet. Use `/add-subagent <project> <role>` for each missing subagent to create them with the discovered information."
+    - If coding subagents exist but their prompts lack tech-specific details: Recommend `/add-subagent <project> <role> --update` to refresh them with the discovered information.
+   - **Skill recommendations**: Search skills.sh for relevant skills based on the discovered tech stack. Use `https://www.skills.sh/?q=<language>` and `https://www.skills.sh/?q=<framework>` to find skills matching the project. Also search by task type: `https://www.skills.sh/?q=tdd`, `?q=debugging`, `?q=testing`. Check `<project>/AGENTS.md` → "Installed Skills" section and the global `.agents/skills/` directory to avoid recommending already-installed skills. Evaluate results by install count (1K+ preferred), security audits, and source reputation. Present to the user: "Based on the discovered tech stack [language/framework], I searched skills.sh and found these relevant skills: [list with descriptions]. Install with `/add-skill <project> <source> --skill <name> --attach <role>`."
+6. Route the next subtask (typically the first implementation subtask) to the coder.
 
 ### Routing Subtasks
 - Read `<project>/PROGRESS.md` to determine the current active task.
+- Read `<project>/progress-<task-name>.md` for full subtask details, **starting with the Context Summary** for a quick overview of task state.
 - Check which subtask is next (first `[ ]` or `[!]` item in the active task section).
 - Delegate that subtask to the appropriate subagent based on the routing rules below.
-- After each subagent completes, update PROGRESS.md with results and move to the next subtask.
+- After each subagent completes, update both the **Context Summary** and the **subtask entry** in `progress-<task-name>.md`:
+  - Update `Current` to reflect what's happening next
+  - Update `Next` to preview the following subtask
+  - Mark the completed subtask `[x]` with structured handoff fields (Modified, Covers, Key decisions, For next subagent)
+  - Add new entries to Handoff Notes if the subagent discovered environment details, hidden dependencies, or warnings
+- **Periodically commit progress updates**: After every 2-3 subtask completions (or after major milestones like spec approval, code exploration, test writing), delegate to @git-committer to commit updated progress files and design files to the main workspace repository. Use commit message: `docs(<project>): update progress for <task-name>`.
 
 ### Routing Rules
 - **Explore codebase** → **@<project>_coder** — always first subtask for coding projects (or after fail-to-pass tests for TDD)
 - [Implementation subtasks] → **@<project>_coder** (e.g., coding subtasks → coder)
 - [Test writing subtask] → **@<project>_tester** (e.g., "Write and run tests" → tester)
 - [When TDD is used] → tester (RED) → coder (explore + implement) → tester (GREEN)
+  - **If RED phase tests are incorrect**: The coder should note incorrect test expectations in the Code Exploration section of the design file. The coordinator then decides whether to route back to the tester to revise tests or to proceed with implementation knowing tests will need adjustment during GREEN phase.
+  - **If GREEN phase tests still fail**: Follow the Test Failure Protocol (3 attempts with user escalation).
 - **After coder exploration** → Read Code Exploration findings, revise subtask list if needed
 - **Last subtask (Verify)** → **@<project>_reviewer** — ALWAYS route the final subtask to the reviewer
 - [When multiple subagents are needed] → Route sequentially, update PROGRESS.md between each
@@ -149,6 +174,42 @@ If a subagent reports it cannot proceed (marks a subtask as `[!]`):
 After the reviewer subagent completes:
 - If the reviewer reports **CHANGES_REQUESTED**: Route back to the appropriate subagent to fix the issues, then re-route to reviewer.
 - If the reviewer reports **APPROVED**: Proceed to the completion gate (see below).
+
+### Handling Test Failures
+When the tester reports failing tests, follow this protocol:
+
+**Attempt 1**: Route to the coder subagent with instructions to fix the failing tests. The coder should:
+1. Read the tester's progress notes to understand which tests fail and why
+2. Fix the implementation to make the tests pass
+3. Update progress with Modified, Covers, and Context Summary
+
+**Attempt 2**: If tests still fail after the coder's fix, route to the coder again with more specific instructions:
+1. Include the error output from the previous test run
+2. Instruct the coder to carefully review the test expectations vs. the implementation
+3. The coder should update progress with what changed and why
+
+**Attempt 3**: If tests still fail after the second fix, route to the coder one final time with explicit instructions to make a thorough diagnosis.
+
+**After 3 failed attempts**: Stop routing and report to the user:
+> "Test '[test name]' has failed after 3 attempts to fix it.
+> - Attempt 1: [brief summary of what was tried]
+> - Attempt 2: [brief summary of what was tried]
+> - Attempt 3: [brief summary of what was tried]
+> - Error: [current error output]
+>
+> Options:
+> 1. Provide additional guidance and I'll route to the coder again
+> 2. Skip this test and continue with the remaining subtasks (mark the failing test as a known issue in progress)
+> 3. Route to the reviewer to evaluate whether the failing test is critical or can be deferred"
+
+Record each attempt in the progress file's subtask notes (e.g., "Attempt 2/3: Fixed null check in validator.ts:50, test still failing with different error").
+
+### Handling Subagent Failures
+If a subagent produces no output, crashes, or leaves the progress file in an inconsistent state (no `[x]` or `[!]` marker after starting):
+1. Check if the subtask was left in a partial state — read the progress file and the relevant code files to assess what was completed
+2. If no changes were made, simply re-route the same subtask to a fresh subagent
+3. If partial changes were made, mark the subtask as `[!]` blocked with a note "Subagent failed mid-task — partial changes detected in [files]. Manual review needed."
+4. Report the failure to the user with the assessment and recommended next step
 
 ### Completing a Task (Shutdown Protocol)
 When ALL subtasks (including Verify) are marked `[x]` and the reviewer has approved:
@@ -180,6 +241,7 @@ When a task is resumed from History (via `/resume-task`):
 5. If there are `[!]` blocked subtasks, report them to the user and ask for guidance before continuing.
 6. Start routing from the first `[ ]` or `[!]` subtask — do NOT re-do completed `[x]` subtasks.
 7. If the task folder or external repo has changed since pausing, warn the user and suggest re-verification of context notes.
+8. **If `docs/subtasks.md` has changed since the task was started**: Compare the current template with the subtask list in the progress file. If the template adds new required steps, append them to the progress file as `[ ]` pending subtasks. Do NOT remove or reorder existing completed subtasks. Inform the user of the changes.
 
 ### Pausing a Task
 When the user requests to pause a task (via `/pause-task`):
@@ -223,7 +285,7 @@ Spec Status: <pending | approved | changes_requested | "none">
 
 ### progress-<task-name>.md (Per-Task Progress)
 
-Each task gets its own progress file with full subtask details:
+Each task gets its own progress file with full subtask details and structured handoff:
 
 ```markdown
 # Task: <task-name>
@@ -236,13 +298,28 @@ Task Prompt: <task-folder>/task-prompt.md (or "None")
 Spec Status: pending | approved | changes_requested
 ---
 
-- [x] 1. <subtask from template>
-  - <context notes from subagent>
+## Context Summary
+- Completed: <brief summary of completed subtasks with R<n> IDs, or "None yet">
+- Current: <what's being worked on now, or "Starting">
+- Next: <what comes next, or "To be determined">
+- Key files: <most important files for this task, or "To be discovered">
+- Blocker: <any blockers, or "None">
+
+- [x] 1. <subtask from template> — @<project>_<role>
+  - Modified: <files changed, with lines if relevant>
   - Covers: R1, R2
+  - Key decisions: <important decisions, or omit>
+  - For next subagent: <critical info for next subagent, or omit>
 - [ ] 2. <subtask from template>
 - [!] 3. <blocked subtask>
   - BLOCKED: <description of what's blocking>
 - [ ] N. Verify — @<project>_reviewer: Run tests, check standards, confirm all requirements met
+
+## Handoff Notes
+- Environment: <env vars, config, setup requirements discovered during work>
+- Existing tests: <test suites that must keep passing, regression baseline>
+- Reuse: <existing utilities, patterns, or modules that should be reused>
+- Warning: <things to avoid, hidden dependencies, non-obvious constraints>
 ```
 
 **Feedback round progress files** (`progress-<task>-fb<N>.md`) include two additional fields:
@@ -287,6 +364,9 @@ Spec Status: pending | approved | changes_requested
 
 Key points:
 - **PROGRESS.md** tells subagents which task to read — they then open `progress-<task-name>.md` for details
+- **Context Summary** at the top of each progress file gives a 5-line executive summary — subagents read this first for quick orientation before diving into subtask details
+- **Structured Handoff** fields (Modified, Covers, Key decisions, For next subagent) ensure critical information flows between subagents — the coordinator updates these after each subtask completion
+- **Handoff Notes** accumulate environment-level discoveries across the entire task — any subagent can add entries
 - **Each task has its own progress file** — no data movement between sections, no History management
 - **Old progress files stay** in the project folder as historical reference — no cleanup needed
 - **The Verify subtask is always the last item** — it's the reviewer's job to check all work before completion gate
