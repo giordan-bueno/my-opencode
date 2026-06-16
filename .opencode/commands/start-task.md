@@ -18,9 +18,13 @@ Before starting, confirm:
 - The task folder `$1/$2/` exists (the user should have already created it and cloned any external repos)
 - The project has `$1/docs/subtasks.md` (subtask template)
 - The project has `$1/docs/requirements.md` (EARS requirements) — if missing, STOP and report that @project-setup should have created it
-- Read `$1/docs/subtasks.md` to identify the subagents referenced in the template (e.g., `@${1}_coder`, `@${1}_tester`, `@${1}_reviewer`). For each subagent referenced, check if its definition file exists in `.opencode/agents/`. If any referenced subagent is missing, STOP and report: "Subagent `@${1}_<role>` is referenced in the subtask template but has not been created yet. Run `/add-subagent $1 <role>` to create it before starting the task."
+- Read `$1/docs/subtasks.md` to identify the subagents referenced in the template (e.g., `@${1}_coder`, `@${1}_tester`, `@${1}_reviewer`). For each subagent referenced, check if its definition file exists in `.opencode/agents/`.
 
-If any prerequisite is missing, STOP and report the issue to the user with clear instructions on what to create.
+**Missing subagent handling — deferred vs hard block**:
+- **If a referenced subagent is missing AND it is a coding subagent (`coder`, `tester`, `reviewer`) AND `$1/AGENTS.md` has a "Tech Discovery Status" section with any field marked "Discovery required"**: This is the deferred-subagent scenario. Do NOT STOP. Warn the user: "Subagent `@${1}_<role>` is not yet created because the tech stack was unknown at project setup. Tech Discovery will run in Step 1c and will recommend creating the missing subagents via `/add-subagent` before the task can proceed past Spec Review." Continue to Step 1b.
+- **If a referenced subagent is missing AND no deferred-creation context exists** (Tech Discovery already complete, or the missing subagent is not a coding role): STOP and report: "Subagent `@${1}_<role>` is referenced in the subtask template but has not been created yet. Run `/add-subagent $1 <role>` to create it before starting the task."
+
+If any other prerequisite is missing, STOP and report the issue to the user with clear instructions on what to create.
 
 ## Step 1b: Detect task prompt
 
@@ -103,7 +107,10 @@ The coordinator should perform the following in sequence:
   Spec Status: pending
   ---
   ```
-- Create a new `$1/progress-$2.md` file with the subtask list:
+- Create a new `$1/progress-$2.md` file with the subtask list copied from `$1/docs/subtasks.md` in order. The template already contains the project's required steps:
+    - For coding projects, `subtasks.md` already includes "Explore codebase" as the first implementation subtask and "Write and run tests" before the Verify step.
+    - For TDD projects, `subtasks.md` already includes "Write fail-to-pass tests" (RED) before exploration and "Write pass-to-pass + code-driven tests" (GREEN) after implementation.
+    - The last subtask is always **Verify**, routed to the reviewer.
     ```markdown
     # Task: $2
 
@@ -113,28 +120,25 @@ The coordinator should perform the following in sequence:
     Design: docs/design-$2.md
     Task Prompt: $2/task-prompt.md (or "None")
     Spec Status: pending
+    Spec Changes Requested: <none — populated only if spec review returns `changes_requested`>
     ---
 
     ## Context Summary
     - Completed: None yet
     - Current: Awaiting spec approval
-    - Next: Explore codebase after spec approval
+    - Next: <first subtask from docs/subtasks.md>
     - Key files: To be discovered
     - Blocker: None
 
-   - [ ] 1. <subtask from template>
-   - [ ] 2. <subtask from template>
-   [... all subtasks from template]
-- [ ] 1. Explore codebase and report findings — @${1}_coder: Read relevant source files, existing test suite, hidden dependencies. Produce Code Exploration section in design file
-    - [ ] 2. <subtask from template>
-    [... implementation subtasks from template]
-    - [ ] N-1. Write and run tests — @${1}_tester: Write tests covering R<n> IDs per Test Plan + code-driven tests from exploration. Run test suite and report results
+    - [ ] 1. <first subtask from docs/subtasks.md, copied verbatim with assigned subagent>
+    - [ ] 2. <second subtask from docs/subtasks.md>
+    [... all subtasks from docs/subtasks.md in order]
     - [ ] N. Verify — @${1}_reviewer: Review test results, check R<n> traceability, verify standards, confirm all requirements met
 
     ## Handoff Notes
     (To be populated during work — environment, dependencies, warnings)
     ```
-   **If a task prompt is provided**, adapt the subtask list based on the task prompt's context — add task-specific steps, skip project steps that don't apply, and include task-specific requirements as additional R<n> IDs in the design. For coding projects, always include a "Write and run tests" subtask before the Verify step and an "Explore codebase" subtask as the first implementation step. For TDD projects, include "Write fail-to-pass tests" before exploration and implementation, and "Write pass-to-pass tests + code-driven tests" after implementation. The last subtask must always be the **Verify** step routed to the reviewer subagent.
+   **If a task prompt is provided**, adapt the subtask list based on the task prompt's context — add task-specific steps, skip project steps that don't apply, and include task-specific requirements as additional R<n> IDs in the design. The last subtask must always be the **Verify** step routed to the reviewer subagent.
 
    After the coder completes the "Explore codebase" subtask, read the Code Exploration section in `docs/design-$2.md` and revise the subtask list in the progress file if the exploration suggests changes (e.g., splitting subtasks, adding steps, reordering).
 
@@ -164,7 +168,8 @@ See `.opencode/agents/docs/project-setup/sdd-reference.md` for the SDD process, 
 
 After Step 2a completes (progress file created) AND before spec review in Step 2b, delegate to the **@git-committer** subagent with these instructions:
 - Commit `$1/PROGRESS.md`, `$1/progress-$2.md` to the main workspace repository
+- **Also commit any files modified during Step 1c (Tech Discovery)** if Tech Discovery ran and updated files. These typically include: `$1/docs/tech-stack.md`, `$1/docs/testing.md`, `$1/docs/standards.md`, and `$1/AGENTS.md` (Tech Discovery Status section). Use `git status` from the @git-committer subagent to detect modified files in the project folder.
 - **Do NOT commit `$1/docs/design-$2.md` yet** — the design file is a draft until the user approves the spec. It will be committed separately after spec approval.
-- Use commit message: `docs($1): start task $2 — progress file`
+- Use commit message: `docs($1): start task $2 — progress file` (or if Tech Discovery also ran: `docs($1): start task $2 — progress file and tech discovery`)
 
-Note: This commit captures the progress file before coding begins. The design file will be committed separately after spec review is approved. If the spec review results in changes to the design, the updated design will be committed at that point.
+Note: This commit captures the progress file and any Tech Discovery findings before coding begins. The design file will be committed separately after spec review is approved. If the spec review results in changes to the design, the updated design will be committed at that point.

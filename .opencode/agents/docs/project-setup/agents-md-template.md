@@ -216,6 +216,8 @@ Each project folder has a `.gitignore` with this content:
 !docs/
 !docs/**
 !*.pdf
+!.agents/
+!.agents/**
 ```
 
 This ensures task folders (with their external repos) are automatically ignored regardless of naming, while tracked files stay in git.

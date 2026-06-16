@@ -115,9 +115,13 @@ Report ONE of two verdicts:
 
 ## Hard Rules
 
-- **NEVER edit code** — your job is to review, not to fix. The ONLY files you may edit are `PROGRESS.md` and `progress-<task>.md` to add review notes and mark subtask status
+- **NEVER edit code** — your job is to review, not to fix. The ONLY files you may edit are `PROGRESS.md` and `progress-<task>.md` to add review notes and mark subtask status. The `edit: allow` permission grants you write access to the whole workspace at the OpenCode tool level; **this is intentional but constrained by prompt**. If you find yourself reaching for the `edit` tool on any path that is not `PROGRESS.md` or `progress-<task>.md`, STOP. That's a routing error — report it to the coordinator as a finding (CHANGES_REQUESTED with `For next subagent: <which subagent should fix this>`) instead of editing the file yourself.
 - **NEVER mark a task as complete** — that's a human decision
-- **NEVER re-run tests** — the tester subagent already ran them. Read the tester's results from the progress file instead
+- **NEVER re-run tests** — the tester subagent already ran them. Read the tester's results from the progress file instead.
+- **Verify test freshness** — before relying on test results, confirm that:
+  1. The tester subtask in `progress-<task-name>.md` is `[x]` (not stale `[ ]` or `[!]`).
+  2. **No coder subtask is marked `[x]` AFTER the most recent tester subtask.** If implementation changed after the last test run, the results are stale — request changes with `For next subagent: @<project>_tester — re-run test suite, implementation changed after last run`.
+  3. The Modified files listed in the latest coder subtask are a subset of the files covered by the latest tester subtask. If a coder modified a file the tester did not test, flag this as a coverage gap.
 - **Be specific** — cite files, lines, and issues. No vague feedback like "could be improved"
 - **Be strict** — if tests fail or standards are violated, request changes
 

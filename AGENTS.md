@@ -59,7 +59,7 @@ Two repo types: **Main** (this folder, push to GitHub) and **External** (nested 
 
 ## Model Strategy
 
-4 tiers: **Fast** (deepseek-v4-flash), **Balanced** (qwen3.7-plus), **Coding** (kimi-k2.6), **Reasoning** (glm-5.1). Each has fallback chains. See `docs/model-strategy.md` for full details.
+4 tiers: **Fast** (`opencode-go/deepseek-v4-flash`), **Balanced** (`opencode-go/qwen3.7-plus`), **Coding** (`opencode-go/kimi-k2.6`), **Reasoning** (`opencode-go/glm-5.1`). Each has fallback chains. See `docs/model-strategy.md` for full details.
 
 ## Spec-Driven Development
 
@@ -70,7 +70,7 @@ Before any code is written, requirements and design must be approved by the huma
 **Global** (always available):
 - **@pdf-cleaner** - Cleans watermarked PDFs, creates project folders (Fast)
 - **@project-setup** - Reads PDFs, creates/updates project AGENTS.md and project subagents (Reasoning)
-- **@git-committer** - Handles commits for both main and external repos (Fast)
+- **@git-committer** - Handles commits for both main and external repos (Balanced — commits require diff analysis and conventional message generation)
 
 **Project-specific** (dynamic, created by @project-setup per project):
 - **@<project>_coordinator** - Routes tasks to the right project subagent, reads AGENTS.md for subagent discovery (Balanced)

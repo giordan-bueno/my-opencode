@@ -49,6 +49,13 @@ After Step 2 completes successfully, delegate to the **@project-setup** subagent
   - Keep existing rules that are not contradicted by the new PDFs
   - Do NOT remove existing rules unless the new PDFs explicitly contradict them
 - Remember: "AGENTS.md is a routing layer, not an encyclopedia"
+- **Tech Discovery from new PDFs**: If the existing `AGENTS.md` has a "Tech Discovery Status" section with any field marked "Discovery required" AND the new PDFs reveal tech stack details (language, framework, test runner, build tool):
+  - Update `$1/docs/tech-stack.md` — replace "Discovery required" sections with the discovered content
+  - Update `$1/docs/testing.md` — fill in the test framework, runner commands, and conventions
+  - Update `$1/docs/standards.md` — add project-specific conventions revealed by the new PDFs
+  - Update the "Tech Discovery Status" section in `$1/AGENTS.md` — mark discovered fields as "Known: <details>" with `Last updated: [today]` and `Discovery source: New PDFs`
+  - If coding subagents (coder, tester, reviewer) don't exist yet because they were deferred during the original setup, report to the user: "Tech stack discovered from new PDFs: [language/framework/test runner]. The project doesn't have coding subagents yet. Use `/add-subagent $1 coder`, `/add-subagent $1 tester`, and `/add-subagent $1 reviewer` to create them now."
+  - If coding subagents already exist but were created without the discovered tech details, recommend: "Run `/add-subagent $1 <role> --update` to refresh `<role>` with the discovered tech stack."
 - **Identify new subagents** needed based on new PDF content:
   - Analyze new PDFs for distinct task types not covered by existing subagents
   - If no coordinator subagent exists (`$1_coordinator`), propose one

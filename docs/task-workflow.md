@@ -90,6 +90,7 @@ Created: YYYY-MM-DD
 Design: docs/design-<task-name>.md
 Task Prompt: <task-folder>/task-prompt.md (or "None")
 Spec Status: pending | approved | changes_requested
+Spec Changes Requested: <none — populated only if Spec Status is `changes_requested`, replaced with user's verbatim feedback>
 ---
 
 ## Context Summary
@@ -181,17 +182,37 @@ When a subtask is `[!]` blocked, the subagent adds a `BLOCKED:` note explaining 
 
 ## Test Failure Protocol
 
-When the tester reports failing tests, the coordinator follows a structured retry protocol:
+This is the **canonical** retry procedure for failing tests. The coordinator template references this document; do not duplicate the protocol elsewhere.
 
-1. **Attempt 1**: Route to coder to fix the failing tests. Coder reads tester's notes, fixes implementation, updates progress.
-2. **Attempt 2**: If still failing, route to coder again with error output from previous run and more specific instructions.
-3. **Attempt 3**: If still failing, route to coder one final time for thorough diagnosis.
+When the tester reports failing tests, the coordinator follows a structured retry procedure:
+
+1. **Attempt 1**: Route to coder to fix the failing tests. Coder reads tester's notes, fixes implementation, updates progress. After the fix, **route back to the tester to re-run the suite** (tests never auto-rerun — the tester must be invoked again).
+2. **Attempt 2**: If tests still fail after re-run, route to coder again with the new error output and more specific instructions. Then route back to tester.
+3. **Attempt 3**: If tests still fail, route to coder one final time for thorough diagnosis. Then route back to tester.
 4. **After 3 failed attempts**: Report to the user with options:
    - Provide additional guidance and re-route to coder
-   - Skip the failing test and continue (mark as known issue in progress)
+   - Skip the failing test and continue (mark as known issue in progress — see format below)
    - Route to reviewer to evaluate if the test is critical or can be deferred
 
-Each attempt is recorded in the progress file's subtask notes (e.g., "Attempt 2/3: Fixed null check, test still failing"). The coordinator tracks attempt count per failing test.
+Each attempt is recorded in the progress file's subtask notes (e.g., "Attempt 2/3: Fixed null check, test still failing with different error"). The coordinator tracks attempt count per failing test.
+
+### Known-Issue Format
+
+When the user decides to skip a failing test (option 2 above), record it under the test subtask in `progress-<task-name>.md` using this format so the reviewer can verify it during the Verify step:
+
+```markdown
+- [x] N. Write and run tests — @<project>_tester
+  - Modified: tests/auth.test.ts (12 test cases), tests/errors.test.ts (4 test cases)
+  - Covers: R1, R2, R6
+  - Results: 11 passed, 1 failed
+  - **Known Issue (skipped per user decision YYYY-MM-DD)**:
+    - Test: "should return structured error for empty email"
+    - Covers: R6
+    - Reason for skip: [verbatim user reason, e.g., "downstream API not yet deployed, will be revisited in feedback round"]
+    - Re-test plan: [what unblocks re-testing this, e.g., "Re-enable when AUTH-API-2 ships"]
+```
+
+The reviewer must flag any unresolved known issues in the Verify subtask and surface them in the completion gate summary to the user.
 
 ## Subagent Failure Recovery
 

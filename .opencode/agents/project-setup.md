@@ -128,6 +128,8 @@ See `.opencode/agents/docs/project-setup/agents-md-template.md` for the full ver
 - SDD reference (EARS, traceability, spec review): `.opencode/agents/docs/project-setup/sdd-reference.md`
 - Subagent creation workflow: `.opencode/agents/docs/project-setup/subagent-creation.md`
 - Coordinator template: `.opencode/agents/docs/project-setup/coordinator-template.md`
-- Subagent prompt template: `.opencode/agents/docs/project-setup/subagent-template.md`
+- Coder template: `.opencode/agents/docs/project-setup/coder-template.md`
+- Tester template: `.opencode/agents/docs/project-setup/tester-template.md`
 - Reviewer template: `.opencode/agents/docs/project-setup/reviewer-template.md`
+- Subagent prompt template (generic fallback): `.opencode/agents/docs/project-setup/subagent-template.md`
 - Good vs bad examples: `.opencode/agents/docs/project-setup/examples.md`

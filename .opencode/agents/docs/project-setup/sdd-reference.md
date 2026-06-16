@@ -116,6 +116,18 @@ When QC sends feedback on a completed task, a new feedback round is created via 
 - Works in the **same task folder and repo** — no new clone needed
 - **R<n> IDs continue from where the original task left off**. If the original task used R1-R8, feedback requirements start at R9.
 
+#### How the coordinator picks the next R<n>
+
+To avoid collisions when multiple tasks or feedback rounds exist in the same project, the coordinator computes the next R<n> as `max(R<n>) + 1` across **all** of these files (not just the current task's design):
+
+1. `<project>/docs/requirements.md` — project-level R<n>
+2. Every `<project>/docs/design-*.md` file — task-specific and feedback R<n>
+3. The current task's progress file's `Covers:` fields — defensive check for any IDs added inline
+
+The coordinator should run this scan **once at the start of spec review or feedback setup**, then assign IDs sequentially. Do not reuse an R<n> even if a previous task was cancelled or the requirement was withdrawn — once an ID is issued, it is retired with its history.
+
+If two feedback rounds are created back-to-back on different tasks (rare but possible across multiple projects), each project maintains its own R<n> namespace — there is no cross-project collision risk.
+
 Example: Original task has R1-R5 (project) + R6-R8 (task-specific). Feedback adds R9-R11 addressing QC issues.
 
 ```markdown

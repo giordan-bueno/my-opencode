@@ -416,8 +416,8 @@ Status: In Progress
 Created: 2026-06-12
 Design: docs/design-fix-auth-bug-fb1.md
 Task Prompt: fix-auth-bug/task-prompt.md
-Feedback From: fix-auth-bug/feedback-1.md
 Previous: progress-fix-auth-bug.md
+Feedback: fix-auth-bug/feedback-1.md
 Spec Status: pending
 ---
 

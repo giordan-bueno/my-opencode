@@ -64,7 +64,7 @@ After restoring the task:
    - Check the `Spec Status` in the PROGRESS.md header:
      - If `approved`: Skip spec review and continue routing from the first incomplete subtask
      - If `pending`: Run the spec review phase — present the existing `design-$2.md` for approval (it was already created when the task was started) before routing coding subagents
-     - If `changes_requested`: Report the previously requested changes to the user before proceeding
+     - If `changes_requested`: **Read the `Spec Changes Requested:` field from the progress file header** — it contains the user's verbatim feedback from when the task was paused. Report those exact changes to the user before proceeding (e.g., "Resumed task `$2` is in `changes_requested` state. The previously requested changes were: <verbatim content of Spec Changes Requested field>. Do you want to (a) revise the design now, (b) approve as-is, or (c) provide updated feedback?")
    - Check which subtask is next (first `[ ]` or `[!]` item in `progress-$2.md`) and begin routing
    - If a subtask was `[!]` blocked, ask the user for guidance before routing to a subagent
 

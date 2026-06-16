@@ -42,14 +42,18 @@ When committing changes, determine which repository owns the files:
 
 ### Example Detection
 
+External repos live inside **task folders**, not at the project root. The check must descend into the task folder:
+
 ```bash
-# Working in project-1/src/
-# Check if project-1/ has .git/
-ls project-1/.git  # If exists, it's an external repo
+# Working in project-1/fix-auth-bug/external-repo/src/auth.ts
+# Walk up from the changed file to find the nearest .git/
+ls project-1/fix-auth-bug/external-repo/.git  # If this exists, that directory is the external repo root → commit here
 
 # Working in project-1/AGENTS.md
-# No nested .git/, so it's the main repo
+# Walk up: project-1/ has no .git/, my-opencode/ has .git/ → commit to the main repo
 ```
+
+Rule of thumb: starting from the changed file, walk up the directory tree. The first directory that contains a `.git/` folder is the repo that owns the change. If that directory is `my-opencode/` (the workspace root), it's the main repo; if it's deeper (e.g., `project-1/<task-folder>/external-repo/`), it's an external repo.
 
 ## Commit Rules
 
@@ -167,7 +171,8 @@ git commit -m "test(api): add tests for request handler"
 
 The **@git-committer** subagent handles commits automatically:
 
-- **Model**: opencode-go/deepseek-v4-flash (fast, low-cost)
+- **Model**: opencode-go/qwen3.7-plus (balanced tier — commits require diff analysis, logical change grouping, and conventional commit message generation)
+- **Fallback**: opencode-go/minimax-m3
 - **Detects repository type** based on nested `.git/` folders
 - **Uses conventional commits** with appropriate type and scope
 - **Commits after major steps** in workflows (PDF cleaning, AGENTS.md creation)
@@ -210,6 +215,8 @@ Each project folder has its own `.gitignore` that uses a whitelist pattern:
 !docs/
 !docs/**
 !*.pdf
+!.agents/
+!.agents/**
 ```
 
 This ensures:

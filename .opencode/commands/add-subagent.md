@@ -44,19 +44,31 @@ Also read the subagent creation reference:
 
 ## Step 3: Propose the subagent (or update plan)
 
-**If mode is `--update`**: Show the user what will change:
+**If mode is `--update`**: First, scan the existing subagent file for likely hand-tuned content that the agent must not silently overwrite:
+
+- Sections whose headings are not in the standard template (e.g., a custom `## Project-Specific Coding Rules`, `## Custom Workflow`, `## Notes`, `## Special Cases`)
+- Lines inside template sections that contain user-style annotations (e.g., starting with `// NOTE:`, `# IMPORTANT:`, `> User:`, or referring to specific bugs, incidents, or stakeholders)
+- Any block that adds project-specific examples, file paths, or commands not derivable from the current `docs/tech-stack.md`, `docs/testing.md`, or `docs/standards.md`
+
+Show the user a unified change preview that calls out hand-tuned sections explicitly:
 
 ```
 Updating subagent: @$1_$2
-Changes:
-- [list specific sections that will be updated with new tech stack info]
+
+Sections that will be REFRESHED (from current docs/tech-stack.md, docs/testing.md, docs/standards.md):
+- [list specific template sections that will be updated, e.g., "## Hard Rules", "## Reference (load when needed)"]
 - [e.g., "Adding Python/FastAPI context to prompt based on tech discovery"]
 - [e.g., "Updating test framework references from 'Discovery required' to 'pytest'"]
 
-Approve update? (y/n)
+Sections detected as potentially HAND-TUNED (will be preserved by default — confirm if you want them overwritten):
+- [list custom headings or annotated blocks found in the existing file]
+- [e.g., "## Custom Workflow (added 2026-04-10) — preserved"]
+- [e.g., "Block at line 73-85 mentioning bug #4521 — preserved"]
+
+Approve update? (y / n / overwrite-all-handtuned)
 ```
 
-Wait for explicit user approval. If rejected, stop — do not modify the subagent file.
+Wait for explicit user approval. `y` preserves hand-tuned sections; `overwrite-all-handtuned` only proceeds if the user types it verbatim. If rejected, stop — do not modify the subagent file.
 
 **If mode is create**: Propose a subagent to the user:
 
@@ -89,7 +101,8 @@ Wait for explicit user approval. If rejected, stop — do not create the subagen
 - Read the current file and update the role-specific prompt sections with newly discovered tech stack information
 - Add project-specific context from `docs/tech-stack.md`, `docs/testing.md`, and `docs/standards.md`
 - Keep the existing frontmatter (model, tier, permissions) unless the user explicitly requests changes
-- Preserve any hand-tuned prompt sections that the user may have customized
+- **Preserve hand-tuned sections** identified during Step 3's scan (custom headings, annotated blocks, project-specific examples). Only overwrite them if the user explicitly typed `overwrite-all-handtuned`.
+- For any preserved hand-tuned section, append a comment line above it: `<!-- preserved during --update on YYYY-MM-DD; verify still applies after tech stack refresh -->` so future reviewers can audit whether the hand-tuned content is still consistent with the refreshed surrounding content.
 
 **If mode is create**: Create `.opencode/agents/$1_$2.md` with a role-specific prompt following the template structure:
 

@@ -44,7 +44,7 @@ Subagents use models from 4 tiers. The `model:` field in frontmatter is the prim
 | Subagent | Tier | Primary | Skills |
 |----------|------|---------|-------|
 | @pdf-cleaner | Fast | `opencode-go/deepseek-v4-flash` | None |
-| @git-committer | Fast | `opencode-go/deepseek-v4-flash` | None |
+| @git-committer | Balanced | `opencode-go/qwen3.7-plus` | None |
 | @project-setup | Reasoning | `opencode-go/glm-5.1` | None |
 | @\<project\>_coordinator | Balanced | `opencode-go/qwen3.7-plus` | Varies per task |
 | @\<project\>_coder | Coding | `opencode-go/kimi-k2.6` | Varies per task |
@@ -64,13 +64,23 @@ Once set up, free models are always available as emergency fallbacks at no cost.
 
 ## Changing Models
 
-To swap a subagent's model when the primary is unavailable:
+OpenCode does not auto-fallback when a model is unavailable — the `# fallback:` comment is documentation, not configuration. **You must edit the subagent file manually** when the primary is rate-limited, down, or producing degraded output.
 
-1. Open the subagent's `.md` file in `.opencode/agents/`
-2. Change the `model:` line in the frontmatter to the fallback
-3. The `# tier:` and `# fallback:` comments document the intended tier and fallback chain
+### When to swap
 
-Example — switching project-setup from primary to fallback 1:
+- **Hard failure**: The model returns errors (rate limit, 5xx, "model unavailable"). Swap immediately.
+- **Quota exhausted**: Premium quotas (Kimi, GLM) deplete during heavy use. Swap before the next routing cycle.
+- **Degraded quality**: If a model starts producing malformed tool calls or hallucinated file paths repeatedly within a single task, swap to the fallback for that task and revert later.
+
+### How to swap
+
+1. Open the subagent's `.md` file in `.opencode/agents/` (or `.opencode/agents/<project>_<role>.md` for project-specific subagents).
+2. Change the `model:` line in the frontmatter to the fallback listed in the `# fallback:` comment.
+3. **Leave the `# tier:` and `# fallback:` comments unchanged** — they preserve the original intent so you (or anyone reviewing) can revert later.
+4. Save. The next invocation of the subagent uses the new model.
+5. **Revert when the primary recovers**: Change `model:` back to the original primary value. Treat this as a routine maintenance step — don't leave subagents on fallbacks indefinitely (fallbacks generally trade speed or quota efficiency for capability).
+
+Example — switching @project-setup from primary to fallback 1:
 
 ```yaml
 # Before (primary)
@@ -82,4 +92,16 @@ model: opencode-go/glm-5.1
 model: opencode-go/mimo-v2.5-pro
 # tier: reasoning
 # fallback: opencode-go/mimo-v2.5-pro, opencode/mimo-v2.5-free
+```
+
+### Free-tier emergency fallbacks (Zen)
+
+Some tiers list a Zen `opencode/...-free` model as fallback 2. These require a separate `/connect` setup (see "Setup for Free Tier Fallbacks" above). Use them only when both the primary and the Go fallback are unavailable — Zen free tier has global concurrency limits and may queue.
+
+### Documenting a swap
+
+When you swap a model for an active task, leave a one-line note in the active `progress-<task>.md` Handoff Notes section so subsequent subagents and the reviewer know context may differ from prior runs:
+
+```
+- Warning: @<project>_coder running on fallback (qwen3.7-max) on YYYY-MM-DD due to Kimi quota exhaustion — outputs may differ from earlier coder subtasks
 ```

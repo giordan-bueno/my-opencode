@@ -34,6 +34,8 @@ You are a PDF cleaning specialist. Your job is to process watermarked PDF files 
 !docs/
 !docs/**
 !*.pdf
+!.agents/
+!.agents/**
 ```
 
 3. **Clean each PDF**: For each PDF file provided:

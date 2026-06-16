@@ -1,9 +1,9 @@
 ---
-description: Fast subagent that handles git commits for both main workspace and external project repos. Automatically detects which repository to commit to based on context.
+description: Balanced subagent that handles git commits for both main workspace and external project repos. Automatically detects which repository to commit to based on context. Uses balanced tier because commits require analyzing diffs, grouping changes logically, and producing well-formed conventional commit messages.
 mode: subagent
-model: opencode-go/deepseek-v4-flash
-# tier: fast
-# fallback: opencode/deepseek-v4-flash-free
+model: opencode-go/qwen3.7-plus
+# tier: balanced
+# fallback: opencode-go/minimax-m3
 # skills:
 permission:
   read: allow

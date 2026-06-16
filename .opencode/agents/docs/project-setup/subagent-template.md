@@ -19,8 +19,14 @@ Every subagent MUST:
    - Mark your subtask as `[x]` and add the following structured fields:
      - **Modified** (required): Files you changed, with line numbers if relevant
      - **Covers** (required): R<n> IDs addressed by your work
-     - **Key decisions** (optional): Important implementation choices that affect future work
-     - **For next subagent** (optional): Critical information the next subagent needs but might not discover on its own
+     - **Key decisions** (use when applicable): Important implementation choices that affect future work
+     - **For next subagent** (**REQUIRED if any of the conditions below is true; otherwise omit**):
+       - The next subagent depends on a non-obvious side effect of your work (e.g., registration order, middleware sequence, file load order)
+       - You discovered an environment requirement (env var, config file, port) the next subagent must satisfy
+       - You discovered a framework quirk or hidden API contract (e.g., must-call-init-before-use)
+       - You made a decision the next subagent could plausibly reverse without knowing why (e.g., chose a specific test framework option, picked one of multiple valid approaches)
+       - You left a deliberate `[!]` blocker or known issue
+       When in doubt, include it. A missing `For next subagent` after a critical handoff is the most common cause of downstream subagent failures.
    - Update the **Context Summary** at the top of the progress file:
      - `Completed`: Add your subtask summary with R<n> IDs
      - `Current`: Update to reflect the next subtask
@@ -32,6 +38,14 @@ Every subagent MUST:
      - Existing tests that must keep passing (regression baseline)
      - Existing utilities or patterns that should be reused
      - Warnings about hidden dependencies or non-obvious constraints
+
+     **Handoff Notes format rules** (to keep the section structured and bounded):
+     - Use the four categorical prefixes only: `Environment:`, `Existing tests:`, `Reuse:`, `Warning:`. One bullet per discovery.
+     - **One discovery per bullet.** Do not chain unrelated findings into a single line.
+     - Include the **discovery source** in parentheses (file path with line number when possible): e.g., `Environment: Requires JWT_SECRET in .env (src/config.ts:8)`.
+     - **Do not duplicate** entries already in the section. If you would add a duplicate, instead append a clarification to the existing entry (e.g., `... — confirmed still required after R5 implementation`).
+     - **Append, do not rewrite** — never delete or reorder prior entries. If an entry becomes obsolete (e.g., env var no longer used after a refactor), strike it through with `~~ ~~` markdown and add a sibling bullet explaining the change.
+     - Soft cap: aim for **≤ 15 entries per task**. If you cross that, the discoveries are too granular — consolidate or move detail to the relevant doc (`docs/tech-stack.md`, `docs/standards.md`).
 4. **If blocked**: Mark your subtask as `[!]` in `<project>/progress-<task-name>.md` and add a `BLOCKED:` note explaining what's preventing progress. Update the Context Summary `Blocker` line. The coordinator will report this to the user for guidance.
 
 ### Subtask Status Markers
@@ -62,11 +76,13 @@ Blocked subtask:
 
 ## Role-Specific Elements
 
-- **Coding subagents**: Implementation guidelines, testing requirements, code review criteria, code exploration responsibilities
-- **Testing subagents**: Test-writing strategy, R<n> traceability rules, test framework commands, test execution and reporting. See `.opencode/agents/docs/project-setup/tester-template.md` for the dedicated tester template
-- **User-help subagents**: Step-by-step procedures, explanation templates, website navigation guidance
-- **Setup subagents**: Configuration steps, dependency management, environment setup
-- **Reviewer subagents**: See `.opencode/agents/docs/project-setup/reviewer-template.md` for the dedicated reviewer template
+- **Coding subagents**: See `.opencode/agents/docs/project-setup/coder-template.md` for the dedicated coder template (mandatory structural sections + project-specific customization slot).
+- **Testing subagents**: Test-writing strategy, R<n> traceability rules, test framework commands, test execution and reporting. See `.opencode/agents/docs/project-setup/tester-template.md` for the dedicated tester template.
+- **User-help subagents**: Step-by-step procedures, explanation templates, website navigation guidance.
+- **Setup subagents**: Configuration steps, dependency management, environment setup.
+- **Reviewer subagents**: See `.opencode/agents/docs/project-setup/reviewer-template.md` for the dedicated reviewer template.
+
+The generic template below is the fallback for roles that don't have a dedicated template (navigator, setup, custom roles).
 
 ## General Subagent Prompt Template
 
