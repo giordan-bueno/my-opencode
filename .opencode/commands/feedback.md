@@ -8,7 +8,7 @@ Applying QC feedback to a completed task. This creates a new feedback round with
 - **Task folder name**: $2
 - **Feedback file**: $3 (e.g., feedback-1.md)
 
-> **Run this while the `@${1}_coordinator` agent is active** (it is a **primary** agent — Tab to switch). The active primary orchestrates directly and delegates subtasks to worker subagents at **depth 1**; **no subagent invokes another subagent.**
+> **Run this with the `@${1}_coordinator` agent active** (it is a **primary** agent so it can pause to ask you questions and hold the gates; switch to it however your client does). The active primary orchestrates directly and delegates subtasks to worker subagents at **depth 1**; **no subagent invokes another subagent.**
 
 Execute the following steps (you, the active primary, perform them — there is no separate coordinator subagent to invoke):
 
@@ -23,7 +23,7 @@ Before applying feedback, confirm:
 - If this is not the first feedback round, check that previous feedback progress files are completed (e.g., `progress-$2-fb1.md` must be `[COMPLETED]` before creating `progress-$2-fb2.md`)
 
 If any prerequisite is missing, STOP and report the issue to the user with clear instructions. Specifically:
-- If the original task's status is not `[COMPLETED]`, report: "Task '$2' is not completed yet (status: <current status>). Complete the task using `/start-task` before applying feedback."
+- If the original task's status is not `[COMPLETED]`, report: "Task '$2' is not completed yet (status: <current status>). Finish it through the coordinator's completion gate first — when all subtasks (including Verify) are done, the coordinator asks you to confirm completion, which sets the status to `[COMPLETED]`. If the task is `[PAUSED: ...]`, resume it with `/resume-task $1 $2` and complete it before applying feedback."
 - If a previous feedback round is not completed, report: "Feedback round <N-1> is not completed yet. Complete it before starting a new feedback round."
 
 **Determine the feedback round number**:
@@ -92,7 +92,15 @@ Perform the following in sequence:
 - Mark the original (or previous feedback) progress file as completed if not already (it should already be `[COMPLETED]` from the task's completion gate, but update it if needed):
   - In `$1/progress-$2.md` (or `$1/progress-$2-fb<N-1>.md`), ensure Status is `[COMPLETED]`
 
-### 2b. Spec review gate
+### 2b. Commit feedback setup files
+
+After creating the progress file above and **before** presenting the spec below, delegate to the **@git-committer** subagent (depth 1):
+- Commit `$1/PROGRESS.md` and `$1/progress-$2-fb<N>.md` to the main workspace repository.
+- If the original progress file status changed, commit that too.
+- **Do NOT commit `$1/docs/design-$2-fb<N>.md` yet** — like the original task design, the feedback design is a draft until the user approves the spec (committed after approval in Step 3). This matches `/start-task`'s policy exactly.
+- Commit message: `docs($1): setup feedback round <N> for task $2`.
+
+### 2c. Spec review gate
 
 - Read `$1/docs/requirements.md` to get project-level requirements
 - Read `$1/$2/$3` (the feedback file) to extract feedback-specific requirements
@@ -113,20 +121,10 @@ Perform the following in sequence:
   > **Design**: [summary of approach to address feedback]
   > Approve spec and proceed? (y/n/changes)"
 - **Do NOT route any coding subagents until the user approves the spec**
-- If the user approves → set `Spec Status: approved` in PROGRESS.md header, begin subtask routing (Step 4)
+- If the user approves → set `Spec Status: approved` in PROGRESS.md header, begin subtask routing (Step 3)
 - If the user requests changes → set `Spec Status: changes_requested`, report what needs changing, wait for user guidance
 
-## Step 3: Commit feedback setup files
-
-After Step 2a completes (progress file created) and **before** presenting the spec in Step 2b, delegate to the **@git-committer** subagent (depth 1) with these instructions:
-- Commit `$1/PROGRESS.md` and `$1/progress-$2-fb<N>.md` to the main workspace repository
-- If the original progress file status changed, commit that too
-- **Do NOT commit `$1/docs/design-$2-fb<N>.md` yet** — like the original task design, the feedback design is a draft until the user approves the spec. It is committed after approval (Step 4). This matches `/start-task`'s policy exactly.
-- Use commit message: `docs($1): setup feedback round <N> for task $2`
-
-Note: Setup files are committed before coding; the design is committed only after spec approval.
-
-## Step 4: Route subtasks (after spec approval)
+## Step 3: Route subtasks (after spec approval)
 
 - **After spec approval, commit the feedback design file**: delegate to **@git-committer** (depth 1) to commit `$1/docs/design-$2-fb<N>.md` with message: `docs($1): spec approved for feedback round <N> — design`.
 - As the active primary, route subtasks based on the progress file and spec approval, delegating each to the appropriate worker subagent at **depth 1**

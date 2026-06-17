@@ -291,6 +291,8 @@ For projects that use Test-Driven Development (specified in `docs/testing.md`):
 7. **Verify** — @<project>_reviewer: Review test results, check R<n> traceability, verify standards, confirm all requirements met
 ```
 
+> **No commit/push subtask — by design.** Templates end at Verify. Outlier.ai deliveries are manual (the user submits through the outlier.ai interface), so external-repo code is never pushed. A local commit inside the external repo is optional (local history only) — see `docs/git-workflow.md`.
+
 ## Verification Format with Traceability
 
 Enhanced `docs/verification.md` — each criterion references R\<n\> IDs:

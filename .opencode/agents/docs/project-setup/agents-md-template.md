@@ -88,6 +88,7 @@ Created: YYYY-MM-DD
 Design: docs/design-<task-name>.md
 Task Prompt: <task-folder>/task-prompt.md (or "None")
 Spec Status: pending | approved | changes_requested
+Spec Changes Requested: <none — populated only if Spec Status is `changes_requested`, replaced with the user's verbatim feedback>
 ---
 
 ## Context Summary
@@ -200,24 +201,4 @@ Skills from [skills.sh](https://www.skills.sh/) extend subagent capabilities wit
 
 ## Per-Project .gitignore
 
-**Note**: The per-project `.gitignore` is created by @pdf-cleaner during project setup (Step 1), before any commits. Do NOT recreate it in @project-setup.
-
-Each project folder has a `.gitignore` with this content:
-
-```gitignore
-# Ignore everything by default
-*
-
-# But track these specific files/folders
-!.gitignore
-!AGENTS.md
-!PROGRESS.md
-!progress-*.md
-!docs/
-!docs/**
-!*.pdf
-!.agents/
-!.agents/**
-```
-
-This ensures task folders (with their external repos) are automatically ignored regardless of naming, while tracked files stay in git.
+**Note**: The per-project `.gitignore` is created by @pdf-cleaner during project setup (Step 1), before any commits — using the canonical template defined in `.opencode/agents/pdf-cleaner.md`. Do NOT recreate it in @project-setup. It ignores everything by default and un-ignores only `.gitignore`, `AGENTS.md`, `PROGRESS.md`, `progress-*.md`, `docs/`, `*.pdf`, and `.agents/`, so task folders (with their external repos) are automatically ignored regardless of naming.

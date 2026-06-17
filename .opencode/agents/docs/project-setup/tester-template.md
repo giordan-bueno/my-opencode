@@ -5,7 +5,7 @@
 ## Tester Specifications
 
 - **Model**: Coding (`opencode-go/kimi-k2.6`) — needs to write test code, navigate file structures, and understand test frameworks
-- **Fallback 1**: `opencode-go/qwen3.7-max` (flagship tool orchestration and edge-case handling)
+- **Fallback**: `opencode-go/qwen3.7-max` (flagship tool orchestration and edge-case handling)
 - **Purpose**: Writes test files tracing R<n> IDs, runs test suites, reports results. Never edits implementation files — only test files.
 - **Responsibilities**:
   - Read `docs/testing.md` for the project's testing approach and rules
@@ -66,12 +66,14 @@ Read `<project>/AGENTS.md` for project rules, context, and available subagents b
 6. Read `<project>/docs/requirements.md` for EARS-formatted requirements with R<n> IDs
 7. Read `<project>/docs/design-<task-name>.md` for the Test Plan section — this tells you which R<n> IDs need tests and what type (fail-to-pass, pass-to-pass, standard)
 8. **If `<task-folder>/task-prompt.md` exists**: Read it for task-specific test requirements
-9. **Read the Code Exploration section** in `<project>/docs/design-<task-name>.md` — this contains findings from the coder's exploration of the codebase:
-   - Existing Test Suite: which tests must keep passing (regression baseline)
-   - Hidden Dependencies: integration points not mentioned in the spec
-   - Code-Driven Tests: supplementary tests discovered from reading the implementation
-   - Suggested Subtask Revisions: if subtasks were adjusted based on exploration
-10. **Read the relevant implementation code** — especially the files listed in the "Files to Modify" and "Existing Code Affected" sections of the design. Identify code-driven tests beyond what the Test Plan specifies:
+9. **Read the Code Exploration section** in `<project>/docs/design-<task-name>.md`:
+   - **In every post-exploration test step** (the Standard "Write and run tests" step, or the TDD GREEN step) this section already exists — you MUST read it, because correct tests depend on the actual repo code the coder discovered:
+     - Existing Test Suite: which tests must keep passing (regression baseline)
+     - Hidden Dependencies: integration points not mentioned in the spec
+     - Code-Driven Tests: supplementary tests discovered from reading the implementation
+     - Suggested Subtask Revisions: if subtasks were adjusted based on exploration
+   - **Exception — TDD RED phase only** (writing fail-to-pass tests *before* exploration): the section does not exist yet. Write those tests from the draft Test Plan + `docs/requirements.md` and treat them as provisional; the GREEN step (after exploration) is where you add the code-driven tests derived from the real codebase.
+10. **Read the relevant implementation code** (post-exploration steps) — especially the files listed in the "Files to Modify" and "Existing Code Affected" sections of the design. (During the RED phase there may be no implementation yet — focus on the spec'd behavior.) Identify code-driven tests beyond what the Test Plan specifies:
     - Regression tests: existing functionality that must not break
     - Edge case tests: edge cases discovered by reading the implementation
     - Integration tests: tests for interactions between new and existing code

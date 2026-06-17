@@ -85,10 +85,10 @@ You are a project setup specialist who creates lean, principle-based AGENTS.md f
 
 12. **Document in AGENTS.md**: Add a "Project Subagents" section listing all created subagents with their tiers and purposes. Add an "## Installed Skills" section listing any globally installed skills and noting that project-specific skills can be added via `/add-skill`.
 
-13. **Recommend skills** (if tech stack is known): Search the skills.sh ecosystem for skills relevant to the project's tech stack:
-    - Search by language and framework keywords: `https://www.skills.sh/?q=<language>`, `https://www.skills.sh/?q=<framework>`
-    - Also search by task type: `https://www.skills.sh/?q=tdd`, `?q=debugging`, `?q=testing`
-    - Also try CLI search if available: `npx skills find <keyword>`
+13. **Recommend skills** (if tech stack is known): Search the skills.sh ecosystem for skills relevant to the project's tech stack. **Use the `npx skills find <keyword>` CLI** — it is the official skills.sh search and returns the same catalog as the website (skill name, install count, and each skill's `skills.sh` URL). Use the CLI rather than the `https://www.skills.sh/?q=` page: that page renders results in-browser via JavaScript, so fetching the URL returns nothing.
+    - Search by language and framework: `npx skills find <language>`, `npx skills find <framework>`
+    - Also search by task type: `npx skills find tdd` (also `debugging`, `testing`)
+    - (Each result includes a `skills.sh/<owner>/<repo>/<skill>` link — open it in a real browser for the full skill page.)
     - Read `docs/skills-recommendations.md` for search methodology and evaluation criteria (1K+ installs, security audits, reputable sources)
     - Present search results grouped by role: "For the coder subagent: [skills found]. For the tester: [skills found]. For the reviewer: [skills found]."
     - If the tech stack is unknown, defer skill recommendations to the first task's tech discovery step

@@ -82,7 +82,9 @@ git commit -m "feat(project-1): set up new project with cleaned PDFs and AGENTS.
 
 ### External Repository Commits
 
-**When to commit**:
+> **Deliveries to outlier.ai are manual** (zip upload / submission through the outlier.ai interface), so the standard task workflow has **no external-repo commit or push step** — the subtask templates intentionally end at Verify. Committing inside an external repo is **optional**, only to keep local history while you work; it is never pushed anywhere. If you don't need local history, skip it entirely.
+
+**When to commit** (optional — local history only):
 - After implementing features or fixes for outlier.ai tasks
 - After refactoring code
 - After adding tests
@@ -201,27 +203,9 @@ The root `.gitignore` file excludes:
 
 ### Per-Project .gitignore
 
-Each project folder has its own `.gitignore` that uses a whitelist pattern:
-
-```gitignore
-# Ignore everything by default
-*
-
-# But track these specific files/folders
-!.gitignore
-!AGENTS.md
-!PROGRESS.md
-!progress-*.md
-!docs/
-!docs/**
-!*.pdf
-!.agents/
-!.agents/**
-```
+Each project folder has its own `.gitignore` using a whitelist pattern — **the canonical template lives in `.opencode/agents/pdf-cleaner.md`** (the @pdf-cleaner subagent writes it during project setup, Step 1, before any commits). It ignores everything by default (`*`) and un-ignores only `.gitignore`, `AGENTS.md`, `PROGRESS.md`, `progress-*.md`, `docs/`, `*.pdf`, and `.agents/`.
 
 This ensures:
 - Task folders (with external repos) are automatically ignored regardless of naming
 - Only explicitly tracked files are committed
 - No need to manually add task folders to gitignore
-
-**Important**: The `.gitignore` is created by @pdf-cleaner during project setup (Step 1) before any commits, ensuring git tracking works correctly from the start. External repos inside project task folders are automatically ignored by the per-project `.gitignore` whitelist pattern — no manual additions needed.

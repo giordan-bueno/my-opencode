@@ -7,7 +7,7 @@ Resuming a previously paused task. The PROGRESS.md pointer will be set to the ta
 - **Project name**: $1
 - **Task folder name**: $2
 
-> **Run this while the `@${1}_coordinator` agent is active** (it is a **primary** agent — Tab to switch). The active primary resumes orchestration directly and delegates subtasks to worker subagents at **depth 1**; **no subagent invokes another subagent.**
+> **Run this with the `@${1}_coordinator` agent active** (it is a **primary** agent so it can pause to ask you questions and hold the gates; switch to it however your client does). The active primary resumes orchestration directly and delegates subtasks to worker subagents at **depth 1**; **no subagent invokes another subagent.**
 
 Execute the following steps:
 

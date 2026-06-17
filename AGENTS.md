@@ -51,7 +51,7 @@ When facing ambiguity:
 | `/resume-task <project> <folder>` | Restore pointer, change status back to In Progress |
 | `/feedback <project> <task-folder> <feedback-file>` | Apply QC feedback, create feedback round progress + design files |
 
-**Working on a project**: Read `<project>/AGENTS.md` for context and rules. To drive a task, switch (Tab) to the project's `@<project>_coordinator` **primary** agent, then run `/start-task` — orchestration runs on the cheaper Balanced coordinator instead of the primary `build`.
+**Working on a project**: Read `<project>/AGENTS.md` for context and rules. To drive a task, make the project's `@<project>_coordinator` agent active (switch to it however your client does), then run `/start-task`. The coordinator is `mode: primary` for one concrete reason: a primary agent can pause to ask you questions and hold the human approval gates (spec review, completion). Running there (Balanced tier) is also cheaper than driving from `build`.
 
 ## Git Workflow
 
@@ -80,7 +80,7 @@ Before any code is written, requirements and design must be approved by the huma
 - Stored in `.opencode/agents/<project>_<role>.md`, tracked in main repo
 - Add new subagents with `/add-subagent <project> <role>` without re-running full project setup
 
-**Skills**: Subagents can invoke OpenCode skills (e.g., `git-commit`). Skills come from two sources: (1) Custom skills in `.agents/skills/` (built-in), and (2) the [skills.sh](https://www.skills.sh/) ecosystem (installed via `/add-skill`). Skills are declared in the `# skills:` frontmatter field and the `## Skills` prompt section. The coordinator decides per-task whether a skill is needed. See `docs/skills-recommendations.md` for recommended skills by tech stack.
+**Skills**: Subagents can invoke OpenCode skills (e.g., `git-commit`). Skills come from two sources: (1) skills bundled in `.agents/skills/` and tracked in git (e.g., `git-commit`, installed from the skills.sh ecosystem), and (2) more from [skills.sh](https://www.skills.sh/) (installed via `/add-skill`). The `# skills:` frontmatter field and `## Skills` prompt section only **document** which skills a subagent uses — they are not enforced; access is gated by the `skill` permission. The coordinator decides per-task whether a skill is needed. See `docs/skills-recommendations.md` for recommended skills by tech stack.
 
 ## Reference (load when needed)
 

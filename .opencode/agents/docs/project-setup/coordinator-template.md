@@ -77,34 +77,7 @@ When the user starts a new task:
    Spec Status: pending
    ---
    ```
-5. Create a new `<project>/progress-<task-folder-name>.md` file. **Copy the subtask list verbatim from `<project>/docs/subtasks.md`** — that template already contains "Explore codebase" (first for coding projects, or after RED-phase tests for TDD), implementation subtasks, "Write and run tests" (before Verify for coding projects), and "Verify" (always last). Do NOT renumber or duplicate subtasks.
-   ```
-   # Task: <task-folder-name>
-
-   ---
-   Status: In Progress
-   Created: YYYY-MM-DD
-   Design: docs/design-<task-folder-name>.md
-   Task Prompt: <task-folder>/task-prompt.md (or "None")
-   Spec Status: pending
-   Spec Changes Requested: <none — populated only if spec review returns `changes_requested`, replaced with user's verbatim feedback>
-   ---
-
-   ## Context Summary
-   - Completed: None yet
-   - Current: Awaiting spec approval
-   - Next: <first subtask from docs/subtasks.md>
-   - Key files: To be discovered
-   - Blocker: None
-
-   - [ ] 1. <first subtask copied verbatim from docs/subtasks.md, with its assigned @<project>_<role>>
-   - [ ] 2. <next subtask>
-   [... all subtasks from docs/subtasks.md in order]
-   - [ ] N. Verify — @<project>_reviewer: Review test results, check R<n> traceability, verify standards, confirm all requirements met
-
-   ## Handoff Notes
-   (To be populated during work — environment, dependencies, warnings)
-   ```
+5. Create a new `<project>/progress-<task-folder-name>.md` file using the canonical format in **`docs/task-workflow.md` → "Progress Tracking Format"** (header with `Spec Status` + `Spec Changes Requested`, Context Summary, subtask list, Handoff Notes). Set `Status: In Progress`, `Spec Status: pending`, and the Context Summary `Next` to the first subtask. **Copy the subtask list verbatim from `<project>/docs/subtasks.md`** — that template already contains "Explore codebase" (first for coding projects, or after RED-phase tests for TDD), implementation subtasks, "Write and run tests" (before Verify for coding projects), and "Verify" (always last). Do NOT renumber or duplicate subtasks.
    **If a task prompt was provided**, adapt the subtask list based on the task context:
    - Skip project-level subtasks that don't apply to this task
    - Add task-specific subtasks based on the task prompt's instructions
@@ -142,7 +115,7 @@ The coordinator runs on the Balanced tier and must stay within a reasonable cont
 ### Handling Code Exploration Results
 After the coder completes the "Explore codebase" subtask:
 1. Read the Code Exploration section in `<project>/docs/design-<task-name>.md` — the coder will have populated it with findings.
-2. Check the **Subtask Revisions** subsection — if the coder suggests changes to the subtask plan (e.g., splitting a subtask, adding steps, reordering), update `<project>/progress-<task-name>.md` to reflect the revised subtask list.
+2. **Always read the **Subtask Revisions** subsection yourself** after the explore subtask completes — do not rely on the coder having flagged it in `For next subagent` (that pointer is a backstop, not the trigger). If it suggests changes to the subtask plan (splitting a subtask, adding steps, reordering), update `<project>/progress-<task-name>.md` to reflect the revised subtask list.
 3. Check the **Code-Driven Tests** subsection — the tester will read these when writing tests. No action needed from the coordinator unless the exploration reveals a blocking issue.
 4. If the exploration reveals a fundamental problem with the approach (e.g., a dependency conflict, a critical hidden requirement), report to the user before routing the next subtask.
 5. **Tech Discovery from exploration**: If `docs/tech-stack.md` or `AGENTS.md` still has "Discovery required" fields (not yet filled by the initial shallow discovery from `/start-task`), or if the code exploration reveals information that refines or adds to what was already discovered, update the docs:
@@ -152,7 +125,7 @@ After the coder completes the "Explore codebase" subtask:
     - Update the "Tech Discovery Status" section in `<project>/AGENTS.md` — mark any remaining "Discovery required" fields as "Known" with the discovery source
     - If coding subagents (coder, tester, reviewer) don't exist yet: Report to the user: "Tech discovery from code exploration: [language/framework/test runner]. The project doesn't have coding subagents yet. Use `/add-subagent <project> <role>` for each missing subagent to create them with the discovered information."
     - If coding subagents exist but their prompts lack tech-specific details: Recommend `/add-subagent <project> <role> --update` to refresh them with the discovered information.
-   - **Skill recommendations**: Search skills.sh for relevant skills based on the discovered tech stack. Use `https://www.skills.sh/?q=<language>` and `https://www.skills.sh/?q=<framework>` to find skills matching the project. Also search by task type: `https://www.skills.sh/?q=tdd`, `?q=debugging`, `?q=testing`. Check `<project>/AGENTS.md` → "Installed Skills" section and the global `.agents/skills/` directory to avoid recommending already-installed skills. Evaluate results by install count (1K+ preferred), security audits, and source reputation. Present to the user: "Based on the discovered tech stack [language/framework], I searched skills.sh and found these relevant skills: [list with descriptions]. Install with `/add-skill <project> <source> --skill <name> --attach <role>`."
+   - **Skill recommendations (only if not already done this task)**: `/start-task` Step 1d normally runs the skills search at task start. Repeat it here **only** if Step 1d was skipped (e.g., the tech stack was unknown then and is only now discovered) — otherwise skip to avoid duplicate work. When you do search, use the `npx skills find <keyword>` CLI (your only programmatic option — you cannot browse the website) with the discovered language, framework, and task-type keywords (`tdd`, `debugging`, `testing`). Check `<project>/AGENTS.md` → "Installed Skills" and the global `.agents/skills/` directory to skip already-installed skills. Present to the user: "Based on the discovered tech stack [language/framework], I found these relevant skills: [list]. Install with `/add-skill <project> <source> --skill <name> --attach <role>`."
 6. Route the next subtask (typically the first implementation subtask) to the coder.
 
 ### Routing Subtasks
@@ -232,26 +205,15 @@ When ALL subtasks (including Verify) are marked `[x]` and the reviewer has appro
       Spec Status: <none>
       ---
       ```
-   c. Inform the user that the task is archived and the project is ready for the next task.
+   c. Delegate to **@git-committer** to commit `<project>/PROGRESS.md` and `<project>/progress-<task-folder-name>.md` to the main workspace repository with message: `docs(<project>): complete task <task-folder-name>`.
+   d. Inform the user that the task is archived and the project is ready for the next task.
 5. If the user requests changes: Route to the appropriate subagent to address the feedback.
 
 ### Resuming a Paused Task
-When a task is resumed from History (via `/resume-task`):
-1. The PROGRESS.md has already been updated by the `/resume-task` command — the task section is restored from History to the active area.
-2. Read the active task section to understand what was completed (`[x]`), what's pending (`[ ]`), and what's blocked (`[!]`).
-3. Read `<task-folder>/task-prompt.md` if it exists — this provides task-specific context and requirements.
-4. Read `<project>/docs/design-<task-name>.md` — this should already exist from when the task was started (the design file is per-task, not overwritten).
-5. If there are `[!]` blocked subtasks, report them to the user and ask for guidance before continuing.
-6. Start routing from the first `[ ]` or `[!]` subtask — do NOT re-do completed `[x]` subtasks.
-7. If the task folder or external repo has changed since pausing, warn the user and suggest re-verification of context notes.
-8. **If `docs/subtasks.md` has changed since the task was started**: Compare the current template with the subtask list in the progress file. If the template adds new required steps, append them to the progress file as `[ ]` pending subtasks. Do NOT remove or reorder existing completed subtasks. Inform the user of the changes.
+`/resume-task` restores the `PROGRESS.md` pointer and flips `Status` back to `In Progress`. When control returns to you: read the restored `progress-<task-name>.md` (Context Summary + subtask markers) and `docs/design-<task-name>.md`; read `<task-folder>/task-prompt.md` if present; report any `[!]` blocked subtasks to the user before continuing; then resume routing from the first `[ ]`/`[!]` subtask — never re-do `[x]`. If `docs/subtasks.md` changed since the task started, append new required steps as `[ ]` without removing or reordering completed ones, and tell the user. Full procedure: `.opencode/commands/resume-task.md`.
 
 ### Pausing a Task
-When the user requests to pause a task (via `/pause-task`):
-1. The `/pause-task` command handles changing the progress file status and resetting the pointer.
-2. Specifically: `<project>/progress-<task-folder-name>.md` Status changes from `In Progress` to `[PAUSED: <reason>]`.
-3. `<project>/PROGRESS.md` is reset to `Active Task: <none>`.
-4. After the command completes, the coordinator should acknowledge the pause and confirm that `Active Task` is now `<none>`.
+`/pause-task` flips `progress-<task-folder-name>.md` `Status` to `[PAUSED: <reason>]` and resets the `PROGRESS.md` pointer to `<none>`. After it runs, acknowledge the pause and confirm `Active Task` is now `<none>`. Full procedure: `.opencode/commands/pause-task.md`.
 
 ## Reference (load when needed)
 - Project rules: `<project>/AGENTS.md`

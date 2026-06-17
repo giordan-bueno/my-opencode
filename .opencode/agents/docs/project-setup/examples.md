@@ -149,75 +149,9 @@ Spec Status: approved
 ---
 ```
 
-## Good Example: Requirements with EARS and R<n> Traceability
+## Requirements, Subtask Templates, and Verification
 
-```markdown
-## Requirements — project-x
-
-### R1: Authentication required
-The system MUST require valid JWT credentials before granting access to any protected resource.
-
-### R2: Login redirect
-WHEN a user provides valid credentials, the system MUST redirect them to the dashboard within 2 seconds.
-
-### R3: Error display
-IF an API request fails, THEN the system MUST display a user-friendly error message and log the error.
-
-### R4: Audit logging
-WHILE the system is in production mode, the system MUST log all data modification operations with timestamp and user ID.
-```
-
-## Good Example: Subtask Template with R<n> References
-
-```markdown
-## Subtask Template
-
-1. **Explore codebase and report findings** — @project-x_coder: Read relevant source files, existing test suite, hidden dependencies. Produce Code Exploration section in design file. Covers: all R<n>
-2. **Implement JWT middleware** — @project-x_coder: Add JWT middleware to protected routes. Covers: R1, R2
-3. **Add error handler** — @project-x_coder: Create error boundary for API calls. Covers: R3
-4. **Add audit logger** — @project-x_coder: Log all data modifications with required fields. Covers: R4
-5. **Write and run tests** — @project-x_tester: Write tests covering R1-R4 per Test Plan + code-driven tests from exploration. Run test suite and report results. Covers: R1, R2, R3, R4
-6. **Verify** — @project-x_reviewer: Review test results, check R<n> traceability, verify standards, confirm all requirements met
-```
-
-## Good Example: Subtask Template for TDD Project
-
-```markdown
-## Subtask Template — TDD Project
-
-1. **Write fail-to-pass tests** — @project-x_tester: Write failing tests for R1-R4 per draft Test Plan (RED phase). Covers: R1, R2, R3, R4
-2. **Explore codebase and report findings** — @project-x_coder: Read relevant source files, existing test suite, hidden dependencies. Produce Code Exploration section. Covers: all R<n>
-3. **Implement JWT middleware** — @project-x_coder: Add JWT middleware to protected routes. Covers: R1, R2
-4. **Add error handler** — @project-x_coder: Create error boundary for API calls. Covers: R3
-5. **Add audit logger** — @project-x_coder: Log all data modifications with required fields. Covers: R4
-6. **Write pass-to-pass + code-driven tests, run full suite** — @project-x_tester: Write pass-to-pass tests, add code-driven tests from exploration, run full suite, all must pass (GREEN phase). Covers: R1, R2, R3, R4
-7. **Verify** — @project-x_reviewer: Review test results, check R<n> traceability, verify standards, confirm all requirements met
-```
-
-## Good Example: Verification Criteria with R<n> References
-
-```markdown
-## Verification Criteria
-
-- [ ] R1: JWT middleware blocks unauthenticated access
-  - Verification: Automated test
-  - Test command: `npm test -- auth.test.ts`
-  - Test type: Fail-to-pass
-- [ ] R2: Successful login redirects to dashboard
-  - Verification: Automated test
-  - Test command: `npm test -- auth.test.ts`
-  - Test type: Pass-to-pass
-- [ ] R3: Error handler catches API failures gracefully
-  - Verification: Automated test
-  - Test command: `npm test -- errors.test.ts`
-  - Test type: Standard
-- [ ] R4: Audit logger records timestamp and user ID
-  - Verification: Automated test
-  - Test command: `npm test -- audit.test.ts`
-  - Test type: Standard
-- [ ] Code follows conventions defined in docs/standards.md
-  - Verification: Manual code review
-- [ ] No debug artifacts left
+Worked examples of EARS requirements, the Standard and TDD subtask templates, and verification criteria with `R<n>` traceability are defined **once** in **`.opencode/agents/docs/project-setup/sdd-reference.md`** — see them there rather than duplicated here.
 ```
 
 ## Good Example: Completion Gate

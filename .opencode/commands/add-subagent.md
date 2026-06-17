@@ -122,9 +122,8 @@ After creating a subagent (create mode only), search the skills.sh ecosystem for
 1. **Determine search keywords** based on the subagent's role and the project's tech stack:
    - Role keywords: coder → `tdd`, `debugging`, `<language>`; tester → `tdd`, `testing`, `<test-framework>`; reviewer → `verification`, `code-review`; coordinator → `planning`, `workflow`
    - Tech stack keywords: the language and framework from `$1/docs/tech-stack.md` and `$1/AGENTS.md`
-2. **Search skills.sh** using the keywords:
-   - `https://www.skills.sh/?q=<keyword>` for each relevant keyword
-   - Or CLI: `npx skills find <keyword>`
+2. **Search skills.sh** using the keywords — **use the `npx skills find <keyword>` CLI**. It returns the same catalog as the website (name, install count, `skills.sh` link per result); use it rather than the `https://www.skills.sh/?q=` URL, which renders results in-browser via JavaScript and so isn't machine-readable:
+   - `npx skills find <keyword>` for each relevant keyword
 3. **Check already installed skills** (from `$1/AGENTS.md` → "Installed Skills" section)
 4. **Filter and evaluate results**: Prefer skills with 1K+ installs, security audit passes, and reputable sources
 5. **Present search results to the user**:

@@ -23,7 +23,7 @@ Each project has a **subtask template** (`docs/subtasks.md`) defining the ordere
 9. **Subagents** read `PROGRESS.md` to find the active task, then read `progress-fix-auth-bug.md` for subtask details, `docs/requirements.md` for R<n> IDs, and their assigned task folder
 10. **Reviewer** verifies all work (last subtask): validates R<n> traceability, runs tests, checks standards, confirms requirements met
 11. **Completion gate** — coordinator reports to the user for final approval. Task is not marked complete until the user confirms.
-12. **Archive** — after user confirmation, `progress-fix-auth-bug.md` Status changes to `[COMPLETED]`, PROGRESS.md pointer resets to `<none>`
+12. **Archive** — after user confirmation, `progress-fix-auth-bug.md` Status changes to `[COMPLETED]`, PROGRESS.md pointer resets to `<none>`, and the coordinator commits both via @git-committer (message `docs(<project>): complete task <task-name>`)
 
 ### Pausing a Task
 
@@ -181,6 +181,8 @@ Spec Status: pending | approved | changes_requested
 | `pending` | Requirements and design presented, awaiting human approval |
 | `approved` | Human approved specs, coding subagents can begin |
 | `changes_requested` | Human requested changes, coordinator waiting for guidance |
+
+**Source of truth**: `Spec Status` is duplicated in two places — the `PROGRESS.md` pointer (a convenience cache for "what is active right now") and the per-task `progress-<task-name>.md` header (authoritative). `/pause-task` resets the pointer's copy to `<none>` but preserves the per-task copy (plus `Spec Changes Requested`), so `/resume-task` restores the exact spec state from the per-task file. If the two ever disagree, **the per-task `progress-<task-name>.md` wins**.
 
 When a subtask is `[!]` blocked, the subagent adds a `BLOCKED:` note explaining what's preventing progress. The coordinator reports this to the user and waits for guidance.
 

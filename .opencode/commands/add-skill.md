@@ -28,11 +28,10 @@ Install a skill from the skills.sh ecosystem and optionally attach it to a proje
 
 If the user doesn't know which skill to install, help them discover relevant skills:
 
-1. **Search skills.sh by keyword**: Use `https://www.skills.sh/?q=<keyword>` with relevant keywords based on the project's tech stack and the subagent's role. Try multiple keywords:
-   - Language: `?q=python`, `?q=rust`, `?q=go`, `?q=typescript`, `?q=java`
-   - Framework: `?q=react`, `?q=django`, `?q=nextjs`, `?q=fastapi`, `?q=spring`
-   - Task type: `?q=tdd`, `?q=debugging`, `?q=testing`, `?q=verification`, `?q=code-review`
-2. **Use CLI search if available**: `npx skills find <keyword>`
+1. **Search skills.sh by keyword** with the `npx skills find <keyword>` CLI — the official skills.sh search, returning the same catalog as the website (name, install count, and each skill's `skills.sh` link). Use the CLI rather than the `https://www.skills.sh/?q=` URL: that search page renders results in-browser via JavaScript, so fetching it returns nothing. Try multiple keywords based on the project's tech stack and the subagent's role:
+   - Language: `npx skills find python` (rust, go, typescript, java, ...)
+   - Framework: `npx skills find react` (django, nextjs, fastapi, spring, ...)
+   - Task type: `npx skills find tdd` (debugging, testing, verification, code-review, ...)
 3. **Present results**: Show the user the skill name, source, description, install count, and security audit status from the search results
 4. **Let the user choose**: The user selects which skill(s) to install, then proceed to Step 2 with the chosen source and skill name
 
@@ -81,6 +80,8 @@ Read the installed `SKILL.md` file(s) in the target directory to get:
 If multiple skills were installed (no `--skill` filter), read each one.
 
 ## Step 5: Attach to subagent (if --attach specified)
+
+> Note: attaching records intent and documents usage — it does **not** restrict the skill to that subagent. `# skills:` is a documentary YAML comment; any subagent with `skill: allow` can invoke any installed skill. (See `.opencode/agents/docs/project-setup/subagent-creation.md` → "Skills Assignment".)
 
 **Only for project-scoped installs with `--attach <role>`**:
 

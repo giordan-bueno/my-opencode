@@ -1,6 +1,5 @@
 ---
 description: Pause the current task and update its progress file status. Usage: /pause-task <project-name> <reason>
-agent: build
 ---
 
 Pausing the current task. The task's progress file will be marked as paused and the PROGRESS.md pointer will be reset.

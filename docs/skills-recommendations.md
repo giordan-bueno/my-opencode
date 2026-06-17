@@ -4,6 +4,8 @@ This document describes how to discover, evaluate, and install skills from the [
 
 ## How to Discover Skills
 
+> **Agents use the CLI; humans use the website.** The `https://www.skills.sh/?q=` search page (Method 1) renders results in-browser via JavaScript, so an *agent* fetching that URL gets nothing back. When the agent discovers skills it must use `npx skills find <keyword>` (Method 2) — the official CLI over the **same** skills.sh catalog (it prints each skill's `skills.sh` link). The `?q=` URLs are for **you** to open in a real browser.
+
 ### Method 1: Search skills.sh by keyword
 
 Browse to [https://www.skills.sh/?q=<keyword>](https://www.skills.sh/) replacing `<keyword>` with the relevant search term. Examples:

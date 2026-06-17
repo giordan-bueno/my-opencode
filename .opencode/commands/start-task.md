@@ -7,7 +7,7 @@ Starting a new task on an existing project. Here are the details:
 - **Project name**: $1
 - **Task folder name**: $2
 
-> **Run this while the `@${1}_coordinator` agent is active.** The coordinator is a **primary** agent (press Tab and switch to it before running this command). The *active primary* executes this command and orchestrates the task directly — it delegates individual subtasks to worker subagents (`@${1}_coder`, `@${1}_tester`, `@${1}_reviewer`) at **depth 1**. **No subagent invokes another subagent.** Driving from the coordinator-primary (Balanced tier) instead of `build` keeps token cost low; if you run it from `build`, `build` will orchestrate at higher cost but identically.
+> **Run this with the `@${1}_coordinator` agent active.** It is a **primary** agent — that is what lets it pause to ask you questions and hold the human approval gates; switch to it however your client does. The active primary executes this command and orchestrates the task directly — it delegates individual subtasks to worker subagents (`@${1}_coder`, `@${1}_tester`, `@${1}_reviewer`) at **depth 1**. **No subagent invokes another subagent.** Driving from the coordinator (Balanced tier) keeps token cost low **and** loads the coordinator's prompt guardrails (Hard Rules, single-writer, spec/completion gates). You *can* run it from `build`, but `build` does **not** load those guardrails — it would orchestrate at higher cost and without the coordinator's built-in rules. Prefer the coordinator.
 
 Execute the following steps (you, the active primary, perform them — there is no separate coordinator subagent to invoke):
 
@@ -58,7 +58,8 @@ Check if the project's tech stack is incomplete (i.e., `docs/tech-stack.md` cont
     - Update the "Tech Discovery Status" section in `$1/AGENTS.md` to mark discovered fields as "Known"
     - **Note**: This is initial shallow discovery from dependency files only. The coordinator will perform deeper discovery during code exploration (e.g., hidden dependencies, framework-specific patterns, test config discovered by reading actual code). Do not mark fields as fully known if only inferred from dependency files — leave room for the coordinator to refine.
     - Check if the project has coding subagents (coder, tester, reviewer). If NOT (they were deferred at setup because the tech stack was unknown):
-      - This is the **expected one-time bootstrap** for a tech-deferred project — not an error. Report to the user: "Tech discovery found: [language/framework/test runner]. The coding subagents were deferred at setup; create all three now in one short sequence: `/add-subagent $1 coder`, then `/add-subagent $1 tester`, then `/add-subagent $1 reviewer` (each reads the freshly-discovered stack from `docs/tech-stack.md`). Then re-run `/start-task $1 $2` to continue." Proceeding past the spec gate requires these to exist.
+      - This is the **expected one-time bootstrap** for a tech-deferred project — not an error. Report to the user: "Tech discovery found: [language/framework/test runner]. The coding subagents were deferred at setup; create all three now in one short sequence: `/add-subagent $1 coder`, then `/add-subagent $1 tester`, then `/add-subagent $1 reviewer` (each reads the freshly-discovered stack from `docs/tech-stack.md`). Then re-run `/start-task $1 $2` to continue."
+      - **Then STOP — do not proceed to Step 2.** Do NOT create `progress-$2.md` or update the PROGRESS.md pointer yet; that avoids leaving a half-created task that the re-run would collide with. First commit only the Tech Discovery doc updates via **@git-committer** (message `docs($1): tech discovery for $2`) so they are not lost, then stop and wait for the user to create the subagents and re-run `/start-task`.
     - If coding subagents DO exist but their prompts lack tech-specific details, recommend `/add-subagent $1 <role> --update` to refresh them with the discovered information.
 7. **If no external repo exists and tech stack is still unknown**: Report to the user: "No external repo found in the task folder and the tech stack is still unknown. The coordinator will proceed with available information. Consider cloning the repo before starting, or use `/add-subagent` after discovering the tech stack during code exploration."
 8. **If no tech discovery is needed** (all fields known): Skip this step and proceed to Step 1d.
@@ -68,11 +69,11 @@ Check if the project's tech stack is incomplete (i.e., `docs/tech-stack.md` cont
 Based on the tech stack (either known from PDFs or discovered in Step 1c), search the skills.sh ecosystem for relevant skills:
 
 1. **Check which skills are already installed** — read `$1/AGENTS.md` → "Installed Skills" section, and the global `.agents/skills/` directory
-2. **Search skills.sh for relevant skills** using the discovered tech stack keywords:
-   - Search by language: `https://www.skills.sh/?q=<language>` (e.g., `?q=python`, `?q=rust`, `?q=go`)
-   - Search by framework: `https://www.skills.sh/?q=<framework>` (e.g., `?q=react`, `?q=django`, `?q=nextjs`)
-   - Search by task type: `https://www.skills.sh/?q=tdd`, `?q=debugging`, `?q=testing`, `?q=verification`
-   - Also try CLI search if available: `npx skills find <keyword>`
+2. **Search skills.sh for relevant skills** using the discovered tech stack keywords. **Use the `npx skills find <keyword>` CLI** — it queries the same skills.sh catalog as the website and prints each skill's name, install count, and `skills.sh` link. Use the CLI rather than the `https://www.skills.sh/?q=` URL: that web search renders results in-browser via JavaScript, so fetching it returns nothing.
+   - By language: `npx skills find <language>` (e.g., python, rust, go)
+   - By framework: `npx skills find <framework>` (e.g., react, django, nextjs)
+   - By task type: `npx skills find tdd` (also debugging, testing, verification)
+   - (Each result includes a `skills.sh/<owner>/<repo>/<skill>` link — open it in a real browser for the full page.)
    - Read `docs/skills-recommendations.md` for search methodology and role-based keyword suggestions
 3. **Evaluate search results**: Prefer skills with 1K+ installs, security audit passes, and reputable sources. Read the skill description to verify relevance.
 4. **Filter out already-installed skills** (both global and project-scoped)
@@ -143,7 +144,15 @@ Perform the following in sequence. (The full orchestration playbook lives in the
 
    After the coder completes the "Explore codebase" subtask, read the Code Exploration section in `docs/design-$2.md` and revise the subtask list in the progress file if the exploration suggests changes (e.g., splitting subtasks, adding steps, reordering).
 
-### 2b. Spec review gate
+### 2b. Commit task setup files
+
+Delegate to the **@git-committer** subagent (depth 1) right after creating the progress file above and **before** presenting the spec below:
+- Commit `$1/PROGRESS.md` and `$1/progress-$2.md` to the main workspace repository.
+- **Also commit any files modified during Step 1c (Tech Discovery)** if it ran (typically `$1/docs/tech-stack.md`, `$1/docs/testing.md`, `$1/docs/standards.md`, and the `$1/AGENTS.md` Tech Discovery Status section) — use `git status` to detect them.
+- **Do NOT commit `$1/docs/design-$2.md` yet** — it stays a draft until the user approves the spec (committed in 2d).
+- Commit message: `docs($1): start task $2 — progress file` (or `docs($1): start task $2 — progress file and tech discovery` if Tech Discovery also ran).
+
+### 2c. Spec review gate
 - Read `$1/docs/requirements.md` — if it doesn't exist or is empty, STOP and report that requirements must be created first (@project-setup should have created this)
 - **If a task prompt was provided**: Extract task-specific requirements from it and add them to the design. Continue R<n> numbering from the project requirements (e.g., if project has R1-R5, task-specific requirements start at R6). Add a "Task Context" section to design summarizing the task prompt, and a "Task-Specific Requirements" section listing the new R<n> IDs.
 - Create `$1/docs/design-$2.md` for this task (approach, files to modify, R<n> coverage, alternatives, risks). The design file is named per-task (e.g., `docs/design-fix-auth-bug.md`) so it is never overwritten by other tasks. See `.opencode/agents/docs/project-setup/sdd-reference.md` for the design format.
@@ -157,7 +166,7 @@ Perform the following in sequence. (The full orchestration playbook lives in the
 - If the user approves → set `Spec Status: approved` in PROGRESS.md header, begin subtask routing
 - If the user requests changes → set `Spec Status: changes_requested`, report what needs changing, wait for user guidance
 
-### 2c. Route subtasks
+### 2d. Route subtasks
 - After spec approval, begin routing the first subtask to the appropriate project subagent
 - **After spec approval, commit the design file**: Delegate to **@git-committer** to commit `$1/docs/design-$2.md` to the main workspace repository with message: `docs($1): spec approved for task $2 — design`
 - After each subagent completes, update `$1/progress-$2.md` with results and move to the next subtask
@@ -165,12 +174,4 @@ Perform the following in sequence. (The full orchestration playbook lives in the
 
 See `.opencode/agents/docs/project-setup/sdd-reference.md` for the SDD process, EARS syntax, and traceability rules.
 
-## Step 3: Commit task setup files (in sequence, right after Step 2a)
-
-You (the active primary) own the entire Step 2 sequence, so you perform this commit at its natural point — **after creating the progress file in Step 2a and before presenting the spec in Step 2b.** This is now a simple in-order action, not a separate process racing against a subagent. Delegate to the **@git-committer** subagent (depth 1) with these instructions:
-- Commit `$1/PROGRESS.md`, `$1/progress-$2.md` to the main workspace repository
-- **Also commit any files modified during Step 1c (Tech Discovery)** if Tech Discovery ran and updated files. These typically include: `$1/docs/tech-stack.md`, `$1/docs/testing.md`, `$1/docs/standards.md`, and `$1/AGENTS.md` (Tech Discovery Status section). Use `git status` from the @git-committer subagent to detect modified files in the project folder.
-- **Do NOT commit `$1/docs/design-$2.md` yet** — the design file is a draft until the user approves the spec. It will be committed separately after spec approval.
-- Use commit message: `docs($1): start task $2 — progress file` (or if Tech Discovery also ran: `docs($1): start task $2 — progress file and tech discovery`)
-
-Note: This commit captures the progress file and any Tech Discovery findings before coding begins. The design file will be committed separately after spec review is approved. If the spec review results in changes to the design, the updated design will be committed at that point.
+*(Task setup is committed in 2b, before the spec gate; the per-task design is committed in 2d after approval.)*

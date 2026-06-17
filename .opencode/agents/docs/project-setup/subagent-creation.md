@@ -97,13 +97,15 @@ For each identified subagent:
 
 Subagents can invoke OpenCode skills during task execution. Skills come from two sources:
 
-1. **Custom skills** (in `.agents/skills/`): Written for this workspace, e.g., `git-commit`
+1. **Bundled skills** (in `.agents/skills/`): installed into the workspace and tracked in git, e.g., `git-commit` (from the `awesome-copilot` source). Available to every project.
 2. **skills.sh ecosystem** (installed via `/add-skill`): Community skills from [skills.sh](https://www.skills.sh/), e.g., `tdd`, `systematic-debugging`, framework-specific best practices
 
 Skills are declared in two places:
 
 1. **Frontmatter `# skills:` comment** — Documents which skills the subagent is expected to use. Left empty by default; add skill names when a specific subagent needs them (e.g., `# skills: git-commit` for a coder that should commit its work).
 2. **Prompt `## Skills` section** — Describes when and how to use each skill. Left as "None assigned" by default; add entries when a skill is assigned.
+
+> **Important — `# skills:` is documentary, not enforced.** It is a YAML *comment*: OpenCode does not parse it, and there is no per-agent skill allowlist. Any subagent with `skill: allow` can invoke **any** installed skill. So "attaching" a skill to one role (via `/add-skill --attach`) records *intent* and documents usage — it does **not** technically prevent other subagents from using that skill. Use the `skill: allow` / `skill: deny` permission to actually gate access (e.g., the reviewer has `skill: deny`).
 
 ### Which subagents get skills?
 
@@ -122,7 +124,7 @@ Skills are declared in two places:
 
 Subagents can also use skills from the [skills.sh](https://www.skills.sh/) ecosystem. These are reusable instruction packs installed via the `/add-skill` command. When a skill from skills.sh is relevant to a subagent's role (based on the project's tech stack), it should be discovered and installed via dynamic search.
 
-**Discovering skills**: Do NOT rely on static recommendation lists — skills.sh is constantly updated. Instead, search dynamically:
+**Discovering skills**: Do NOT rely on static recommendation lists — skills.sh is constantly updated. Instead, search dynamically. **An agent must use the `npx skills find <keyword>` CLI** — it returns the same catalog as the website (with each skill's `skills.sh` link). The `https://www.skills.sh/?q=` URLs below render results in-browser via JavaScript (not machine-readable), so they are for a human to open in a real browser:
 
 1. **Search by language**: `https://www.skills.sh/?q=python`, `?q=rust`, `?q=go`, `?q=typescript`, etc.
 2. **Search by framework**: `https://www.skills.sh/?q=react`, `?q=django`, `?q=nextjs`, `?q=fastapi`, etc.
@@ -156,6 +158,8 @@ The coordinator decides whether a skill is needed on a per-task basis by reading
 ## Naming Convention
 
 Use underscore pattern: `<project>_<role>.md`
+
+**Prefer underscores (not hyphens) in the project folder name itself**, so the combined agent id `<project>_<role>` stays unambiguous (e.g., `auth_service_coder`, not `auth-service_coder`). Sample names in the docs that use a hyphen (like `project-x`) are illustrative only.
 
 **Important**: When creating subagent files, replace all `<project>` and `<project-name>` placeholders in the template with the actual project name. Subagent prompts reference `<project>/PROGRESS.md`, `<project>/docs/subtasks.md`, etc. — these must use the real project folder name, not the placeholder.
 
