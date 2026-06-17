@@ -44,12 +44,14 @@ Subagents use models from 4 tiers. The `model:` field in frontmatter is the prim
 | Subagent | Tier | Primary | Skills |
 |----------|------|---------|-------|
 | @pdf-cleaner | Fast | `opencode-go/deepseek-v4-flash` | None |
-| @git-committer | Balanced | `opencode-go/qwen3.7-plus` | None |
+| @git-committer | Balanced | `opencode-go/qwen3.7-plus` | git-commit |
 | @project-setup | Reasoning | `opencode-go/glm-5.1` | None |
-| @\<project\>_coordinator | Balanced | `opencode-go/qwen3.7-plus` | Varies per task |
+| @\<project\>_coordinator **(primary)** | Balanced | `opencode-go/qwen3.7-plus` | Varies per task |
 | @\<project\>_coder | Coding | `opencode-go/kimi-k2.6` | Varies per task |
 | @\<project\>_tester | Coding | `opencode-go/kimi-k2.6` | Varies per task |
 | @\<project\>_reviewer | Reasoning | `opencode-go/glm-5.1` | None |
+
+> **The coordinator is a `mode: primary` agent**, not a subagent — you switch to it (Tab) to drive a task. It is the only agent with `task: allow`; every worker subagent has `task: deny` (no subagent invokes another subagent). Running orchestration on the Balanced coordinator instead of the `build` primary is the main token-saving lever in this workspace.
 
 ## Setup for Free Tier Fallbacks
 

@@ -12,6 +12,8 @@ Every subagent prompt should include:
 
 ## Progress Tracking
 
+**You are the single writer for your own subtask's status and handoff.** Mark your subtask, write your structured handoff fields, and update the Context Summary yourself *before returning* to the coordinator. The coordinator **verifies** your entries but does not overwrite them — so if you don't write them, the information is lost and the next subagent flies blind.
+
 Every subagent MUST:
 1. **Before starting work**: Read `<project>/PROGRESS.md` to find the `Active Task` and `Task Folder` — this tells you which task to work on and where files live. Then read `<project>/progress-<task-name>.md` — start with the **Context Summary** at the top for a quick orientation, then scroll to your assigned subtask.
 2. **If a task prompt exists**: Read `<task-folder>/task-prompt.md` for task-specific context and requirements. This is the outlier.ai task prompt containing instructions unique to this task.
@@ -101,9 +103,10 @@ permission:
   glob: [allow/deny based on role]
   grep: [allow/deny based on role]
   skill: [allow/deny based on role]
+  task: deny
 ---
 
-You are a [role] specialist for the [project-name] project.
+You are a [role] specialist for the [project-name] project. You are a **worker subagent**: do your assigned subtask and return to the primary coordinator. You never invoke another subagent (you have no `task` permission).
 
 ## Project Context
 Read `<project>/AGENTS.md` for project rules, context, and available subagents before starting any work.
@@ -180,9 +183,13 @@ When a skill is installed and attached to a subagent:
 
 ## Permission Guidelines
 
-- **Coding subagents**: `edit: allow`, `bash: allow`, `glob: allow`, `grep: allow`, `skill: allow` (need to write code, run tests, and may use skills like git-commit)
-- **User-help subagents**: `edit: deny`, `bash: deny`, `glob: allow`, `grep: allow`, `skill: deny` (read-only assistance, but may need to search files)
-- **Testing subagents**: `edit: allow`, `bash: allow`, `glob: allow`, `grep: allow`, `skill: allow` (need to run tests, may commit results)
-- **Setup subagents**: `edit: allow`, `bash: allow`, `glob: allow`, `grep: allow`, `skill: allow` (need to configure environment, may use skills)
-- **Review subagents**: `edit: allow` (may edit progress files only), `bash: allow`, `glob: allow`, `grep: allow`, `skill: deny` (read code, run linters, search files — should NOT invoke skills that modify state)
-- **Coordinator subagents**: `edit: allow`, `bash: allow`, `glob: allow`, `grep: allow`, `skill: allow`, `task: allow` (route to subagents, manage progress, may invoke skills for setup tasks)
+> **Two rules that apply everywhere:**
+> - `read`, `glob`, `grep`, and `list` are read-only and effectively always available. `write` is **not** a separate OpenCode permission key — `edit: allow` already governs creating *and* modifying files.
+> - **Only the coordinator (a `mode: primary` agent) gets `task: allow`.** Every *worker* subagent gets `task: deny`, so that **no subagent ever invokes another subagent** (subagent→subagent delegation is unreliable in OpenCode and has no depth guard). Workers complete their subtask and return to the coordinator.
+
+- **Coding subagents** (coder): `edit: allow`, `bash: allow`, `glob: allow`, `grep: allow`, `skill: allow`, `task: deny` (write code, run builds, may use skills like git-commit)
+- **Testing subagents** (tester): `edit: allow`, `bash: allow`, `glob: allow`, `grep: allow`, `skill: allow`, `task: deny` (write and run tests, may commit results)
+- **Review subagents** (reviewer): `edit: allow` (progress files only), `bash: allow`, `glob: allow`, `grep: allow`, `skill: deny`, `task: deny` (read code, run linters, search — never modify state or delegate)
+- **User-help subagents** (navigator): `edit: deny`, `bash: deny`, `glob: allow`, `grep: allow`, `skill: deny`, `task: deny` (read-only assistance)
+- **Setup subagents**: `edit: allow`, `bash: allow`, `glob: allow`, `grep: allow`, `skill: allow`, `task: deny` (configure environment, may use skills)
+- **Coordinator** (`mode: primary`, NOT a subagent): `edit: allow`, `bash: allow`, `glob: allow`, `grep: allow`, `skill: allow`, `task: allow` — the only agent that delegates; it also holds the human approval gates. See `coordinator-template.md`.

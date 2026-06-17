@@ -2,7 +2,7 @@
 
 Use this template when creating project AGENTS.md files (~60 lines max):
 
-```markdown
+````markdown
 ## Project Context
 [2-3 sentences: what this project is, its purpose, tech stack]
 
@@ -116,7 +116,7 @@ Spec Status: pending | approved | changes_requested
 
 - **PROGRESS.md** is the single source of truth for "what task is active right now" — subagents check the `Active Task` field to know which task file to read
 - **Context Summary** gives a 5-line executive summary at the top of each progress file — subagents read this first for quick orientation before diving into subtask details
-- **Structured Handoff** fields (Modified, Covers, Key decisions, For next subagent) ensure critical information flows between subagents — the coordinator updates these after each subtask completion
+- **Structured Handoff** fields (Modified, Covers, Key decisions, For next subagent) ensure critical information flows between subagents — the **worker subagent** writes these when it finishes its subtask; the coordinator verifies them (single-writer rule)
 - **Handoff Notes** accumulate environment-level discoveries across the entire task — any subagent can add entries about env vars, test baselines, reusable patterns, or warnings
 - **progress-<task-name>.md** contains the detailed subtask list, context notes, and status for one specific task
 - Each task gets its own progress file — no data movement between sections, no History to manage
@@ -137,8 +137,8 @@ Spec Status: pending | approved | changes_requested
 
 ## Project Subagents
 
-- **@<project>_coordinator** - Routes tasks to subagents, manages PROGRESS.md, handles completion gate (tier: balanced)
-- **@<project>_coder** - Implements code changes (tier: coding)
+- **@<project>_coordinator** - **Primary** orchestrator (`mode: primary`, tier: balanced) — switch to it (Tab) to drive a task; holds the spec/completion gates, manages PROGRESS.md, delegates to workers at depth 1
+- **@<project>_coder** - Implements code changes (worker subagent, tier: coding)
   - Routes to: implementation subtasks
 - **@<project>_tester** - Writes and runs tests tracing R<n> IDs (tier: coding)
   - Routes to: test writing subtasks
@@ -186,7 +186,7 @@ Skills from [skills.sh](https://www.skills.sh/) extend subagent capabilities wit
 - Subtask template: `docs/subtasks.md`
 - Verification criteria: `docs/verification.md`
 - [Other project-specific docs]
-```
+````
 
 ## Key Principles
 

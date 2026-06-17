@@ -238,67 +238,10 @@ The coordinator **never marks a task complete automatically** — it always wait
 
 ## Good Example: Paused Task
 
-When a task is paused (e.g., outlier task expired), its progress file changes status:
-
-**PROGRESS.md** (pointer resets):
-```markdown
-# Progress Tracker — project-x
-
----
-Active Task: <none>
-Task Folder: <none>
-Spec Status: <none>
----
-```
-
-**progress-fix-auth-bug.md** (status changes to paused):
-```markdown
-# Task: fix-auth-bug
-
----
-Status: [PAUSED: task expired on outlier]
-Created: 2026-06-11
-Design: docs/design-fix-auth-bug.md
-Task Prompt: fix-auth-bug/task-prompt.md
-Spec Status: approved
----
-
-## Context Summary
-- Completed: Clone repo (R1), Identify issue (R2) — bug at src/auth/validator.ts:42
-- Current: Implement fix (R3,R5) — blocked on @company/auth-lib API
-- Next: Run tests → Verify
-- Key files: src/auth/validator.ts, src/errors/handler.ts
-- Blocker: Need clarification on empty string vs null handling
-
-- [x] 1. Clone & navigate — @project-x_coder
-  - Modified: .gitmodules, fix-auth-bug/external-repo/
-  - Covers: R1
-  - Key decisions: Cloned specific branch fix-auth
-  - For next subagent: Repo uses npm, run npm install before any work
-- [x] 2. Identify issue — @project-x_coder
-  - Modified: docs/design-fix-auth-bug.md (Code Exploration section)
-  - Covers: R2
-  - Key decisions: Bug is null dereference in validator, not auth logic
-  - For next subagent: Auth middleware registered before session middleware in app.ts:23
-- [!] 3. Implement fix — @project-x_coder
-  - BLOCKED: auth module uses custom validator from @company/auth-lib — need clarification
-- [ ] 4. Run tests
-- [ ] 5. Verify — @project-x_reviewer: Run tests, check standards, confirm all requirements met
-
-## Handoff Notes
-- Environment: Requires JWT_SECRET in .env (discovered in src/config.ts:8)
-- Existing tests: tests/auth.test.ts (12 tests) must pass — regression baseline
-- Reuse: logAction() in src/utils/logger.ts for audit logging (R4)
-- Warning: Do NOT modify src/auth/session.ts — it handles session auth separately
-```
-
-**Key points**:
-- Paused tasks keep `[PAUSED: <reason>]` in their progress file Status field
-- All progress is preserved: `[x]` completed, `[!]` blocked, `[ ]` pending
-- **Context Summary** is preserved across pause/resume — subagents can instantly understand task state
-- **Handoff Notes** persist across the entire task lifecycle — resuming subagents benefit from prior discoveries
-- Resuming with `/resume-task` simply changes Status back to `In Progress` and updates the PROGRESS.md pointer
-- No data movement between sections — just a status field change
+A full paused-progress-file example (with `Status: [PAUSED: ...]`, preserved `[x]`/`[!]`/`[ ]` markers, Context Summary, and Handoff Notes) lives in **`.opencode/commands/pause-task.md`** — see it there rather than duplicating it. Key points:
+- Pausing only changes the per-task file's `Status` to `[PAUSED: <reason>]` and resets the PROGRESS.md pointer to `<none>` — no data moves.
+- All progress is preserved (`[x]` completed, `[!]` blocked, `[ ]` pending); Context Summary and Handoff Notes persist across pause/resume.
+- `/resume-task` changes `Status` back to `In Progress` and restores the pointer.
 
 ## Good Example: Design with Task Prompt
 

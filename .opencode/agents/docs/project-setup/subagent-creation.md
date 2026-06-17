@@ -4,14 +4,7 @@ After creating the project AGENTS.md and reference docs, analyze the PDFs to ide
 
 ## Model Selection Logic
 
-Four tiers with fallback chains. The `model:` frontmatter field uses the primary. Swap to a fallback manually if the primary is unavailable (rate-limited, down, etc.).
-
-| Tier | Primary | Fallback 1 (Go) | Fallback 2 (Zen Free) |
-|------|---------|------------------|------------------------|
-| **Fast** | `opencode-go/deepseek-v4-flash` | — | `opencode/deepseek-v4-flash-free` |
-| **Balanced** | `opencode-go/qwen3.7-plus` | `opencode-go/minimax-m3` | — |
-| **Coding** | `opencode-go/kimi-k2.6` | `opencode-go/qwen3.7-max` | — |
-| **Reasoning** | `opencode-go/glm-5.1` | `opencode-go/mimo-v2.5-pro` | `opencode/mimo-v2.5-free` |
+Four tiers with fallback chains. The `model:` frontmatter field uses the primary; swap to a fallback manually if the primary is unavailable. **The canonical tier → model/fallback table lives in `docs/model-strategy.md`** — don't duplicate the model IDs here. This section only covers *which tier to choose* for a given role.
 
 **Fast tier** (`opencode-go/deepseek-v4-flash`) for:
 - Keywords: "user assistance", "checklist", "explanation", "guidance", "website", "outlier.ai", "documentation"
@@ -43,7 +36,7 @@ Four tiers with fallback chains. The `model:` frontmatter field uses the primary
 When analyzing the PDFs, look for these common patterns:
 
 **Always propose**:
-- **Coordinator** (`<project>_coordinator`) — orchestrates all other subagents, manages PROGRESS.md, handles routing. Tier: balanced. See `coordinator-template.md`.
+- **Coordinator** (`<project>_coordinator`) — a **primary** agent (`mode: primary`, NOT a subagent) that orchestrates all other (worker) subagents, manages PROGRESS.md, holds the human approval gates, and routes subtasks at **depth 1**. The user switches to it (Tab) to drive a task. Tier: balanced. See `coordinator-template.md`.
 
 **Propose for coding projects**:
 - **Coder** (`<project>_coder`) — implements code changes, explores codebase before implementation. Tier: coding. Reads `docs/requirements.md` (R<n> IDs), `docs/design-<task-name>.md` (technical approach, Code Exploration section), and the actual codebase before implementing. Also responsible for the "Explore codebase" subtask that discovers hidden dependencies, existing tests, and code-driven test needs. See `.opencode/agents/docs/project-setup/coder-template.md` for the structural template — it defines mandatory sections (Hard Rules, SDD Awareness, Code Exploration, structured handoff) and a placeholder `## Project-Specific Coding Rules` section that @project-setup fills in based on the project's PDFs, `docs/tech-stack.md`, and `docs/standards.md`.
@@ -59,7 +52,7 @@ When analyzing the PDFs, look for these common patterns:
 
 When the project PDFs do not specify a tech stack (language, framework, test runner), coding subagents (coder, tester, reviewer) cannot be fully configured. In this case:
 
-1. **During project setup**: Propose only the coordinator subagent. Tell the user: "The PDFs don't specify a tech stack. I'll create the coordinator now. After the first task discovers the tech stack from the repo, use `/add-subagent` to create coding subagents with the discovered information."
+1. **During project setup**: Propose only the coordinator agent (a **primary** agent). Tell the user: "The PDFs don't specify a tech stack. I'll create the coordinator now. After the first task discovers the tech stack from the repo, use `/add-subagent` to create coding subagents with the discovered information."
 2. **During the first task** (`/start-task`): If a cloned repo exists in the task folder, the coordinator performs tech discovery by inspecting the repo's dependency files (package.json, requirements.txt, Cargo.toml, go.mod, pom.xml, etc.) and the task prompt. If new tech stack info is discovered:
    - Update `docs/tech-stack.md`, `docs/testing.md`, and `docs/standards.md` with the discovered information
    - Update the "Tech Discovery Status" section in `<project>/AGENTS.md`
@@ -122,6 +115,8 @@ Skills are declared in two places:
 | Reviewer | `deny` | None — reviewers read and report, never modify state |
 | Navigator | `deny` | None — read-only assistance |
 | Setup specialist | `allow` | `git-commit` (if tasks require committing configs) |
+
+**Task (delegation) permission**: Only the **coordinator** — which is a `mode: primary` agent, not a subagent — gets `task: allow`. Every *worker* subagent (coder, tester, reviewer, navigator, setup) gets `task: deny`, so **no subagent ever invokes another subagent**. The coordinator is the single point of delegation, and it delegates only to depth-1 workers.
 
 ### skills.sh Integration
 

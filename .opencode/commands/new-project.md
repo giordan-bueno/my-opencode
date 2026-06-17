@@ -48,7 +48,7 @@ After Step 2 completes successfully, delegate to the **@project-setup** subagent
 - The AGENTS.md should include: Project Context, Decision Rules, Core Behaviors, Autonomy Levels, Workspace Structure, Workflows, Progress Tracking section, User vs AI Responsibilities, and Reference pointers to the docs/ folder
 - Follow the principle: "AGENTS.md is a routing layer, not an encyclopedia"
 - **After creating AGENTS.md**, analyze the PDFs to identify distinct task types that warrant dedicated subagents
-- **Always propose a coordinator subagent** (`$1_coordinator`) that orchestrates the other subagents and manages PROGRESS.md
+- **Always propose a coordinator agent** (`$1_coordinator`) — created as a **primary** agent (`mode: primary`), NOT a subagent — that orchestrates the other (worker) subagents, holds the human approval gates, and manages PROGRESS.md. The user switches to it (Tab) to drive tasks; it delegates to workers at depth 1, and no subagent delegates further.
 - **Always propose a tester subagent** (`$1_tester`) for projects that involve coding — the tester writes and runs tests, tracing R<n> IDs. Tier: coding (`opencode-go/kimi-k2.6`). See `.opencode/agents/docs/project-setup/tester-template.md`
 - **Always propose a reviewer subagent** (`$1_reviewer`) for projects that involve coding — the reviewer verifies completed work, checks standards, validates R<n> traceability (reads test results, does not re-run). Tier: reasoning (`opencode-go/glm-5.1`). See `.opencode/agents/docs/project-setup/reviewer-template.md`
 - Every coding project should have at least: coordinator + coder + tester + reviewer

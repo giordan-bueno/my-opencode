@@ -73,7 +73,8 @@ Wait for explicit user approval. `y` preserves hand-tuned sections; `overwrite-a
 **If mode is create**: Propose a subagent to the user:
 
 ```
-Proposed subagent: @$1_$2
+Proposed agent: @$1_$2
+Mode: [primary if role is coordinator, otherwise subagent]
 Tier: [fast/balanced/coding/reasoning]
 Model: opencode-go/<primary>
 Fallback: opencode-go/<fallback1> [, opencode/<fallback2>]
@@ -88,7 +89,7 @@ Permissions:
   glob: [allow/deny]
   grep: [allow/deny]
   skill: [allow/deny]
-  [task: allow if coordinator, otherwise omit]
+  task: [allow ONLY if this is the coordinator (a primary agent); every worker role gets task: deny — no subagent invokes another subagent]
 
 Approve? (y/n)
 ```
@@ -106,7 +107,7 @@ Wait for explicit user approval. If rejected, stop — do not create the subagen
 
 **If mode is create**: Create `.opencode/agents/$1_$2.md` with a role-specific prompt following the template structure:
 
-- Use frontmatter with `description`, `mode: subagent`, `model`, `# tier`, `# fallback`, `# skills` (empty by default), and `permission` fields
+- Use frontmatter with `description`, `mode` (**`primary` for the coordinator role, `subagent` for every worker role**), `model`, `# tier`, `# fallback`, `# skills` (empty by default), and `permission` fields. Worker roles get `task: deny`; the coordinator gets `task: allow` (it is the only agent that delegates). `write` is not a permission key — `edit: allow` covers file creation.
 - Include a `## Project Context` section that instructs the subagent to read `$1/AGENTS.md` dynamically
 - Include a `## Skills` section that lists any assigned skills (or "None assigned" if empty)
 - Include a `## Your Responsibilities` section with role-specific tasks

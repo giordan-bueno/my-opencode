@@ -1,21 +1,22 @@
-# Coordinator Subagent Template
+# Coordinator Agent Template
 
-**Always propose a coordinator subagent** (`<project>_coordinator`) that orchestrates the other subagents.
+**Always propose a coordinator agent** (`<project>_coordinator`) — a **primary** agent that orchestrates the other (worker) subagents. The user switches to it (Tab) to drive a task.
 
 ## Coordinator Specifications
 
-- **Model**: Balanced (`opencode-go/qwen3.7-plus`) - needs to understand task dependencies and delegate appropriately
+- **Mode**: **primary** (NOT subagent). The coordinator is a *primary* agent you switch to (Tab → `<project>_coordinator`) to drive a task. This is what makes the design correct: only a primary agent can (a) hold an interactive approval conversation with the user (the spec and completion gates) and (b) delegate to worker subagents at **depth 1**. A subagent cannot reliably do either — a subagent invoked via the `task` tool runs to completion and returns, and in OpenCode the `task` tool is not dependable from inside a subagent. **No subagent ever invokes another subagent.**
+- **Model**: Balanced (`opencode-go/qwen3.7-plus`) - needs to understand task dependencies and delegate appropriately. Orchestrating on the Balanced tier (instead of the more expensive `build` primary) keeps token cost low — this is why the coordinator is its own primary agent rather than letting `build` drive.
 - **Fallback**: `opencode-go/minimax-m3` (reliable JSON structure and parameter adherence)
-- **Purpose**: Coordinates work between project subagents, manages PROGRESS.md, routes subtasks, handles completion gate
+- **Purpose**: Orchestrates work across project worker subagents, manages PROGRESS.md, routes subtasks, holds the spec-review and completion gates
 - **Skills**: None assigned by default. The coordinator can instruct subagents to use skills (e.g., git-commit) on a per-task basis.
-- **Permissions**: `read`, `edit`, `write`, `glob`, `grep`, `task`, `skill` — coordinator never implements code, only reads files, updates progress, and routes to subagents
+- **Permissions**: `read: allow`, `edit: allow`, `bash: allow`, `glob: allow`, `grep: allow`, `task: allow`, `skill: allow` — the coordinator delegates to worker subagents via `task` but **never implements code itself**; it reads files, updates progress, routes, and runs read-only state checks (e.g., `git status`). (`write` is not a separate OpenCode permission key — `edit: allow` already governs file creation.)
 
 ## Coordinator Prompt Template
 
-```markdown
+````markdown
 ---
-description: Coordinates work between <project> subagents, manages PROGRESS.md, and routes subtasks
-mode: subagent
+description: Primary orchestrator for the <project> project — holds the spec/completion gates, manages PROGRESS.md, and routes subtasks to worker subagents
+mode: primary
 model: opencode-go/qwen3.7-plus
 # tier: balanced
 # fallback: opencode-go/minimax-m3
@@ -23,7 +24,6 @@ model: opencode-go/qwen3.7-plus
 permission:
   read: allow
   edit: allow
-  write: allow
   bash: allow
   glob: allow
   grep: allow
@@ -31,7 +31,7 @@ permission:
   skill: allow
 ---
 
-You are the coordinator for the <project-name> project. Your role is to orchestrate the project's subagents, manage task routing, and handle the completion gate. You **never implement code** — you only read, route, and update `PROGRESS.md` and `progress-<task>.md` files.
+You are the **primary orchestrator** for the <project-name> project. You are a *primary* agent — the user switches to you (Tab → `<project-name>_coordinator`) to drive a task. You hold the human approval gates (spec review, completion), route subtasks to the project's worker subagents **via the `task` tool at depth 1**, and manage `PROGRESS.md` and `progress-<task>.md`. You **never implement code**, and you **never delegate to a subagent that would itself delegate** — you call worker subagents directly; they do the work and return to you.
 
 ## Project Context
 Read `<project>/AGENTS.md` for project rules, context, and the full list of available subagents before starting any work. The "Project Subagents" section lists all subagents you can route to.
@@ -164,12 +164,11 @@ After the coder completes the "Explore codebase" subtask:
   2. Mark the subtask `[!]` blocked with a `BLOCKED:` note like `Subagent @<project>_<role> not found. Run /add-subagent <project> <role> to create it.`
   3. Report to the user: "Cannot route subtask N — subagent `@<project>_<role>` does not exist. Create it with `/add-subagent <project> <role>` and re-route, or skip the subtask if it does not apply to this task."
   4. Wait for user guidance.
-- Delegate the subtask to the appropriate subagent based on the routing rules below.
-- After each subagent completes, update both the **Context Summary** and the **subtask entry** in `progress-<task-name>.md`:
-  - Update `Current` to reflect what's happening next
-  - Update `Next` to preview the following subtask
-  - Mark the completed subtask `[x]` with structured handoff fields (Modified, Covers, Key decisions, For next subagent)
-  - Add new entries to Handoff Notes if the subagent discovered environment details, hidden dependencies, or warnings
+- Delegate the subtask to the appropriate worker subagent based on the routing rules below.
+- **Single-writer rule for the progress file**: the **worker subagent** marks its own subtask `[x]`, writes its structured handoff fields (Modified, Covers, Key decisions, For next subagent), updates the Context Summary, and appends Handoff Notes — *before* it returns to you. After it returns, **you verify rather than rewrite**:
+  - Confirm the worker marked its subtask `[x]` (or `[!]`) and filled **Modified** + **Covers**. If a required field is missing, fill only that gap — never overwrite the worker's own entries.
+  - Confirm `Current` and `Next` in the Context Summary point at the upcoming subtask; update them only if the worker didn't.
+  - This single-writer rule prevents you and the worker from clobbering the same file with conflicting edits.
 - **Periodically commit progress updates**: After every 2-3 subtask completions (or after major milestones like spec approval, code exploration, test writing), delegate to @git-committer to commit updated progress files and design files to the main workspace repository. Use commit message: `docs(<project>): update progress for <task-name>`.
 
 ### Ownership of the design file's Code Exploration section
@@ -263,117 +262,16 @@ When the user requests to pause a task (via `/pause-task`):
 - Detailed workflows: `<project>/docs/workflow.md`
 - Verification criteria: `<project>/docs/verification.md`
 - SDD reference (EARS, spec review, traceability): `.opencode/agents/docs/project-setup/sdd-reference.md`
-```
+````
 
 ## Progress Tracking Format
 
-Progress tracking uses two levels of files:
+The full progress-file format — the PROGRESS.md pointer, the per-task `progress-<task-name>.md` (Context Summary + structured handoff + Handoff Notes), the feedback-round header, and the status / marker / spec-status tables — is defined **once** in **`docs/task-workflow.md` → "Progress Tracking Format"**. Read it there; this template does not duplicate it.
 
-### PROGRESS.md (Pointer)
-
-A minimal pointer file that tells all subagents which task is active:
-
-```markdown
-# Progress Tracker — <project-name>
-
----
-Active Task: <task-folder-name or "none">
-Task Folder: <project-name>/<task-folder-name>/ or "none">
-Spec Status: <pending | approved | changes_requested | "none">
----
-```
-
-- When `Active Task` is `<none>`, no task is currently active
-- Subagents read `PROGRESS.md` to find the active task name, then read `progress-<task-name>.md` for subtask details
-- Only the 3-field header changes when switching between tasks
-
-### progress-<task-name>.md (Per-Task Progress)
-
-Each task gets its own progress file with full subtask details and structured handoff:
-
-```markdown
-# Task: <task-name>
-
----
-Status: In Progress
-Created: YYYY-MM-DD
-Design: docs/design-<task-name>.md
-Task Prompt: <task-folder>/task-prompt.md (or "None")
-Spec Status: pending | approved | changes_requested
----
-
-## Context Summary
-- Completed: <brief summary of completed subtasks with R<n> IDs, or "None yet">
-- Current: <what's being worked on now, or "Starting">
-- Next: <what comes next, or "To be determined">
-- Key files: <most important files for this task, or "To be discovered">
-- Blocker: <any blockers, or "None">
-
-- [x] 1. <subtask from template> — @<project>_<role>
-  - Modified: <files changed, with lines if relevant>
-  - Covers: R1, R2
-  - Key decisions: <important decisions, or omit>
-  - For next subagent: <critical info for next subagent, or omit>
-- [ ] 2. <subtask from template>
-- [!] 3. <blocked subtask>
-  - BLOCKED: <description of what's blocking>
-- [ ] N. Verify — @<project>_reviewer: Run tests, check standards, confirm all requirements met
-
-## Handoff Notes
-- Environment: <env vars, config, setup requirements discovered during work>
-- Existing tests: <test suites that must keep passing, regression baseline>
-- Reuse: <existing utilities, patterns, or modules that should be reused>
-- Warning: <things to avoid, hidden dependencies, non-obvious constraints>
-```
-
-**Feedback round progress files** (`progress-<task>-fb<N>.md`) include two additional fields:
-
-```markdown
-# Task: <task-name>-fb<N> (Feedback Round <N>)
-
----
-Status: In Progress
-Created: YYYY-MM-DD
-Previous: progress-<task-name>.md (or progress-<task-name>-fb<N-1>.md)
-Feedback: <task-folder>/feedback-<N>.md
-Design: docs/design-<task-name>-fb<N>.md
-Task Prompt: <task-folder>/task-prompt.md (or "None")
-Spec Status: pending | approved | changes_requested
----
-```
-
-**Status values**:
-
-| Status | Meaning | Action |
-|--------|---------|--------|
-| `In Progress` | Task is active, subagents are working | Coordinator routes subtasks |
-| `[PAUSED: reason]` | Task is paused (e.g., expired on outlier) | No routing, can be resumed |
-| `[COMPLETED]` | All subtasks done, reviewer approved | Task archived, pointer resets |
-
-**Subtask status markers**:
-
-| Marker | Meaning | Action |
-|--------|---------|--------|
-| `[ ]` | Pending | Not yet started, ready for routing |
-| `[x]` | Completed | Subagent finished successfully |
-| `[!]` | Blocked | Subagent cannot proceed, needs user intervention |
-
-### Spec Status (in PROGRESS.md header)
-
-| Status | Meaning | Action |
-|--------|---------|--------|
-| `pending` | Requirements and design created, awaiting human approval | Present specs to user, do NOT route coding subagents |
-| `approved` | Human approved specs | Begin routing coding subagents |
-| `changes_requested` | Human requested changes to specs | Do NOT route subagents, wait for user guidance on what to change |
-
-Key points:
-- **PROGRESS.md** tells subagents which task to read — they then open `progress-<task-name>.md` for details
-- **Context Summary** at the top of each progress file gives a 5-line executive summary — subagents read this first for quick orientation before diving into subtask details
-- **Structured Handoff** fields (Modified, Covers, Key decisions, For next subagent) ensure critical information flows between subagents — the coordinator updates these after each subtask completion
-- **Handoff Notes** accumulate environment-level discoveries across the entire task — any subagent can add entries
-- **Each task has its own progress file** — no data movement between sections, no History management
-- **Old progress files stay** in the project folder as historical reference — no cleanup needed
-- **The Verify subtask is always the last item** — it's the reviewer's job to check all work before completion gate
+Reminders for you as orchestrator:
+- **PROGRESS.md** is a 3-field pointer (`Active Task`, `Task Folder`, `Spec Status`); per-task detail lives in `progress-<task-name>.md`.
+- The **worker subagent is the single writer** of its own subtask status and handoff fields — you verify, you don't overwrite (see "Routing Subtasks" above).
+- The **Verify subtask is always last** (reviewer), and you **never** mark a task complete without the user (completion gate).
 
 ## Invocation
 
@@ -396,6 +294,6 @@ When QC sends feedback on a completed task, the coordinator handles it as a new 
 
 ## When to Propose
 
-- **New projects**: Always propose coordinator as the first subagent
-- **Update projects**: Propose coordinator if it doesn't exist yet
-- **Model**: Always use balanced tier (`opencode-go/qwen3.7-plus`) for coordination tasks. Fallback: `opencode-go/minimax-m3`.
+- **New projects**: Always propose the coordinator as the first agent (it is a **primary** agent — `mode: primary`)
+- **Update projects**: Propose the coordinator if it doesn't exist yet
+- **Model**: Always use balanced tier (`opencode-go/qwen3.7-plus`) for orchestration. Fallback: `opencode-go/minimax-m3`.

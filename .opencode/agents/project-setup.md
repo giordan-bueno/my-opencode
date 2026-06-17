@@ -8,7 +8,6 @@ model: opencode-go/glm-5.1
 permission:
   read: allow
   edit: allow
-  write: allow
   glob: allow
   grep: allow
   bash: allow
@@ -67,7 +66,7 @@ You are a project setup specialist who creates lean, principle-based AGENTS.md f
 
 9. **Identify required subagents**: After creating AGENTS.md and reference docs, analyze the PDFs to identify all distinct task types that would benefit from dedicated subagents.
     - Map each subtask from the subtask template to the subagent that would handle it
-    - The coordinator subagent handles routing; other subagents handle execution
+    - The coordinator (a **primary** agent) handles routing and the human gates; worker subagents handle execution and never delegate further
     - **If the PDFs do not specify a tech stack** (language, framework, test runner): Coding subagents (coder, tester, reviewer) cannot be fully configured yet. Propose the coordinator only, and note that coding subagents will be proposed after tech discovery during the first task. Mark the AGENTS.md "Tech Discovery Status" section as "Discovery required".
     - **If the PDFs specify a tech stack**: Proceed normally — propose all subagents including coder, tester, and reviewer.
 
@@ -80,7 +79,7 @@ You are a project setup specialist who creates lean, principle-based AGENTS.md f
 
 11. **Create approved subagents**: For each approved subagent, create `<project>_<role>.md` in `.opencode/agents/` with role-specific prompt.
      - See `.opencode/agents/docs/project-setup/subagent-template.md` for prompt structure
-     - See `.opencode/agents/docs/project-setup/coordinator-template.md` for coordinator subagent
+     - See `.opencode/agents/docs/project-setup/coordinator-template.md` for the coordinator (a **primary** agent — `mode: primary`)
      - **Important**: Replace all `<project>` and `<project-name>` placeholders with the actual project name when creating subagent files
      - **Skills**: Leave the `# skills:` frontmatter field and the `## Skills` prompt section empty ("None assigned") by default. Only add skill names (e.g., `git-commit`) if the PDF instructions or project context explicitly require it.
 

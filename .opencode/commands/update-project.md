@@ -58,7 +58,7 @@ After Step 2 completes successfully, delegate to the **@project-setup** subagent
   - If coding subagents already exist but were created without the discovered tech details, recommend: "Run `/add-subagent $1 <role> --update` to refresh `<role>` with the discovered tech stack."
 - **Identify new subagents** needed based on new PDF content:
   - Analyze new PDFs for distinct task types not covered by existing subagents
-  - If no coordinator subagent exists (`$1_coordinator`), propose one
+  - If no coordinator agent exists (`$1_coordinator`), propose one (created as a **primary** agent — `mode: primary`)
   - For each new subagent needed (one at a time):
     - Present proposal to user with: name (`$1_<role>`), tier (fast/balanced/coding/reasoning), primary model, fallback chain, purpose, and complexity reasoning
     - Wait for explicit approval before creating

@@ -1,12 +1,13 @@
 ---
 description: Resume a paused task by restoring the pointer and updating the progress file status. Usage: /resume-task <project-name> <task-folder-name>
-agent: build
 ---
 
 Resuming a previously paused task. The PROGRESS.md pointer will be set to the task and the progress file status will change back to In Progress.
 
 - **Project name**: $1
 - **Task folder name**: $2
+
+> **Run this while the `@${1}_coordinator` agent is active** (it is a **primary** agent — Tab to switch). The active primary resumes orchestration directly and delegates subtasks to worker subagents at **depth 1**; **no subagent invokes another subagent.**
 
 Execute the following steps:
 
@@ -40,9 +41,9 @@ Read `$1/progress-$2.md` and `$1/PROGRESS.md`, then:
    - `Next`: Update to preview the following subtask
    - `Blocker`: Set to `None` if all blockers were resolved, or keep existing blocker description if still unresolved
 
-## Step 3: Notify the user and route to coordinator
+## Step 3: Notify the user and resume orchestration
 
-After restoring the task:
+After restoring the task (you are the active primary — the `@${1}_coordinator` agent — resuming the task directly):
 
 1. Report to the user:
    > "Resumed task '$2'. Status changed from Paused to In Progress.
@@ -54,7 +55,7 @@ After restoring the task:
 2. If there are `[!]` blocked subtasks in the progress file, remind the user:
    > "This task has blocked subtasks. Resolve the blockers before continuing, or start a different task with `/start-task` and come back to this one later."
 
-3. Delegate to the **@${1}_coordinator** subagent with these instructions:
+3. As the active primary (`@${1}_coordinator`), resume orchestration directly:
    - Project: $1
    - Task: $2 (resumed)
    - Read `$1/PROGRESS.md` — the pointer has been updated to this task

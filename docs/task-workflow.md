@@ -2,6 +2,10 @@
 
 This workspace uses **Spec-Driven Development (SDD)**: requirements and design must be approved by the human before any code is written. Every requirement gets a stable `R<n>` ID that traces through design → subtasks → code → review. See `.opencode/agents/docs/project-setup/sdd-reference.md` for full details on EARS syntax, design format, and traceability rules.
 
+## Orchestration model
+
+Tasks are driven by the project's **coordinator**, which is a **primary** agent (`mode: primary`) — switch to it (Tab → `@<project>_coordinator`) and run the task commands from there. The coordinator holds the human approval gates (spec review, completion) and delegates each subtask to a **worker subagent** (`@<project>_coder`, `_tester`, `_reviewer`) at **depth 1**. **No subagent invokes another subagent** — workers complete their subtask and return to the coordinator. (The coordinator is primary precisely because a subagent cannot hold interactive approval gates and cannot reliably delegate to other subagents in OpenCode.)
+
 ## Task Lifecycle
 
 Each project has a **subtask template** (`docs/subtasks.md`) defining the ordered steps every task must follow. For coding projects, the template includes an "Explore codebase" subtask before implementation, a "Write and run tests" subtask before the Verify step, and a final Verify step. The explorer subtask (typically the coder) reads the codebase and produces a Code Exploration report that may revise the subtask list and expand the test plan.

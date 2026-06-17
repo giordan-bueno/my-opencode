@@ -51,7 +51,7 @@ When facing ambiguity:
 | `/resume-task <project> <folder>` | Restore pointer, change status back to In Progress |
 | `/feedback <project> <task-folder> <feedback-file>` | Apply QC feedback, create feedback round progress + design files |
 
-**Working on a project**: Read `<project>/AGENTS.md` for context and rules.
+**Working on a project**: Read `<project>/AGENTS.md` for context and rules. To drive a task, switch (Tab) to the project's `@<project>_coordinator` **primary** agent, then run `/start-task` — orchestration runs on the cheaper Balanced coordinator instead of the primary `build`.
 
 ## Git Workflow
 
@@ -70,11 +70,12 @@ Before any code is written, requirements and design must be approved by the huma
 **Global** (always available):
 - **@pdf-cleaner** - Cleans watermarked PDFs, creates project folders (Fast)
 - **@project-setup** - Reads PDFs, creates/updates project AGENTS.md and project subagents (Reasoning)
-- **@git-committer** - Handles commits for both main and external repos (Balanced — commits require diff analysis and conventional message generation)
+- **@git-committer** - Handles commits for both main and external repos; invokes the `git-commit` skill for staging and message generation (Balanced)
 
 **Project-specific** (dynamic, created by @project-setup per project):
-- **@<project>_coordinator** - Routes tasks to the right project subagent, reads AGENTS.md for subagent discovery (Balanced)
-- **@<project>_<role>** - Project-specific subagents (coder=Coding, tester=Coding, reviewer=Reasoning, etc.)
+- **@<project>_coordinator** - **Primary orchestrator** (`mode: primary`, Balanced). You switch to it (Tab) to drive a task; it holds the human approval gates and delegates subtasks to worker subagents at **depth 1**. Reads project AGENTS.md for routing.
+- **@<project>_<role>** - Project-specific **worker** subagents (coder=Coding, tester=Coding, reviewer=Reasoning, etc.) — `mode: subagent`, `task: deny`
+- **No subagent invokes another subagent** — only the coordinator (a primary agent) delegates; workers do their subtask and return. This is why the coordinator is primary, not a subagent.
 - Subagents read `<project>/AGENTS.md` dynamically for project context — no hardcoded project info in prompts
 - Stored in `.opencode/agents/<project>_<role>.md`, tracked in main repo
 - Add new subagents with `/add-subagent <project> <role>` without re-running full project setup

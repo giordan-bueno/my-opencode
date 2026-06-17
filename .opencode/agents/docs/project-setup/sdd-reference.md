@@ -10,6 +10,8 @@ This workspace uses an adapted SDD workflow inspired by [harness-sdd](https://gi
 
 The spec review gate approves the **draft** design based on requirements and task prompt. After approval, the coder explores the codebase and the design is revised based on findings (hidden dependencies, existing tests, code patterns). Subtasks and the test plan are then updated to reflect code-driven discoveries before implementation begins.
 
+This whole flow is driven by the project's **coordinator** — a *primary* agent you switch to (Tab → `@<project>_coordinator`). It holds the human gates and delegates each step to a worker subagent at **depth 1**; no subagent invokes another subagent. See `docs/task-workflow.md` → "Orchestration model".
+
 ## Requirements Format (docs/requirements.md)
 
 Requirements are extracted from PDFs during `/new-project`. Each gets a stable `R<n>` ID.
@@ -343,48 +345,7 @@ Spec Status: pending | approved | changes_requested
 
 ### Progress file (per-task)
 
-Each task gets its own progress file with full subtask details, context summary, and structured handoff:
-
-```markdown
-# Task: <task-name>
-
----
-Status: In Progress
-Created: YYYY-MM-DD
-Design: docs/design-<task-name>.md
-Task Prompt: <task-folder>/task-prompt.md (or "None")
-Spec Status: pending | approved | changes_requested
----
-
-## Context Summary
-- Completed: <brief summary of completed subtasks with R<n> IDs, or "None yet">
-- Current: <what's being worked on now, or "Starting">
-- Next: <what comes next, or "To be determined">
-- Key files: <most important files for this task, or "To be discovered">
-- Blocker: <any blockers, or "None">
-
-- [x] 1. <completed subtask> — @<project>_<role>
-  - Modified: <files changed, with lines if relevant>
-  - Covers: R1, R2
-  - Key decisions: <important decisions, or omit>
-  - For next subagent: <critical info for next subagent, or omit>
-- [ ] 2. <pending subtask>
-- [ ] N. Verify — @<project>_reviewer: Review test results, check R<n> traceability, verify standards, confirm all requirements met
-
-## Handoff Notes
-- Environment: <env vars, config, setup requirements discovered during work>
-- Existing tests: <test suites that must keep passing, regression baseline>
-- Reuse: <existing utilities, patterns, or modules that should be reused>
-- Warning: <things to avoid, hidden dependencies, non-obvious constraints>
-```
-
-**Context Summary** is updated by every subagent after completing work. It provides a 5-line executive summary that lets any subagent understand the task state without reading the full file.
-
-**Structured Handoff** fields (Modified, Covers, Key decisions, For next subagent) ensure critical information flows between subagents. The coordinator updates these after each subtask completion.
-
-**Handoff Notes** accumulate environment-level discoveries across the entire task. Any subagent can add entries about env vars, test baselines, reusable patterns, or warnings.
-
-Spec Status is preserved in the per-task progress files.
+Each task gets its own `progress-<task-name>.md` with a Context Summary, structured handoff fields, and Handoff Notes. The exact format is defined **once** in **`docs/task-workflow.md` → "Progress Tracking Format"** — read it there rather than duplicating it. Notes specific to SDD: `Spec Status` is preserved in the per-task progress file (the PROGRESS.md pointer's copy resets on pause), and the **worker subagent** is the single writer of its own subtask status and handoff (the coordinator verifies).
 
 ## Feedback Rounds
 

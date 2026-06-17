@@ -1,6 +1,5 @@
 ---
 description: Apply QC feedback to a completed task. Creates a new feedback round with its own progress file and design. Usage: /feedback <project-name> <task-folder-name> <feedback-file>
-agent: build
 ---
 
 Applying QC feedback to a completed task. This creates a new feedback round with its own progress file, design, and subtasks, working in the same task folder and repo.
@@ -9,13 +8,15 @@ Applying QC feedback to a completed task. This creates a new feedback round with
 - **Task folder name**: $2
 - **Feedback file**: $3 (e.g., feedback-1.md)
 
-Execute the following steps:
+> **Run this while the `@${1}_coordinator` agent is active** (it is a **primary** agent — Tab to switch). The active primary orchestrates directly and delegates subtasks to worker subagents at **depth 1**; **no subagent invokes another subagent.**
+
+Execute the following steps (you, the active primary, perform them — there is no separate coordinator subagent to invoke):
 
 ## Step 1: Verify prerequisites
 
 Before applying feedback, confirm:
 - The project folder `$1/` exists
-- The project has a coordinator subagent (`@${1}_coordinator`) defined in `.opencode/agents/`
+- The project has a coordinator agent (`@${1}_coordinator`, a **primary** agent) defined in `.opencode/agents/`
 - The task folder `$1/$2/` exists
 - The original progress file `$1/progress-$2.md` exists and its Status is `[COMPLETED]` (the task must be completed before applying feedback)
 - The feedback file `$1/$2/$3` exists in the task folder
@@ -31,19 +32,20 @@ If any prerequisite is missing, STOP and report the issue to the user with clear
 - If `progress-$2-fb1.md` exists and is completed, this is round 2 (suffix: `fb2`)
 - And so on. The suffix is always `fb<N>` where N is the next round number.
 
-## Step 2: Invoke the project coordinator
+## Step 2: Orchestrate the feedback round
 
-Delegate to the **@${1}_coordinator** subagent with these instructions:
+As the **active primary** (the `@${1}_coordinator` agent), orchestrate directly. Context:
 - Project: $1
 - Task: $2
 - Task folder: $1/$2/
 - Feedback round: fb<N> (the round number determined in Step 1)
 - Feedback file: $1/$2/$3
 
-The coordinator should perform the following in sequence:
+Perform the following in sequence:
 
 ### 2a. Create feedback progress file and update pointer
 
+- **Check for an active task first**: read `$1/PROGRESS.md`. If `Active Task` is not `<none>` and is not this feedback round, ask the user whether to pause it (`/pause-task`) before starting the feedback round. Do not silently overwrite an in-progress pointer.
 - Update `$1/PROGRESS.md` pointer:
   ```
   ---
@@ -75,7 +77,7 @@ The coordinator should perform the following in sequence:
     - Key files: To be reviewed
     - Blocker: None
 
- - [ ] 1. Explore codebase and report findings — @${1}_coder: Read relevant source files, identify changes from feedback, hidden dependencies, produce Code Exploration section in design file
+    - [ ] 1. Explore codebase and report findings — @${1}_coder: Read relevant source files, identify changes from feedback, hidden dependencies, produce Code Exploration section in design file
     - [ ] 2. <subtask derived from feedback>
     [... subtasks addressing the QC feedback]
     - [ ] N-1. Write and run tests — @${1}_tester: Write tests covering feedback R<n> IDs per Test Plan + code-driven tests from exploration. Run test suite and report results
@@ -116,16 +118,18 @@ The coordinator should perform the following in sequence:
 
 ## Step 3: Commit feedback setup files
 
-After Step 2a and 2b complete (progress file created, design file created, spec review presented to user), delegate to the **@git-committer** subagent with these instructions:
-- Commit `$1/PROGRESS.md`, `$1/progress-$2-fb<N>.md`, and `$1/docs/design-$2-fb<N>.md` to the main workspace repository
+After Step 2a completes (progress file created) and **before** presenting the spec in Step 2b, delegate to the **@git-committer** subagent (depth 1) with these instructions:
+- Commit `$1/PROGRESS.md` and `$1/progress-$2-fb<N>.md` to the main workspace repository
 - If the original progress file status changed, commit that too
+- **Do NOT commit `$1/docs/design-$2-fb<N>.md` yet** — like the original task design, the feedback design is a draft until the user approves the spec. It is committed after approval (Step 4). This matches `/start-task`'s policy exactly.
 - Use commit message: `docs($1): setup feedback round <N> for task $2`
 
-Note: This commit captures the feedback setup files before coding begins. If the spec review results in changes, those changes will be committed separately as the task progresses.
+Note: Setup files are committed before coding; the design is committed only after spec approval.
 
 ## Step 4: Route subtasks (after spec approval)
 
-- The coordinator routes subtasks based on the progress file and spec approval
+- **After spec approval, commit the feedback design file**: delegate to **@git-committer** (depth 1) to commit `$1/docs/design-$2-fb<N>.md` with message: `docs($1): spec approved for feedback round <N> — design`.
+- As the active primary, route subtasks based on the progress file and spec approval, delegating each to the appropriate worker subagent at **depth 1**
 - After each subagent completes, update `$1/progress-$2-fb<N>.md` with results and move to the next subtask
 - After the coder completes the "Explore codebase" subtask, read the Code Exploration section in `docs/design-$2-fb<N>.md` and revise the subtask list if the exploration suggests changes
 - After ALL subtasks (including Verify) are `[x]` and the reviewer approves, **report to the user for final approval** — do NOT mark the task complete automatically

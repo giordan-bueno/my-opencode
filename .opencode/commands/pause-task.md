@@ -25,9 +25,8 @@ Read `$1/PROGRESS.md` to get the active task name, then:
 
 1. Read the current `Active Task` from `$1/PROGRESS.md` (this gives you the task name, e.g., `fix-auth-bug`)
 2. Read `$1/progress-<task-name>.md` — the per-task progress file
-3. Change the `Status` field in the progress file from `In Progress` to `[PAUSED: <reason>]`
-4. Read the current `Spec Status` from the PROGRESS.md header
-5. Reset `$1/PROGRESS.md` to:
+3. Change the `Status` field in the progress file from `In Progress` to `[PAUSED: <reason>]`. **Leave the progress file's `Spec Status:` and `Spec Changes Requested:` header fields untouched** — they are preserved in the per-task file so `/resume-task` can restore the exact spec state. (Only the PROGRESS.md *pointer's* `Spec Status` is reset to `<none>` below.)
+4. Reset `$1/PROGRESS.md` to:
    ```
    ---
    Active Task: <none>
@@ -59,6 +58,7 @@ Created: 2026-06-11
 Design: docs/design-fix-auth-bug.md
 Task Prompt: fix-auth-bug/task-prompt.md
 Spec Status: approved
+Spec Changes Requested: <none>
 ---
 
 ## Context Summary

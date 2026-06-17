@@ -10,7 +10,7 @@ my-opencode/                         ← Main repo (your GitHub backup)
 │   │   ├── git-committer.md          ← Global: commit handling subagent
 │   │   ├── docs/                     ← Reference docs for subagent prompts
 │   │   │   └── project-setup/       ← Ref docs loaded on demand by @project-setup
-│   │   └── <project>_<role>.md       ← Dynamic: created per-project by @project-setup or /add-subagent
+│   │   └── <project>_<role>.md       ← Dynamic: per-project agents (coordinator = primary orchestrator; coder/tester/reviewer = worker subagents)
 │   ├── commands/                     ← Custom commands (new-project, update-project, add-subagent, start-task, pause-task, resume-task)
 │   ├── tools/                        ← Custom tools (delete-watermarks)
 │   └── package.json                  ← Plugin dependencies (OpenCode reads this)
